@@ -140,6 +140,18 @@ export default tseslint.config(
     ...tseslint.configs.disableTypeChecked,
   },
 
+  // Node CommonJS config files (metro.config.js, babel.config.js, *.cjs...).
+  {
+    files: ['**/*.config.{js,cjs}', '**/*.cjs'],
+    languageOptions: {
+      sourceType: 'commonjs',
+      globals: { ...globals.node },
+    },
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
+
   // Prettier owns formatting: disable conflicting stylistic rules (keep last).
   prettier,
 );
