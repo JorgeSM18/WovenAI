@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Woven — Daily Utility</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-blur {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .editorial-shadow {
+            box-shadow: 0 12px 40px rgba(0,0,0,0.04);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface": "#fdf8f7",
+                        "surface-dim": "#ddd9d8",
+                        "surface-bright": "#fdf8f7",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f7f3f1",
+                        "surface-container": "#f1edec",
+                        "surface-container-high": "#ece7e6",
+                        "surface-container-highest": "#e6e1e0",
+                        "on-surface": "#1c1b1b",
+                        "on-surface-variant": "#4d4540",
+                        "inverse-surface": "#313030",
+                        "inverse-on-surface": "#f4f0ef",
+                        "outline": "#7e7570",
+                        "outline-variant": "#d0c4be",
+                        "surface-tint": "#625d5b",
+                        "primary": "#000000",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#1e1b19",
+                        "on-primary-container": "#888380",
+                        "inverse-primary": "#ccc5c2",
+                        "secondary": "#5e5e5c",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#e1dfdc",
+                        "on-secondary-container": "#636361",
+                        "tertiary": "#000000",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#1f1b17",
+                        "on-tertiary-container": "#8a827d",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-error-container": "#93000a",
+                        "primary-fixed": "#e9e1dd",
+                        "primary-fixed-dim": "#ccc5c2",
+                        "on-primary-fixed": "#1e1b19",
+                        "on-primary-fixed-variant": "#4a4643",
+                        "secondary-fixed": "#e4e2df",
+                        "secondary-fixed-dim": "#c8c6c4",
+                        "on-secondary-fixed": "#1b1c1a",
+                        "on-secondary-fixed-variant": "#474745",
+                        "tertiary-fixed": "#eae1da",
+                        "tertiary-fixed-dim": "#cec5bf",
+                        "on-tertiary-fixed": "#1f1b17",
+                        "on-tertiary-fixed-variant": "#4b4641",
+                        "background": "#fdf8f7",
+                        "on-background": "#1c1b1b",
+                        "surface-variant": "#e6e1e0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "unit": "4px",
+                        "sm": "8px",
+                        "container-max": "1280px",
+                        "gutter": "24px",
+                        "md": "16px",
+                        "margin-mobile": "16px",
+                        "lg": "24px",
+                        "xl": "48px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "label-md": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["11px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400"}],
+                        "headline-md": ["20px", {"lineHeight": "1.4", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  <style id="a11y-fixes">
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+:focus-visible{outline:2px solid #000000;outline-offset:2px}
+</style>
+</head>
+<body class="bg-background text-on-background min-h-screen font-body-md overflow-x-hidden pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-background/80 glass-blur">
+<div class="flex justify-between items-center px-gutter h-16 w-full max-w-container-max mx-auto transition-all duration-300 ease-in-out">
+<div class="flex items-center gap-4">
+<button class="hover:opacity-80 transition-opacity p-2 -ml-2">
+<span class="material-symbols-outlined text-on-surface">menu</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile tracking-tighter text-on-surface">Woven</h1>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex gap-6 mr-6">
+<a class="font-label-md text-label-md text-primary tracking-wide" href="#">Home</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Inventory</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Outfits</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Trips</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Profile</a>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant/30">
+<img class="w-full h-full object-cover" alt="A professional studio portrait of a stylish woman with a minimalist aesthetic, wearing a charcoal high-neck top. The lighting is soft and editorial, casting gentle shadows against a clean, stone-colored background. High-fidelity photography style with sharp focus and natural skin textures." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjbWhAZjfj3g9mtkStOA6mUTCPz21y5EZUPwQ-B6FhgzxVNOnI6L3lsmYNIb3w3QA0E_VySA9Hg4SB0OAkU9FVaPrsG_RvxdLmR4CtiF-cLyPgmfu0fmt0gLHYllrOCZ6yq-MOFy5gUsnNjvFers1aAg-YIjmNB3oMMhyXaBQk3Ien9SyoG5YiJr7WcyHZtYb5go5d0ZNofzPT2p6bAd_GNN1jnCZ1CKlof2V3HfSRJZPBNZtjz_Jd4VGLe2WltoxXCRcpUhvk64Q"/>
+</div>
+</div>
+</div>
+</header>
+<main class="pt-24 px-gutter max-w-container-max mx-auto space-y-xl">
+<!-- Hero: Today's Look & Weather -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-lg">
+<div class="lg:col-span-8 relative rounded-xl overflow-hidden h-[500px] group editorial-shadow">
+<img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="A high-fashion editorial shot of a complete outfit laid out on a minimalist limestone floor. The look includes a lightweight beige trench coat, crisp white tailored trousers, and leather loafers. Soft sunlight streams from a window, creating long, elegant shadows. The atmosphere is sophisticated and ready for a professional day in Berlin." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBa-EH535teDt130MONXNElTd7VX7rbd3yH_cp0U8ef3wlcbSYsGTeY5sV1gtlIw6nD6N-Kibt3xUjnd-yUQil7zXG0Yz4ynkGnty65JCG52qPYj1dx6FVfj9en79Y90OHUglnoKaD2Vxz_Q9zOYJJBzE59vITSEER2SDb1T-RZRZIg5Iq8c_6GneomU1UQ7VBsZBAWlpUKQr9ShZkXP45ie59SeEDWG9joRqBaAuaqWnZv3QInBEbQQjmQfiGtC6MYk-4uomhB2H0"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-lg text-white">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-[20px]">partly_cloudy_day</span>
+<span class="font-label-md text-label-md uppercase tracking-widest opacity-90">Today's Look</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg mb-2">A light layer for a 22° afternoon in Berlin.</h2>
+<p class="font-body-md text-body-md opacity-80 max-w-md">Your 2:00 PM Meeting requires a professional touch. The silk-blend trench is perfectly weighted for current humidity.</p>
+</div>
+<div class="absolute top-lg right-lg glass-blur bg-white/10 border border-white/20 rounded-full px-4 py-2 text-white">
+<span class="font-label-md text-label-md">22°C</span>
+</div>
+</div>
+<!-- Side Utility: Agenda & Pending -->
+<div class="lg:col-span-4 flex flex-col gap-lg">
+<!-- Daily Agenda -->
+<div class="bg-surface-container p-lg rounded-xl flex flex-col justify-between h-1/2 border border-outline-variant/20 transition-all duration-300 hover:border-primary/30">
+<div>
+<div class="flex justify-between items-center mb-6">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Daily Agenda</span>
+<span class="material-symbols-outlined text-primary">calendar_today</span>
+</div>
+<div class="space-y-4">
+<div class="flex gap-4 items-start">
+<span class="font-label-md text-label-md text-primary pt-1">09:00</span>
+<div>
+<p class="font-headline-md text-headline-md text-on-surface">Creative Review</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Design Studio, Mitte</p>
+</div>
+</div>
+<div class="flex gap-4 items-start border-l-2 border-primary pl-4 -ml-[18px]">
+<span class="font-label-md text-label-md text-primary pt-1">14:00</span>
+<div>
+<p class="font-headline-md text-headline-md text-on-surface">Client Pitch</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Selected Outfit: Trench &amp; Silk</p>
+</div>
+</div>
+</div>
+</div>
+<button class="mt-4 font-label-sm text-label-sm text-primary flex items-center gap-1 hover:gap-2 transition-all">
+                        VIEW FULL SCHEDULE <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+<!-- Pending Actions -->
+<div class="bg-on-surface text-surface p-lg rounded-xl h-1/2 border border-on-surface-variant/20 shadow-xl">
+<div class="flex justify-between items-center mb-6">
+<span class="font-label-sm text-label-sm text-surface-variant uppercase tracking-widest">Pending Actions</span>
+<span class="material-symbols-outlined text-secondary-fixed-dim">priority_high</span>
+</div>
+<ul class="space-y-4">
+<li class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-primary-fixed"></div>
+<span class="font-body-md text-body-md">Finish packing for Paris</span>
+</li>
+<li class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-surface-variant/30"></div>
+<span class="font-body-md text-body-md">Review dry cleaning arrivals</span>
+</li>
+<li class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-surface-variant/30"></div>
+<span class="font-body-md text-body-md">Update summer wishlist</span>
+</li>
+</ul>
+</div>
+</div>
+</section>
+<!-- AI Insight: Forgotten Pieces -->
+<section class="space-y-lg">
+<div class="flex justify-between items-end">
+<div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface">Forgotten Pieces</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">AI-curated items you haven't worn in 60+ days.</p>
+</div>
+<button class="font-label-md text-label-md text-on-surface-variant border-b border-outline-variant hover:text-primary transition-colors pb-1">
+                    VIEW ALL ARCHIVE
+                </button>
+</div>
+<div class="flex gap-lg overflow-x-auto no-scrollbar pb-4 snap-x">
+<!-- Item Card 1 -->
+<div class="flex-none w-64 snap-start group">
+<div class="aspect-[3/4] bg-surface-container-low rounded-xl mb-4 overflow-hidden relative">
+<img class="w-full h-full object-cover mix-blend-multiply group-hover:scale-105 transition-transform duration-500" alt="A studio photograph of a luxury charcoal wool blazer, perfectly tailored, isolated on a light stone background. The texture of the wool is clearly visible. Soft, directional studio lighting creates a high-end, editorial fashion look. Professional product photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1RottL4JCk1BHxHWZ2LlLhpUThfjot24lXpyChH-kvoUGkCd5Y7Zdp9fub9CjWI3mlx4yEH_MrMWl5_sx3we6prA6WiWhsJ5JKcXn2qBVYaQLtstT-vKFjLVd096hzi2EGOtB90iaIBRFK1ZPgjTK3bT9tWAUw2g7TRv9s4LdVBCYpd5Dc73YrdsxxNmEAFbGisK_HdpaT02Ktf4UCm6HcDVBOAuEx_EdjkC6Zm351UPDKyjPPoiC6O23K3EfIAdSabACagf5_kA"/>
+<div class="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-colors duration-500"></div>
+<button class="absolute bottom-3 right-3 bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
+<span class="material-symbols-outlined text-primary">add</span>
+</button>
+</div>
+<div class="px-1">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">Tailoring</p>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-2">Charcoal Wool Blazer</h4>
+<div class="inline-flex items-center gap-1 bg-primary/10 px-2 py-1 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-primary">auto_fix_high</span>
+<span class="font-label-sm text-label-sm text-primary">AI NUDGE: Pair with white silk</span>
+</div>
+</div>
+</div>
+<!-- Item Card 2 -->
+<div class="flex-none w-64 snap-start group">
+<div class="aspect-[3/4] bg-surface-container-low rounded-xl mb-4 overflow-hidden relative">
+<img class="w-full h-full object-cover mix-blend-multiply group-hover:scale-105 transition-transform duration-500" alt="A detail shot of a pair of vintage-wash straight-leg denim jeans on a clean ivory surface. The denim has natural wear patterns and a high-quality textured finish. Minimalist, clean photography with soft shadows and balanced lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKutoMfSMmq_YAfovoWk7HJHlSpbxVBo8jgKOrz33yUkKYhDr5cdySAkcBTQw2qB8bcpdV56hq8EegwqzVHtBF7xB-JWodF7WyhyTK9wxIx8_zwBsgG3mV8RsV3EBWPcjiccV4Mcrze-0NHruHDpYs3gSoSnWzupMca7wGG2crTwQnSe74e9U76QvcJd0C9uIsRKv_GZlta2iN8MbDSjtw5qT0gsRs6Bwv_OK1MH17aUiP6Y18MRJ5gq7ui77xYao9P99FolPPApA"/>
+<div class="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-colors duration-500"></div>
+<button class="absolute bottom-3 right-3 bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
+<span class="material-symbols-outlined text-primary">add</span>
+</button>
+</div>
+<div class="px-1">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">Casual</p>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-2">Vintage Straight Denim</h4>
+<div class="inline-flex items-center gap-1 bg-surface-container-high px-2 py-1 rounded-full">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Last worn: 72 days ago</span>
+</div>
+</div>
+</div>
+<!-- Item Card 3 -->
+<div class="flex-none w-64 snap-start group">
+<div class="aspect-[3/4] bg-surface-container-low rounded-xl mb-4 overflow-hidden relative">
+<img class="w-full h-full object-cover mix-blend-multiply group-hover:scale-105 transition-transform duration-500" alt="A luxury cream silk blouse with subtle sheen, elegantly draped over a minimalist stone block. The fabric folds create soft highlights and shadows. High-end editorial lighting emphasizing the delicate texture and premium quality of the material." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCXA5wdiY2VVPK1FEA4nSirJReMUnWU6YUYaMGcqXrlEqJBq4ILp5L33jjxRyIoJguEvXU5SqUzrxLqLjlhbqV_YOvvj6BGvqNQbPchAS23KaLJoF8Cb1CVIBE22gkE6dm-IzNAJIHa9NuKNq0TNQbEGUDPhACa_IcVwglgu5bJYNU2h-NoIEBBuJ3lBfe8rsNCPeUJgGG267tnbxm9F7BYZ8SZwsDwJQNY_3HAccABz2ZFmX3WuQppgnzWoL3OcYYtF2bRM8Ijk4"/>
+<div class="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-colors duration-500"></div>
+<button class="absolute bottom-3 right-3 bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
+<span class="material-symbols-outlined text-primary">add</span>
+</button>
+</div>
+<div class="px-1">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">Essentials</p>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-2">Cream Silk Blouse</h4>
+<div class="inline-flex items-center gap-1 bg-primary/10 px-2 py-1 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-primary">auto_fix_high</span>
+<span class="font-label-sm text-label-sm text-primary">AI NUDGE: Perfect for Paris</span>
+</div>
+</div>
+</div>
+<!-- Empty State/Add Card -->
+<div class="flex-none w-64 snap-start">
+<div class="aspect-[3/4] border-2 border-dashed border-outline-variant/50 rounded-xl flex flex-col items-center justify-center gap-4 hover:border-primary transition-colors cursor-pointer group">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">upload_file</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant">ADD PIECE</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Bento Spotlight: Wardrobe Analytics -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<div class="md:col-span-2 relative h-80 rounded-xl overflow-hidden group">
+<img class="absolute inset-0 w-full h-full object-cover" alt="A wide-angle editorial shot of a meticulously organized, minimalist walk-in closet. The clothes are arranged by color in a spectrum from ivory to charcoal. Warm, soft architectural lighting illuminates the space. The design is sleek, modern, and high-end, suggesting effortless luxury and order." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLFdmUaEMpaSgxbjlHIr8DPja2ApQz5_1n6pNZj8j6V4dS3HQSTFjWEfplNCLlv8vzzNrWkZ4H3b-LrYlJcwjHWL-cvs6x8wAgmT3jCeR-aipuEL79c1U1tn_VYEaFy303M6UahSGu_r0HpbvCKanyYEe9aiIDNAZndGXOOkDymBbLBq5z9gFo-793wNIlCrl_FH3aCoqIus2jGLdx0sFeyamWPiYo26z13Gr3VOnOqI_tShuim4Ndxt9QpVjCWdjA9C5x6dkbjuk"/>
+<div class="absolute inset-0 bg-black/40 flex flex-col justify-end p-lg">
+<h4 class="font-headline-lg text-headline-lg text-white mb-2">Wardrobe Value</h4>
+<p class="font-body-md text-body-md text-white/80 max-w-sm">92% of your pieces are currently active. You are maximizing your investment in quality staples.</p>
+</div>
+</div>
+<div class="bg-primary text-white p-lg rounded-xl flex flex-col justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-widest opacity-80">Style Score</span>
+<div class="space-y-1">
+<span class="font-display-lg text-display-lg">84</span>
+<p class="font-body-md text-body-md opacity-80">Consistent and cohesive. Your palette is 70% monochromatic today.</p>
+</div>
+<div class="h-1 w-full bg-white/20 rounded-full overflow-hidden">
+<div class="h-full bg-white w-4/5"></div>
+</div>
+</div>
+</section>
+</main>
+<!-- FAB (Suppressed on Details, but useful here as an 'Add Look' action) -->
+<button class="fixed bottom-24 right-6 w-14 h-14 bg-on-surface text-surface rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform active:scale-95 z-40">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 px-4 pb-safe bg-surface/80 glass-blur border-t border-outline-variant/30">
+<button class="flex flex-col items-center justify-center text-primary font-semibold active:scale-90 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90">
+<span class="material-symbols-outlined">dry_cleaning</span>
+<span class="font-label-md text-label-md">Inventory</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90">
+<span class="material-symbols-outlined">checkroom</span>
+<span class="font-label-md text-label-md">Outfits</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90">
+<span class="material-symbols-outlined">travel_explore</span>
+<span class="font-label-md text-label-md">Trips</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</button>
+</nav>
+<script>
+        // Micro-interactions and subtle scroll effects
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 20) {
+                header.classList.add('shadow-sm');
+            } else {
+                header.classList.remove('shadow-sm');
+            }
+        });
+
+        // Simulating some interactive hover states via JS for micro-feel
+        const cards = document.querySelectorAll('.snap-start');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                // Future interaction: hover sounds or refined feedback
+            });
+        });
+    </script>
+</body></html>

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Woven | Inventory Redesign</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface": "#fdf8f7",
+                        "surface-dim": "#ddd9d8",
+                        "surface-bright": "#fdf8f7",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f7f3f1",
+                        "surface-container": "#f1edec",
+                        "surface-container-high": "#ece7e6",
+                        "surface-container-highest": "#e6e1e0",
+                        "on-surface": "#1c1b1b",
+                        "on-surface-variant": "#4d4540",
+                        "inverse-surface": "#313030",
+                        "inverse-on-surface": "#f4f0ef",
+                        "outline": "#7e7570",
+                        "outline-variant": "#d0c4be",
+                        "surface-tint": "#625d5b",
+                        "primary": "#000000",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#1e1b19",
+                        "on-primary-container": "#888380",
+                        "inverse-primary": "#ccc5c2",
+                        "secondary": "#5e5e5c",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#e1dfdc",
+                        "on-secondary-container": "#636361",
+                        "tertiary": "#000000",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#1f1b17",
+                        "on-tertiary-container": "#8a827d",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-error-container": "#93000a",
+                        "primary-fixed": "#e9e1dd",
+                        "primary-fixed-dim": "#ccc5c2",
+                        "on-primary-fixed": "#1e1b19",
+                        "on-primary-fixed-variant": "#4a4643",
+                        "secondary-fixed": "#e4e2df",
+                        "secondary-fixed-dim": "#c8c6c4",
+                        "on-secondary-fixed": "#1b1c1a",
+                        "on-secondary-fixed-variant": "#474745",
+                        "tertiary-fixed": "#eae1da",
+                        "tertiary-fixed-dim": "#cec5bf",
+                        "on-tertiary-fixed": "#1f1b17",
+                        "on-tertiary-fixed-variant": "#4b4641",
+                        "background": "#fdf8f7",
+                        "on-background": "#1c1b1b",
+                        "surface-variant": "#e6e1e0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "unit": "4px",
+                        "sm": "8px",
+                        "container-max": "1280px",
+                        "gutter": "24px",
+                        "md": "16px",
+                        "margin-mobile": "16px",
+                        "lg": "24px",
+                        "xl": "48px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "label-md": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["11px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400"}],
+                        "headline-md": ["20px", {"lineHeight": "1.4", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .view-transition { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* Glassmorphism for the search container */
+        .glass-search {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  <style id="a11y-fixes">
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+:focus-visible{outline:2px solid #000000;outline-offset:2px}
+</style>
+</head>
+<body class="bg-background text-on-surface min-h-screen selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md">
+<div class="flex justify-between items-center px-gutter h-16 w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface hover:opacity-80 transition-opacity">menu</button>
+<h1 class="font-headline-lg text-headline-lg tracking-tighter text-on-surface">Woven</h1>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant/30 transition-all hover:scale-105">
+<img class="w-full h-full object-cover" alt="A clean professional headshot of a user with a neutral background, high-end editorial lighting, and a soft minimalist aesthetic to match a luxury fashion application interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNTlwebnU8tNji5rRqS-6Hif7HA2V0JUJh7Wtm5CPIPganBP8CWnFYNgmEnUFdqBhkEfwk_Aytt-l9c5zUlOYNZG5G3UL9feMU6SfbvdnouyzEtwFAG_mtzwuUI7jltGha9sm9eA_NmlFTQEIRqiuBYzrYzwTGlxe-deXN6uJwUyCUT-hWf8FpgFylINdrQkzGbR0zVb39jogXBxA6bDcGV5jqoNUdUPiDC8dTnAXYEbqZU70QYdePaCDV8axLbHK8sPLnKhVV5FQ"/>
+</div>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-gutter max-w-container-max mx-auto">
+<!-- Semantic Search & Filters -->
+<section class="mb-xl">
+<div class="max-w-3xl">
+<div class="relative group">
+<div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline">search</span>
+</div>
+<input class="w-full h-14 pl-12 pr-4 bg-surface-container-lowest border-b border-outline-variant focus:border-primary focus:ring-0 transition-all text-body-lg font-body-lg placeholder:text-on-surface-variant/50" placeholder="Find something for a rainy dinner" type="text"/>
+</div>
+<!-- Collections Horizontal Scroll -->
+<div class="mt-lg flex items-center gap-3 overflow-x-auto hide-scrollbar py-2">
+<button class="whitespace-nowrap px-md py-sm rounded-full bg-primary/10 text-primary border border-primary/20 font-label-md text-label-md transition-all hover:bg-primary/20">All Items</button>
+<button class="whitespace-nowrap px-md py-sm rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md transition-all hover:bg-surface-container-high">Essentials</button>
+<button class="whitespace-nowrap px-md py-sm rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md transition-all hover:bg-surface-container-high">Evening Wear</button>
+<button class="whitespace-nowrap px-md py-sm rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md transition-all hover:bg-surface-container-high">Work Uniform</button>
+<button class="whitespace-nowrap px-md py-sm rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md transition-all hover:bg-surface-container-high">Travel Essentials</button>
+<button class="whitespace-nowrap px-md py-sm rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md transition-all hover:bg-surface-container-high">Summer '24</button>
+</div>
+</div>
+</section>
+<!-- View Controls & Scaling Header -->
+<section class="mb-lg flex flex-col md:flex-row md:items-end justify-between gap-md border-b border-outline-variant/30 pb-md">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Your Inventory</h2>
+<p class="text-body-md font-body-md text-on-surface-variant">248 items organized by context</p>
+</div>
+<!-- View Mode Toggles -->
+<div class="flex p-1 bg-surface-container-low rounded-xl border border-outline-variant/20 self-start md:self-auto">
+<button class="flex items-center gap-2 px-md py-xs rounded-lg bg-surface-container-lowest text-primary shadow-sm transition-all font-label-md text-label-md" id="btn-editorial" onclick="setView('editorial')">
+<span class="material-symbols-outlined text-[18px]">grid_view</span> Editorial
+                </button>
+<button class="flex items-center gap-2 px-md py-xs rounded-lg text-on-surface-variant hover:text-on-surface transition-all font-label-md text-label-md" id="btn-compact" onclick="setView('compact')">
+<span class="material-symbols-outlined text-[18px]">apps</span> Compact
+                </button>
+<button class="flex items-center gap-2 px-md py-xs rounded-lg text-on-surface-variant hover:text-on-surface transition-all font-label-md text-label-md" id="btn-list" onclick="setView('list')">
+<span class="material-symbols-outlined text-[18px]">view_list</span> Categories
+                </button>
+</div>
+</section>
+<!-- Inventory Grid Canvas -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-lg view-transition" id="inventory-grid">
+<!-- AI Insight Component (Scaled for Inventory context) -->
+<div class="col-span-full mb-lg">
+<div class="p-lg rounded-xl border-[0.5px] border-primary/30 bg-gradient-to-br from-primary/5 to-white flex flex-col md:flex-row items-center gap-lg">
+<div class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-primary text-on-primary rounded-full shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_fix_high</span>
+</div>
+<div>
+<h4 class="font-headline-md text-headline-md text-primary mb-1">Wardrobe Insight</h4>
+<p class="text-body-md font-body-md text-on-surface-variant max-w-2xl">You have 12 items for "Rainy Dinner" scenarios. I've curated a new collection called "Dusk Essentials" based on your recent evening searches.</p>
+</div>
+<button class="ml-auto px-lg py-md bg-on-surface text-background rounded-xl font-label-md text-label-md hover:opacity-90 transition-opacity">View Collection</button>
+</div>
+</div>
+<!-- Item Card 1 -->
+<div class="inventory-card group animate-in fade-in duration-700">
+<div class="relative aspect-[3/4] rounded-xl bg-surface-container-low overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
+<img class="w-full h-full object-contain p-lg scale-110 group-hover:scale-125 transition-transform duration-700" alt="A high-end minimal studio shot of a charcoal grey structured wool overcoat. The background is completely removed, showing the coat centered with soft professional shadow. Minimalist editorial fashion photography style with clean lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcg3J1oCdIss3lfROdV_8hoEFJtzqZ07A6M9uFNXxY1nTNcnTfaMS96uDPQaKImF5j92UfgzTTWg3OUplW2n2YlFWZKwrjHj4ENM1ggJCUq0C7NoNPMN5HZp9fjI98_V3ZO9hBuRlDhHs40hJAD-DY5LBM0DlnH86P3uLU57pZQMleDI8VKiAKpeZMd9bK4K_ZDbABEx3b8kG3pCGQte2JSMwjBweWhlIxg-gU-SjEx38UO33HaDwKeCtFvtwsjI7AxcfpOpFBamw"/>
+<div class="absolute top-4 right-4">
+<button class="w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm border border-outline-variant/30 flex items-center justify-center text-on-surface opacity-0 group-hover:opacity-100 transition-all">
+<span class="material-symbols-outlined text-[18px]">favorite</span>
+</button>
+</div>
+</div>
+<div class="mt-md">
+<span class="text-label-sm font-label-sm text-primary uppercase tracking-widest">Evening</span>
+<h3 class="font-headline-md text-headline-md text-on-surface mt-xs">Structured Wool Overcoat</h3>
+<p class="text-body-md font-body-md text-on-surface-variant">Charcoal Grey • Loro Piana</p>
+</div>
+</div>
+<!-- Item Card 2 -->
+<div class="inventory-card group animate-in fade-in duration-700 delay-75">
+<div class="relative aspect-[3/4] rounded-xl bg-surface-container-low overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
+<img class="w-full h-full object-contain p-lg scale-110 group-hover:scale-125 transition-transform duration-700" alt="A high-end luxury silk blouse in ivory cream color. No background, floating centered in the frame. Professional studio lighting with soft highlights on the fabric texture. High-fidelity product photography for a digital wardrobe application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZm7-ZXNqz7b6wV2WSCTZqHuXpV_5fz9Ck0DFib3zBohbdulF8tAjv1J_dJs2T3P5ZO2W5hrGjyOBttbD7NKn4OCW8AU4gowyuaWGXzx9j8ieB5iVUh339QO8OF9-vl3n2D6FmMyjI6TiME2-WOR-BOGMZbKBjy1jvPFNipiFx3W1m6twu19tNLcblYOyMynSjikLX8xDcVYqVYbyTzvbM2_PsAOLUKOiXfNUeEiPaRxn6RiZpBPLHekazxnnwZM-F61KzBlRISVs"/>
+<div class="absolute top-4 right-4">
+<button class="w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm border border-outline-variant/30 flex items-center justify-center text-on-surface opacity-0 group-hover:opacity-100 transition-all">
+<span class="material-symbols-outlined text-[18px]">favorite</span>
+</button>
+</div>
+</div>
+<div class="mt-md">
+<span class="text-label-sm font-label-sm text-tertiary-container uppercase tracking-widest">Essentials</span>
+<h3 class="font-headline-md text-headline-md text-on-surface mt-xs">Ivory Silk Blouse</h3>
+<p class="text-body-md font-body-md text-on-surface-variant">Cream • Equipment</p>
+</div>
+</div>
+<!-- Item Card 3 -->
+<div class="inventory-card group animate-in fade-in duration-700 delay-150">
+<div class="relative aspect-[3/4] rounded-xl bg-surface-container-low overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
+<img class="w-full h-full object-contain p-lg scale-110 group-hover:scale-125 transition-transform duration-700" alt="Luxury black leather Chelsea boots with a polished finish. No background, isolated centered. Editorial studio lighting focusing on the craftsmanship and texture of the premium leather. Minimalist aesthetic, soft shadows below." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxVI7InOzK7eLW7AuP9koKbPdjuX0k9WxHpKkWijV1OHG4ud7_UPciSeceeRg0z15y1esLtC0Hb3FZ2TapNZLKOkrBmcOeZeXga8_xtYu4HbuadThmsAjpKkeu0ngJGeaPnGLwR1hLxML7Oq7uCzipWdlW6Tka8cGm4OfGKchneuUZErqMFqmbt9kFyv6Vgk7hqfTYegTVklweV4C9UGDwWVpr0UUTmt-PUuaNIc_LW1Jq_EDChOe7HIjA16_hPufRJXmtDfyQJcM"/>
+<div class="absolute top-4 right-4">
+<button class="w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm border border-outline-variant/30 flex items-center justify-center text-on-surface opacity-0 group-hover:opacity-100 transition-all">
+<span class="material-symbols-outlined text-[18px]">favorite</span>
+</button>
+</div>
+</div>
+<div class="mt-md">
+<span class="text-label-sm font-label-sm text-primary-container uppercase tracking-widest">Work</span>
+<h3 class="font-headline-md text-headline-md text-on-surface mt-xs">Polished Chelsea Boots</h3>
+<p class="text-body-md font-body-md text-on-surface-variant">Obsidian Black • Common Projects</p>
+</div>
+</div>
+<!-- Item Card 4 -->
+<div class="inventory-card group animate-in fade-in duration-700 delay-300">
+<div class="relative aspect-[3/4] rounded-xl bg-surface-container-low overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
+<img class="w-full h-full object-contain p-lg scale-110 group-hover:scale-125 transition-transform duration-700" alt="A pair of high-waisted tailored trousers in deep navy blue. Isolated without background, centered in frame. Clean professional lighting, emphasizing the fabric quality and the sharp crease of the tailoring. High-end editorial feel." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCg1SzpYT3GNSoid-ydiHrYjiSFFB1jTRGSJk3RduX3ZXraftY40Z8IjbYTys8Z_viWLue9Sq2MzUmOlgT-q-nmhwoBW5y2i2mSVXHJ2iUcAnnfsyu_5xzBEni5YBCooW6qD9yMjy-ZWrXZTBDP8BYWpCBqGW9VmfNDDAeUVcCqgeXB_bzeA47gJ_tmsPLn5a6r-2VJfXxWGornWdJRR-xF_2S4Lr7MSwEJgkW_CGyzcXjNHgkW3p5do_-XIkb0l3ELbO6c-yN78gY"/>
+<div class="absolute top-4 right-4">
+<button class="w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm border border-outline-variant/30 flex items-center justify-center text-on-surface opacity-0 group-hover:opacity-100 transition-all">
+<span class="material-symbols-outlined text-[18px]">favorite</span>
+</button>
+</div>
+</div>
+<div class="mt-md">
+<span class="text-label-sm font-label-sm text-primary uppercase tracking-widest">Work</span>
+<h3 class="font-headline-md text-headline-md text-on-surface mt-xs">Tailored Navy Trousers</h3>
+<p class="text-body-md font-body-md text-on-surface-variant">Midnight Navy • Theory</p>
+</div>
+</div>
+<!-- Item Card 5 -->
+<div class="inventory-card group animate-in fade-in duration-700">
+<div class="relative aspect-[3/4] rounded-xl bg-surface-container-low overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
+<img class="w-full h-full object-contain p-lg scale-110 group-hover:scale-125 transition-transform duration-700" alt="Designer sunglasses with a tortoiseshell frame and dark lenses. No background, isolated and centered. Studio lighting with subtle lens flare effects for a premium luxury feel. Minimalist and sleek fashion product photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8rs-1HF4aGonssvmeTasvTAqLfyTzgdBoTZZFS1mjwvI8A6YnTHaH-tGnrL92EheU01WUjvrZvBE_chm_hDdXIOSs_qt9x5UoTPeYKBpAHuncDEqRRIw5_deCIwe04o1l3m9cm77MBXkTv11Cj5YgqbrocU2FhoBPPu7L92H0wLgigIKzK0yOQ19ytuUi08w6STB6bXKYo_rYrezaUFM272YLtlavTc6aSKmHg0tmLhtpsRnt1G5TWtAGF_0Obz0t6VDm9bh3Aow"/>
+</div>
+<div class="mt-md">
+<span class="text-label-sm font-label-sm text-tertiary-container uppercase tracking-widest">Accessories</span>
+<h3 class="font-headline-md text-headline-md text-on-surface mt-xs">Iconic Tortoise Frames</h3>
+<p class="text-body-md font-body-md text-on-surface-variant">Amber • Celine</p>
+</div>
+</div>
+<!-- Item Card 6 -->
+<div class="inventory-card group animate-in fade-in duration-700">
+<div class="relative aspect-[3/4] rounded-xl bg-surface-container-low overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
+<img class="w-full h-full object-contain p-lg scale-110 group-hover:scale-125 transition-transform duration-700" alt="A minimalist white cotton t-shirt with a premium weight and texture. Background removed, centered in frame. Clean studio lighting highlights the high-quality knit and soft edges. High-fidelity product shot for a digital wardrobe app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCe1k86AOsmrTTNNd9Z91NQp9jrWHJf2jqZsrgyp9sKiDSbrd6TF6piWDchro2QfxmXPtZev5b8RYL4_54MStHtfCiK7VtolD425oJD6echTb20WVKp6c5zXCTqtD5QHMcyCm0Z9fSc0g2Kq9Giy68vs2BrOHpQUwV1KrLsgtPZ-fOzdrCNm2Dht0A5h_yOpjFwnyz71vyNmuiQ3SVmstdtsOnnMhH0yw8Ie5qxgPtmxx5XaPw68TlDtdaThNUdLkORFxXuQhd1IyU"/>
+</div>
+<div class="mt-md">
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-widest">Essentials</span>
+<h3 class="font-headline-md text-headline-md text-on-surface mt-xs">Heavy Cotton Tee</h3>
+<p class="text-body-md font-body-md text-on-surface-variant">Optic White • Sunspel</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Navigation Shell (BottomNavBar) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 px-4 pb-safe bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-md shadow-[0_-4px_20px_rgba(0,0,0,0.02)] border-t border-outline-variant/30">
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-transform active:scale-90">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary font-semibold transition-transform active:scale-90">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dry_cleaning</span>
+<span class="font-label-md text-label-md">Inventory</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-transform active:scale-90">
+<span class="material-symbols-outlined">checkroom</span>
+<span class="font-label-md text-label-md">Outfits</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-transform active:scale-90">
+<span class="material-symbols-outlined">travel_explore</span>
+<span class="font-label-md text-label-md">Trips</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-transform active:scale-90">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</button>
+</nav>
+<!-- FAB (Contextual for Inventory) -->
+<button class="fixed right-6 bottom-24 w-14 h-14 bg-on-surface text-background rounded-full shadow-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-40">
+<span class="material-symbols-outlined">add</span>
+</button>
+<script>
+        function setView(mode) {
+            const grid = document.getElementById('inventory-grid');
+            const btnEditorial = document.getElementById('btn-editorial');
+            const btnCompact = document.getElementById('btn-compact');
+            const btnList = document.getElementById('btn-list');
+            const cards = document.querySelectorAll('.inventory-card');
+            
+            // Reset active states
+            [btnEditorial, btnCompact, btnList].forEach(btn => {
+                btn.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
+                btn.classList.add('text-on-surface-variant');
+            });
+
+            // Set active button
+            const activeBtn = document.getElementById(`btn-${mode}`);
+            activeBtn.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
+            activeBtn.classList.remove('text-on-surface-variant');
+
+            // Apply grid styles
+            if (mode === 'editorial') {
+                grid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-lg view-transition";
+                cards.forEach(card => {
+                    const imgContainer = card.querySelector('div');
+                    imgContainer.className = "relative aspect-[3/4] rounded-xl bg-surface-container-low overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]";
+                    card.querySelector('h3').className = "font-headline-md text-headline-md text-on-surface mt-xs";
+                    card.querySelector('.mt-md').className = "mt-md";
+                });
+            } else if (mode === 'compact') {
+                grid.className = "grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-sm view-transition";
+                cards.forEach(card => {
+                    const imgContainer = card.querySelector('div');
+                    imgContainer.className = "relative aspect-square rounded-lg bg-surface-container-low overflow-hidden transition-transform duration-500";
+                    card.querySelector('h3').className = "font-label-md text-label-md text-on-surface mt-xs truncate";
+                    card.querySelector('.mt-md').className = "mt-sm";
+                    card.querySelector('p').classList.add('hidden');
+                    card.querySelector('span').classList.add('hidden');
+                });
+            } else if (mode === 'list') {
+                grid.className = "flex flex-col gap-sm view-transition";
+                cards.forEach(card => {
+                    card.className = "inventory-card group flex items-center gap-md p-sm hover:bg-surface-container-low rounded-xl transition-colors";
+                    const imgContainer = card.querySelector('div');
+                    imgContainer.className = "relative w-20 h-20 flex-shrink-0 rounded-lg bg-surface-container-low overflow-hidden";
+                    card.querySelector('.mt-md').className = "flex-grow flex justify-between items-center";
+                    card.querySelector('h3').className = "font-headline-md text-headline-md text-on-surface";
+                    card.querySelector('p').classList.remove('hidden');
+                    card.querySelector('span').classList.remove('hidden');
+                });
+            }
+        }
+    </script>
+</body></html>

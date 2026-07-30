@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<title>Woven Studio | Outfit Creator</title>
+<style>
+        body {
+            font-family: 'Hanken Grotesk', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            overflow: hidden; /* Canvas behavior */
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .canvas-item {
+            touch-action: none;
+            cursor: grab;
+            transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease;
+        }
+        .canvas-item:active {
+            cursor: grabbing;
+            transform: scale(1.05);
+            z-index: 50;
+        }
+        .canvas-grid {
+            background-image: radial-gradient(circle, #e6e1e0 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .drawer-transition {
+            transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed-dim": "#c8c6c4",
+                        "secondary-fixed": "#e4e2df",
+                        "on-surface-variant": "#4d4540",
+                        "on-tertiary-container": "#8a827d",
+                        "on-tertiary-fixed": "#1f1b17",
+                        "on-error": "#ffffff",
+                        "surface": "#fdf8f7",
+                        "surface-dim": "#ddd9d8",
+                        "primary-fixed": "#e9e1dd",
+                        "primary": "#000000",
+                        "on-primary-fixed-variant": "#4a4643",
+                        "surface-container-low": "#f7f3f1",
+                        "on-primary-container": "#888380",
+                        "on-tertiary-fixed-variant": "#4b4641",
+                        "on-secondary-container": "#636361",
+                        "tertiary": "#000000",
+                        "on-secondary-fixed-variant": "#474745",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#625d5b",
+                        "primary-fixed-dim": "#ccc5c2",
+                        "on-primary-fixed": "#1e1b19",
+                        "surface-container-highest": "#e6e1e0",
+                        "on-surface": "#1c1b1b",
+                        "background": "#fdf8f7",
+                        "secondary": "#5e5e5c",
+                        "primary-container": "#1e1b19",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#ece7e6",
+                        "on-secondary-fixed": "#1b1c1a",
+                        "outline": "#7e7570",
+                        "on-error-container": "#93000a",
+                        "surface-bright": "#fdf8f7",
+                        "inverse-primary": "#ccc5c2",
+                        "tertiary-container": "#1f1b17",
+                        "tertiary-fixed-dim": "#cec5bf",
+                        "outline-variant": "#d0c4be",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#eae1da",
+                        "inverse-surface": "#313030",
+                        "on-background": "#1c1b1b",
+                        "secondary-container": "#e1dfdc",
+                        "surface-variant": "#e6e1e0",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#f1edec",
+                        "inverse-on-surface": "#f4f0ef",
+                        "on-secondary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "xs": "8px",
+                        "base": "4px",
+                        "sm": "16px",
+                        "margin-mobile": "20px",
+                        "md": "24px",
+                        "touch-target-min": "44px",
+                        "margin-desktop": "80px",
+                        "lg": "40px",
+                        "xl": "64px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Hanken Grotesk"],
+                        "display-lg-mobile": ["Hanken Grotesk"],
+                        "label-caps": ["Hanken Grotesk"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "title-sm": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "body-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400"}],
+                        "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400"}],
+                        "title-sm": ["18px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  <style id="a11y-fixes">
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+:focus-visible{outline:2px solid #000000;outline-offset:2px}
+</style>
+</head>
+<body class="bg-background text-on-surface h-screen w-full flex flex-col relative overflow-hidden">
+<!-- Top AppBar (Based on Shared Components) -->
+<header class="w-full top-0 sticky bg-surface border-b border-outline-variant/30 flex justify-between items-center px-margin-mobile py-sm z-50">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary cursor-pointer active:scale-95 transition-transform" data-icon="close">close</span>
+<span class="font-headline-lg-mobile text-headline-lg-mobile tracking-tighter font-semibold text-on-surface">The Studio</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-secondary opacity-50 cursor-not-allowed" data-icon="undo">undo</button>
+<button class="material-symbols-outlined text-secondary hover:opacity-80 active:scale-95 transition-transform" data-icon="redo">redo</button>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-full font-label-caps text-label-caps tracking-widest uppercase hover:opacity-90 active:scale-95 transition-all">Save Outfit</button>
+</div>
+</header>
+<!-- Studio Canvas -->
+<main class="flex-grow w-full relative canvas-grid overflow-hidden" id="canvas">
+<!-- Floating Stylist Bubble 1 -->
+<div class="absolute top-8 left-6 z-40 animate-float">
+<div class="bg-surface-container-lowest/90 backdrop-blur px-4 py-2 rounded-full border border-outline-variant/30 flex items-center gap-2 shadow-sm">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<p class="font-body-md text-body-md text-on-surface-variant">Texture clash detected: Silk &amp; Wool blend.</p>
+</div>
+</div>
+<!-- Floating AI Match Score -->
+<div class="absolute top-24 right-6 z-40">
+<div class="bg-primary text-on-primary px-4 py-4 rounded-full border border-white/20 flex flex-col items-center justify-center shadow-lg active:scale-95 transition-transform cursor-pointer">
+<p class="font-label-caps text-[10px] leading-tight opacity-70">MATCH</p>
+<p class="font-headline-md text-headline-md leading-none">94<span class="text-xs">%</span></p>
+</div>
+</div>
+<!-- Canvas Active Items (Mock Placements) -->
+<!-- Cashmere Sweater -->
+<div class="canvas-item absolute top-1/4 left-1/4 w-48 h-64 z-20" style="transform: rotate(-4deg);">
+<div class="relative group">
+<img class="w-full h-full object-contain drop-shadow-xl filter saturate-[0.9]" alt="A high-quality studio photograph of a cream-colored premium cashmere sweater, soft lighting, sharp focus on fabric texture, isolated on a clean ivory background, professional apparel photography for a luxury fashion brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFZC202M-PPCxC7WbJTL0P2Q9BXeggxZQPTQ6bJgI-HmBYqpfXyQi5FyTyG8xwPp8gon0NCuVUoYfijiyr6dRzS9WdUf2pxQ_qoyh1HeGC0km93wbw0-d2txmybfpM_U9dxJpDd_UjOaFyFgKWBjNIyAhOLx9o729onBa0xwCTuuO9hbrAzJ_nMOcWum9UjEbS9GYEEz8vIQO5VjVFXyNmFppxnOibm3FTGcv0IsoFtVOOvPTqZyrMiDxwYsDTJPYT8VDzzYYYEX0"/>
+<!-- Layering Controls (Hidden by default, show on tap/select) -->
+<div class="absolute -top-4 -right-4 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="bg-white rounded-full p-2 shadow-md border border-outline-variant/20 hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="layers">layers</span>
+</button>
+<button class="bg-white rounded-full p-2 shadow-md border border-outline-variant/20 hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="rotate_right">rotate_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Tailored Trousers -->
+<div class="canvas-item absolute bottom-1/4 right-1/4 w-56 h-72 z-10" style="transform: rotate(2deg);">
+<div class="relative group">
+<img class="w-full h-full object-contain drop-shadow-xl filter saturate-[0.95]" alt="A high-quality studio photograph of charcoal grey tailored wool trousers, sharp creases, minimalist design, high-end garment, neutral lighting, isolated on a clean ivory background, tactile quality, premium editorial style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPuIvtU6f1XQG2MJbmTWmBrbdiiq4LyhQQvdGDvZeAls2lgcPhxDNeZNZ2LJAheCrwt2m5p46gCbIsMR4wFeAmbjAvL7b80d3gN3t1UBodtERVV1lddpaQxz5QnfQ3gtinN7rhtVtxE12ViOhwFZsRDu3N7Hb4DE_rEcb3VmdZW88UKLhMmtxWEbNSNMvqAsepTBe0I1C0qZ2C52zWepxieMYGoO7el2scUThWAJCjl_iV5rIkjD-HESi6zaRLvQvKNZk2SNNSYdY"/>
+</div>
+</div>
+<!-- Smart Snapping Indicator (Invisible until drag) -->
+<div class="absolute inset-0 pointer-events-none border-x border-primary/5 opacity-0 transition-opacity" id="snapping-line"></div>
+</main>
+<!-- Tool Palette (Sidebar for Mobile) -->
+<div class="fixed left-4 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-50">
+<button class="w-12 h-12 bg-surface-container-lowest/80 backdrop-blur rounded-full flex items-center justify-center border border-outline-variant/20 shadow-sm active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="grid_view">grid_view</span>
+</button>
+<button class="w-12 h-12 bg-surface-container-lowest/80 backdrop-blur rounded-full flex items-center justify-center border border-outline-variant/20 shadow-sm active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="auto_awesome">auto_awesome</span>
+</button>
+<button class="w-12 h-12 bg-surface-container-lowest/80 backdrop-blur rounded-full flex items-center justify-center border border-outline-variant/20 shadow-sm active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="delete">delete</span>
+</button>
+</div>
+<!-- Wardrobe Inventory Tray (Collapsible) -->
+<div class="fixed bottom-0 left-0 w-full z-[60] bg-surface-container-lowest/95 backdrop-blur-xl border-t border-outline-variant/20 rounded-t-[2rem] drawer-transition translate-y-[calc(100%-80px)]" id="wardrobe-tray">
+<!-- Handle -->
+<div class="w-full py-4 flex flex-col items-center cursor-pointer" onclick="toggleTray()">
+<div class="w-12 h-1.5 bg-outline-variant/30 rounded-full mb-3"></div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="dry_cleaning">dry_cleaning</span>
+<span class="font-label-caps text-label-caps tracking-widest uppercase">Wardrobe Inventory</span>
+</div>
+</div>
+<!-- Tray Content -->
+<div class="px-gutter pb-xl overflow-y-auto max-h-[530px]">
+<div class="flex gap-4 overflow-x-auto pb-6 no-scrollbar">
+<button class="flex-shrink-0 px-6 py-2 rounded-full bg-primary text-on-primary font-body-md text-body-md">All</button>
+<button class="flex-shrink-0 px-6 py-2 rounded-full bg-surface-container-high text-on-surface-variant font-body-md text-body-md">Tops</button>
+<button class="flex-shrink-0 px-6 py-2 rounded-full bg-surface-container-high text-on-surface-variant font-body-md text-body-md">Bottoms</button>
+<button class="flex-shrink-0 px-6 py-2 rounded-full bg-surface-container-high text-on-surface-variant font-body-md text-body-md">Shoes</button>
+<button class="flex-shrink-0 px-6 py-2 rounded-full bg-surface-container-high text-on-surface-variant font-body-md text-body-md">Outerwear</button>
+</div>
+<div class="grid grid-cols-3 gap-4">
+<!-- Inventory Item 1 -->
+<div class="aspect-[3/4] bg-surface-container-low rounded-xl flex items-center justify-center p-2 cursor-grab active:scale-95 transition-all group overflow-hidden">
+<img class="w-full h-full object-contain transition-transform group-hover:scale-110" alt="A studio shot of a minimalist white linen shirt, wrinkled texture, button-down, high-end apparel photography, light mode aesthetic, ivory background, clean lines." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzJ9RLouExtxq7vvbjVj-7x2VuH8B0ml-pzCzWdge1_0bIQrh9-tTKjFNZZa9OPFu6UR41EDcy5nkUfnt8z7KT2-yYAy8wAqgqeB4VurncQSYtmj-dKyRqXmJzT-KM1LhwNINYg1hRaNiiiWvi2Wfj-9bChmstI92TnpyDkV5QXx1UMa8O0oxop8GMPi-mkPGk4Ea56riZ2pT5KhOfOpi6di63b8THE9aPGuXNoXTtp-9kz6Sm82ApcqKhLEAJjEltNdwo83bQhWs"/>
+</div>
+<!-- Inventory Item 2 -->
+<div class="aspect-[3/4] bg-surface-container-low rounded-xl flex items-center justify-center p-2 cursor-grab active:scale-95 transition-all group overflow-hidden">
+<img class="w-full h-full object-contain transition-transform group-hover:scale-110" alt="A pair of luxury black leather loafers, polished finish, minimalist silhouette, isolated on ivory, high contrast, elegant shoe photography for a premium brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCDjaWRgSm3UGpDx-J1BBZdGPLJrVhdhy1yWwsweb6eO8fZufL2UEe5QIWYtWrspfPytghIo76Tc09raX7rBdQK8YAXkuFCARFlwKrEboI_pFh3t9ryVm7VSDavc_kx6DN1f_rh5HdcIIUlXl9hkvhbKh835nYrFEQ8eokQXsuEdYyQvGTjRru3LURn8QNUMKRD9nPbN24WOsxESeWPCyXSB8ksp5Qh2l68_wqXzLQs2yHwZ_ohy2A-grViYlcOBYtGUyblS8Wilw"/>
+</div>
+<!-- Inventory Item 3 -->
+<div class="aspect-[3/4] bg-surface-container-low rounded-xl flex items-center justify-center p-2 cursor-grab active:scale-95 transition-all group overflow-hidden">
+<img class="w-full h-full object-contain transition-transform group-hover:scale-110" alt="A structured tan trench coat, belted, premium cotton gabardine fabric, high-end editorial product photography, soft warm lighting, ivory background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_URBKW4X1Ix_jg-FRDwNirtPXRLWlrfzVL0Kb6ZmC-hzKobiD-HdDNNYJXPnsvi_NqmfFzsCTQ8dWJiw9TKLO0nzO-mBUEk2ypxEHJcpll7zx5p_txxtzhEkRBrvc3PiQnnZMQnzH2baoHnfITBwLFMl_SHgTzzJtqiyUvkCFUwF_t-YU9PEs6KtRJWQ2MxBKdImUW7s4o8FOdeHspVNUsHzIOZb5TA-xlS3_WIfYUfPMBfgDakqNw7r8N_gKzLA3_w_kEo-GyhI"/>
+</div>
+<!-- Inventory Item 4 -->
+<div class="aspect-[3/4] bg-surface-container-low rounded-xl flex items-center justify-center p-2 cursor-grab active:scale-95 transition-all group overflow-hidden">
+<img class="w-full h-full object-contain transition-transform group-hover:scale-110" alt="A minimalist silk neck scarf with subtle geometric pattern, monochromatic tones, soft drape, luxury accessory photography, ivory background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6fDcMYvypwDvnpg51cYbohcmdkfzdseME-uYsRJSSCDcLx4XQ_VkXmg5wjMyvTDeuzQuOjlEStGgHMnwDA1tirtMCHaLtdlcOl2yVqHKTKrwMqK51z229zQqPoM32ZUtplNo3xeS-LeArV76nc4lD8ohA-MG9pl1tJPVyDl2MfB_JUYfpArf9pKH4b6Wi7ENa5DkJ8h9Y_WWFkYH3S59Pqr6MzBEiExiAhw_T26N1UZ7nlEuz8MWyJk9t0lcs521DXWGWCwUpbRE"/>
+</div>
+<!-- Inventory Item 5 -->
+<div class="aspect-[3/4] bg-surface-container-low rounded-xl flex items-center justify-center p-2 cursor-grab active:scale-95 transition-all group overflow-hidden">
+<img class="w-full h-full object-contain transition-transform group-hover:scale-110" alt="A pair of dark wash raw denim jeans, straight leg, premium construction, minimalist detail, isolated on ivory, editorial fashion lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUVSRQwenWBTyO6pflQS9fGc5SAG-K3nc2qDg9_3hUOi75wHFyZwgcMYKl-41NNXE-mU_WMUi_gT0Y_EjYf0uUWw4yWeSIwMAq6hp5rgIGxU4yQVEY-zghjr4TRBYicw8LOeOfipaZbGvCCh4ggdDukYkG0GLPX-iC5cNCbURITmENd5xSlJNXefmW211RuN1FYCA3zECSOicqu6V380ZdvJsnATdJIDhcHV3iwC31pUiYbncAOsaoSTdM56iieEaW3y9-s5knJIA"/>
+</div>
+<!-- Inventory Item 6 -->
+<div class="aspect-[3/4] bg-surface-container-low rounded-xl flex items-center justify-center p-2 cursor-grab active:scale-95 transition-all group overflow-hidden">
+<img class="w-full h-full object-contain transition-transform group-hover:scale-110" alt="A high-quality black cashmere beanie, textured knit, soft edges, minimalist luxury winter accessory, ivory background, professional lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbwbvXQFZhxmGMRinehGZ6mtRqJ0s53z22jN75tt7bkndKj4G8OCbWMz_D9ynDxwKuKfb-2Yp5fge_dTQNXUav_CQMOzGxK3N-1b7R6x_uHYlw_Ii6R1bISW620Xe1sR4PjpCIT9o3WVSE8Fxi0o3VutzsI8rwzE5dq8PQEttca4yG2NihybJSZ0gKdkPUkeS5nnPH2e5n8vqdmTHWHNQMCKR4BekuZ-1VUN3EFqVlnjZZGRZedZ1SaWoYKerPRr3VsfgFIjnCSkM"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Navigation (Shared Component Logic - Active: Outfits) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-surface/80 dark:bg-surface-container-lowest/80 backdrop-blur-md border-t border-outline-variant/20 flex justify-around items-center px-4 pb-6 pt-2 z-[70]">
+<div class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim cursor-pointer active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim cursor-pointer active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="dry_cleaning">dry_cleaning</span>
+<span class="font-label-md text-label-md">Inventory</span>
+</div>
+<div class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim font-semibold cursor-pointer active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="checkroom" style="font-variation-settings: 'FILL' 1;">checkroom</span>
+<span class="font-label-md text-label-md">Outfits</span>
+</div>
+<div class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim cursor-pointer active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="travel_explore">travel_explore</span>
+<span class="font-label-md text-label-md">Trips</span>
+</div>
+<div class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim cursor-pointer active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</div>
+</nav>
+<script>
+        // Simple Drag Interaction Mockup
+        const items = document.querySelectorAll('.canvas-item');
+        items.forEach(item => {
+            let isDragging = false;
+            let currentX;
+            let currentY;
+            let initialX;
+            let initialY;
+            let xOffset = 0;
+            let yOffset = 0;
+
+            item.addEventListener('touchstart', dragStart, false);
+            item.addEventListener('touchend', dragEnd, false);
+            item.addEventListener('touchmove', drag, false);
+
+            function dragStart(e) {
+                initialX = e.touches[0].clientX - xOffset;
+                initialY = e.touches[0].clientY - yOffset;
+                if (e.target === item || item.contains(e.target)) {
+                    isDragging = true;
+                    item.style.zIndex = "100";
+                }
+            }
+
+            function dragEnd() {
+                initialX = currentX;
+                initialY = currentY;
+                isDragging = false;
+                item.style.zIndex = "50";
+            }
+
+            function drag(e) {
+                if (isDragging) {
+                    e.preventDefault();
+                    currentX = e.touches[0].clientX - initialX;
+                    currentY = e.touches[0].clientY - initialY;
+                    xOffset = currentX;
+                    yOffset = currentY;
+                    setTranslate(currentX, currentY, item);
+                }
+            }
+
+            function setTranslate(xPos, yPos, el) {
+                const currentRotation = el.style.transform.match(/rotate\(([^)]+)\)/) ? el.style.transform.match(/rotate\(([^)]+)\)/)[0] : 'rotate(0deg)';
+                el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0) ${currentRotation}`;
+            }
+        });
+
+        // Tray Toggle Logic
+        let trayOpen = false;
+        function toggleTray() {
+            const tray = document.getElementById('wardrobe-tray');
+            if (trayOpen) {
+                tray.style.transform = 'translateY(calc(100% - 80px))';
+            } else {
+                tray.style.transform = 'translateY(0)';
+            }
+            trayOpen = !trayOpen;
+        }
+
+        // Tactile Haptic Simulation (Visual only)
+        document.querySelectorAll('button, .canvas-item').forEach(el => {
+            el.addEventListener('click', () => {
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(10);
+                }
+            });
+        });
+    </script>
+</body></html>

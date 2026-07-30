@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Woven | Capture Experience</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed-dim": "#c8c6c4",
+                    "secondary-fixed": "#e4e2df",
+                    "on-surface-variant": "#4d4540",
+                    "on-tertiary-container": "#8a827d",
+                    "on-tertiary-fixed": "#1f1b17",
+                    "on-error": "#ffffff",
+                    "surface": "#fdf8f7",
+                    "surface-dim": "#ddd9d8",
+                    "primary-fixed": "#e9e1dd",
+                    "primary": "#000000",
+                    "on-primary-fixed-variant": "#4a4643",
+                    "surface-container-low": "#f7f3f1",
+                    "on-primary-container": "#888380",
+                    "on-tertiary-fixed-variant": "#4b4641",
+                    "on-secondary-container": "#636361",
+                    "tertiary": "#000000",
+                    "on-secondary-fixed-variant": "#474745",
+                    "error": "#ba1a1a",
+                    "surface-tint": "#625d5b",
+                    "primary-fixed-dim": "#ccc5c2",
+                    "on-primary-fixed": "#1e1b19",
+                    "surface-container-highest": "#e6e1e0",
+                    "on-surface": "#1c1b1b",
+                    "background": "#fdf8f7",
+                    "secondary": "#5e5e5c",
+                    "primary-container": "#1e1b19",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-high": "#ece7e6",
+                    "on-secondary-fixed": "#1b1c1a",
+                    "outline": "#7e7570",
+                    "on-error-container": "#93000a",
+                    "surface-bright": "#fdf8f7",
+                    "inverse-primary": "#ccc5c2",
+                    "tertiary-container": "#1f1b17",
+                    "tertiary-fixed-dim": "#cec5bf",
+                    "outline-variant": "#d0c4be",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed": "#eae1da",
+                    "inverse-surface": "#313030",
+                    "on-background": "#1c1b1b",
+                    "secondary-container": "#e1dfdc",
+                    "surface-variant": "#e6e1e0",
+                    "on-primary": "#ffffff",
+                    "surface-container": "#f1edec",
+                    "inverse-on-surface": "#f4f0ef",
+                    "on-secondary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "xs": "8px",
+                    "base": "4px",
+                    "sm": "16px",
+                    "margin-mobile": "20px",
+                    "md": "24px",
+                    "touch-target-min": "44px",
+                    "margin-desktop": "80px",
+                    "lg": "40px",
+                    "xl": "64px"
+            },
+            "fontFamily": {
+                    "body-md": ["Hanken Grotesk"],
+                    "display-lg-mobile": ["Hanken Grotesk"],
+                    "label-caps": ["Hanken Grotesk"],
+                    "display-lg": ["Hanken Grotesk"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "body-lg": ["Hanken Grotesk"],
+                    "title-sm": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "body-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400"}],
+                    "title-sm": ["18px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .ios-blur {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .camera-shutter-outer {
+            border: 4px solid white;
+            padding: 4px;
+            border-radius: 50%;
+        }
+        .camera-shutter-inner {
+            background-color: white;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+        }
+        .scanning-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ffffff, transparent);
+            animation: scan 2s linear infinite;
+            position: absolute;
+            width: 100%;
+            z-index: 20;
+        }
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+        .mask-animate {
+            mask-image: linear-gradient(to bottom, black var(--p), transparent var(--p));
+            transition: --p 2s ease-out;
+        }
+        @property --p {
+            syntax: '<percentage>';
+            inherits: false;
+            initial-value: 100%;
+        }
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .hidden-stage {
+            display: none !important;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  <style id="a11y-fixes">
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+:focus-visible{outline:2px solid #000000;outline-offset:2px}
+</style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen font-body-md overflow-x-hidden">
+<!-- STAGE 1: FULL SCREEN CAMERA -->
+<div class="fixed inset-0 z-50 bg-black flex flex-col items-center justify-between overflow-hidden" id="camera-stage">
+<!-- Top Controls -->
+<div class="w-full flex justify-between items-center px-margin-mobile pt-lg pb-sm text-white">
+<button class="p-2 active:scale-90 transition-transform" onclick="window.history.back()">
+<span class="material-symbols-outlined text-headline-md">close</span>
+</button>
+<div class="flex gap-md">
+<button class="p-2 active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-headline-md">flash_on</span>
+</button>
+<button class="p-2 active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-headline-md">hdr_on</span>
+</button>
+</div>
+</div>
+<!-- Viewfinder -->
+<div class="relative w-full flex-grow flex items-center justify-center px-margin-mobile">
+<div class="w-full aspect-[3/4] border border-white/20 relative overflow-hidden rounded-xl">
+<img class="w-full h-full object-cover grayscale-[0.2]" alt="A high-end editorial close-up of a premium cream-colored linen shirt hanging against a textured limestone wall. The lighting is soft and natural, emphasizing the delicate weave of the fabric and the subtle shadows. The aesthetic is clean, minimalist, and quiet luxury, typical of a high-end fashion magazine." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBuxziIgmsDy4FLkaN1KvASU2veaP7Qm_Q5JQ2Dv8p3Yi_V6IVqYuZ_geKr4UVqrWqoCjFUFwadoW0pPJjXjZlliPZ8gX8SflRiB6JXj05KltH5sMSOYuZcZ_FuaC2nK-fFShNLMp-cTdk0McqK8XbXlQX3ViwP6Lonmsvw21BUqJjbRr9mxmg723fbEVTZ-ZN6Q-SomNRj7temxkBLMBReq9s_MlcO5oqfNmnts6xxLNOjmq_B00i3CEjTQCs5O_0faeXTsq6wgY"/>
+<!-- Focus Square -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 border border-white/40 rounded-sm"></div>
+</div>
+</div>
+<!-- Bottom Controls -->
+<div class="w-full pb-xl px-margin-mobile flex flex-col items-center gap-lg">
+<!-- Mode Selector -->
+<div class="flex gap-lg text-white/60 font-label-caps text-label-caps tracking-widest">
+<span class="text-white">PHOTO</span>
+<span>BURST</span>
+<span>IMPORT</span>
+</div>
+<!-- Shutter & Actions -->
+<div class="w-full flex justify-around items-center">
+<!-- Gallery Button -->
+<button class="w-12 h-12 rounded-lg overflow-hidden border border-white/20 active:scale-95 transition-transform">
+<img class="w-full h-full object-cover" alt="A small square thumbnail showing a collection of neutral-toned clothing items laid out neatly. Soft beige and muted grey tones dominate the scene, suggesting a curated wardrobe. The lighting is bright and even, reinforcing the clean, premium editorial aesthetic of the app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjCTZjO_ck44XRc150X9agT17ZIsnFQzLnLJqFJSST0cecjfSLnlhuLKfY5u8fYwEUEbzUV4KgIw_v7owwoGG91PqGF6N-ih--w3ABS03qVTkYh_HOnXF6-WaJtgoYWrCSjOjhPfxfP4ekTqDu_Z-OMj899Ou2Ltm_rJ_wl68PS2f2WysjmhrSLH1jj3MWixTBWe3WTXbjRi3JVkOFtUuko8zqqLibmfO77Lxcx09bCoWydEvztSQd4FoAyQnGZb_oNr72CV8HQU8"/>
+</button>
+<!-- Main Shutter -->
+<button class="camera-shutter-outer active:scale-90 transition-transform" id="shutter-btn">
+<div class="camera-shutter-inner"></div>
+</button>
+<!-- Flip Camera -->
+<button class="w-12 h-12 flex items-center justify-center text-white active:rotate-180 transition-all duration-500">
+<span class="material-symbols-outlined text-headline-md">cached</span>
+</button>
+</div>
+</div>
+</div>
+<!-- STAGE 2: AI PROCESSING (Background Removal) -->
+<div class="fixed inset-0 z-[60] bg-surface flex flex-col items-center justify-center hidden-stage" id="processing-stage">
+<div class="relative w-4/5 aspect-[3/4] mb-lg rounded-xl overflow-hidden shadow-2xl">
+<!-- Original -->
+<div class="absolute inset-0 bg-surface-dim">
+<img class="w-full h-full object-cover opacity-30 grayscale" alt="A high-end editorial close-up of a premium cream-colored linen shirt hanging against a textured limestone wall. The lighting is soft and natural, emphasizing the delicate weave of the fabric and the subtle shadows. The aesthetic is clean, minimalist, and quiet luxury, typical of a high-end fashion magazine." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBl4URJ8Zh63Q49IRC6PzhNw4s-b0hjn_LyPJO54ztrR92-RgSaEOT03mJsAu6bKDs0vR3YiMvlfwpniE9Mny8dj0XjMeArHvvQus7k3jgBXzdEXaU3K7n7yce-svGgBRQHeBxj4VWrYLKUuhS3pC4FO_sLFrMFHzPlN1ux5znvQwSUwKnrOxInoJ-OG-v_2rLib3wr6NcyQW0hFF-Nzl7z0b1hexrGICUPsIqAJFA4S554rI0XibdTxbmX8JqBB72wbvH94u7_iiU"/>
+</div>
+<!-- Masking Result -->
+<div class="absolute inset-0 z-10 transition-all duration-1000 overflow-hidden" id="masked-image">
+<div class="scanning-line"></div>
+<img class="w-full h-full object-cover" alt="A clean cutout of a cream linen shirt perfectly isolated against a transparent or neutral studio background. The fabric's fine details and natural drape are highlighted by crisp edges and professional lighting, giving it a sophisticated, high-end e-commerce look." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7lwJ053uO0j4MHJre3d1MKcxtbeYFfDCIzFUd62GLl95UmRIpMqsHythqvBxo7X3nrrzy0NieeyJdcmYbSlXAgvd_kjsecGh58BVtbl2BH4_IHu-yVdMxqIZklEVYHW9NjDQRlIiI-HfG7E5bASu_LoEZurOqbsGqT7HeYlg9qqaZhavVZBmdfMfV_JYvYy9R-uCoFIJxnqycBU-orImcQN0Q9sxA7NB94jY4bbc74GhqrDFKrr-cAqEMlLbqr5NI7Tf4KEdZYz4"/>
+</div>
+</div>
+<div class="text-center space-y-xs">
+<h2 class="font-headline-md text-headline-md text-on-surface">Refining Canvas</h2>
+<p class="font-body-md text-body-md text-secondary shimmer bg-clip-text text-transparent">AI background isolation in progress...</p>
+</div>
+</div>
+<!-- STAGE 3: REVIEW & REFINE -->
+<main class="min-h-screen pt-lg pb-32 px-margin-mobile hidden-stage" id="review-stage">
+<div class="max-w-md mx-auto">
+<!-- Back Action -->
+<button class="mb-lg flex items-center gap-xs text-secondary active:scale-95 transition-transform" onclick="resetCapture()">
+<span class="material-symbols-outlined text-body-lg">arrow_back</span>
+<span class="font-label-caps text-label-caps">RETAKE</span>
+</button>
+<!-- Product Header -->
+<div class="flex gap-md mb-xl items-center">
+<div class="w-32 aspect-square bg-surface-container rounded-xl overflow-hidden border border-outline-variant/30">
+<img class="w-full h-full object-cover" alt="A clean cutout of a cream linen shirt perfectly isolated against a transparent or neutral studio background. The fabric's fine details and natural drape are highlighted by crisp edges and professional lighting, giving it a sophisticated, high-end e-commerce look." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5j20oQ5C63sPasDHdXMWx2_zk4hLCdmwrKtP7bxNmads1ai7ucTds4JH5w1CgGeSSuxiZ5ghSVWjraA9jdrmuFqLvIeT1pMU6eH62Ehkgq0QY4oboeKeg8zNULZBi6kN8B57jSe5MpxAf0Fb1qz7CDzjWxC32BdOqyuKFaUfRRM8SSrwB4pT1Q62B4R3W2i-i5tSzTlSU7UiiNEsYRlpXqM5-FgfaqXWGYH_Pp90pCKrMXXRqN4nAMnq_Eg06ibrek4pqLIxiMb0"/>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md mb-1">New Capture</h1>
+<span class="inline-block px-3 py-1 bg-primary text-on-primary font-label-caps text-[10px] rounded-full">AI DETECTED: TOPS</span>
+</div>
+</div>
+<!-- Edit Fields -->
+<div class="space-y-lg">
+<!-- Category -->
+<div class="space-y-xs">
+<label class="block font-label-caps text-label-caps text-secondary ml-1">CATEGORY</label>
+<div class="relative">
+<select class="w-full h-touch-target-min bg-surface border-outline-variant rounded-lg font-body-lg text-body-lg px-4 appearance-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+<option>Shirts &amp; Blouses</option>
+<option>T-Shirts</option>
+<option>Knitwear</option>
+<option>Outerwear</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Color Swatches -->
+<div class="space-y-xs">
+<label class="block font-label-caps text-label-caps text-secondary ml-1">COLOR</label>
+<div class="flex gap-sm">
+<div class="w-10 h-10 rounded-full border-2 border-primary ring-2 ring-offset-2 ring-transparent bg-[#F5F5DC] cursor-pointer"></div>
+<div class="w-10 h-10 rounded-full border border-outline-variant bg-[#FFFFFF] cursor-pointer"></div>
+<div class="w-10 h-10 rounded-full border border-outline-variant bg-[#A52A2A] cursor-pointer"></div>
+<div class="w-10 h-10 rounded-full border border-outline-variant bg-[#2F4F4F] cursor-pointer"></div>
+</div>
+</div>
+<!-- Material Tags -->
+<div class="space-y-xs">
+<label class="block font-label-caps text-label-caps text-secondary ml-1">MATERIAL</label>
+<div class="flex flex-wrap gap-xs">
+<span class="px-4 py-2 bg-secondary-container text-on-secondary-container rounded-full font-body-md text-body-md">Linen</span>
+<span class="px-4 py-2 border border-outline-variant text-on-surface rounded-full font-body-md text-body-md">+ Add</span>
+</div>
+</div>
+<!-- Season & Style Row -->
+<div class="grid grid-cols-2 gap-md">
+<div class="space-y-xs">
+<label class="block font-label-caps text-label-caps text-secondary ml-1">SEASON</label>
+<select class="w-full h-touch-target-min bg-surface border-outline-variant rounded-lg font-body-lg text-body-lg px-4 appearance-none focus:ring-1 focus:ring-primary transition-all">
+<option>Summer</option>
+<option>Spring</option>
+<option>Fall</option>
+<option>Winter</option>
+</select>
+</div>
+<div class="space-y-xs">
+<label class="block font-label-caps text-label-caps text-secondary ml-1">STYLE</label>
+<select class="w-full h-touch-target-min bg-surface border-outline-variant rounded-lg font-body-lg text-body-lg px-4 appearance-none focus:ring-1 focus:ring-primary transition-all">
+<option>Minimalist</option>
+<option>Casual</option>
+<option>Formal</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Confirm Button -->
+<button class="w-full mt-xl h-14 bg-primary text-on-primary font-title-sm text-title-sm rounded-lg active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-sm" id="add-btn">
+<span>Confirm &amp; Add to Wardrobe</span>
+</button>
+<!-- AI Suggestion -->
+<div class="mt-xl p-lg bg-surface-container rounded-xl flex items-start gap-md border border-outline-variant/20 animate-pulse-subtle">
+<div class="p-2 bg-primary text-on-primary rounded-lg">
+<span class="material-symbols-outlined text-body-lg">auto_awesome</span>
+</div>
+<div class="flex-grow">
+<p class="font-body-md text-body-md text-on-surface leading-snug">
+                        "This looks like a perfect match for your <strong class="underline decoration-outline-variant">Linen Trousers</strong>."
+                    </p>
+<button class="mt-sm font-label-caps text-label-caps text-secondary-fixed-dim uppercase tracking-tighter">View Suggestion →</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Global Nav Mockup (Hidden on Camera) -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-2 bg-surface/80 backdrop-blur-md border-t border-outline-variant/20 z-40 hidden-stage" id="global-nav">
+<div class="flex flex-col items-center justify-center text-secondary">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-primary font-semibold">
+<span class="material-symbols-outlined">dry_cleaning</span>
+<span class="font-label-md text-label-md">Inventory</span>
+</div>
+<div class="flex flex-col items-center justify-center text-secondary">
+<span class="material-symbols-outlined">checkroom</span>
+<span class="font-label-md text-label-md">Outfits</span>
+</div>
+<div class="flex flex-col items-center justify-center text-secondary">
+<span class="material-symbols-outlined">travel_explore</span>
+<span class="font-label-md text-label-md">Trips</span>
+</div>
+<div class="flex flex-col items-center justify-center text-secondary">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</div>
+</nav>
+<script>
+        const shutterBtn = document.getElementById('shutter-btn');
+        const cameraStage = document.getElementById('camera-stage');
+        const processingStage = document.getElementById('processing-stage');
+        const reviewStage = document.getElementById('review-stage');
+        const globalNav = document.getElementById('global-nav');
+        const maskedImage = document.getElementById('masked-image');
+
+        shutterBtn.addEventListener('click', () => {
+            // Shutter sound/flash effect
+            cameraStage.classList.add('opacity-0');
+            setTimeout(() => {
+                cameraStage.classList.add('hidden-stage');
+                processingStage.classList.remove('hidden-stage');
+                
+                // Simulate AI Masking
+                setTimeout(() => {
+                    maskedImage.style.setProperty('--p', '0%');
+                }, 100);
+
+                // Move to Review Stage
+                setTimeout(() => {
+                    processingStage.classList.add('opacity-0');
+                    setTimeout(() => {
+                        processingStage.classList.add('hidden-stage');
+                        reviewStage.classList.remove('hidden-stage');
+                        globalNav.classList.remove('hidden-stage');
+                        reviewStage.classList.add('animate-in', 'fade-in', 'slide-in-from-bottom-8', 'duration-700');
+                    }, 300);
+                }, 3000);
+            }, 300);
+        });
+
+        function resetCapture() {
+            location.reload(); // Simple reset for demo
+        }
+
+        // Add visual micro-interaction for adding item
+        document.getElementById('add-btn').addEventListener('click', function() {
+            this.innerHTML = '<span class="material-symbols-outlined animate-spin">progress_activity</span>';
+            setTimeout(() => {
+                this.classList.replace('bg-primary', 'bg-green-600');
+                this.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Added';
+            }, 1000);
+        });
+    </script>
+<style>
+        @keyframes pulse-subtle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.85; }
+        }
+        .animate-pulse-subtle {
+            animation: pulse-subtle 3s infinite ease-in-out;
+        }
+        .fade-in { opacity: 0; animation: fadeIn 0.8s forwards; }
+        @keyframes fadeIn { to { opacity: 1; } }
+        .slide-in-from-bottom-8 { transform: translateY(2rem); animation: slideIn 0.8s forwards; }
+        @keyframes slideIn { to { transform: translateY(0); } }
+    </style>
+</body></html>

@@ -1,0 +1,109 @@
+ID,Type,Parent,Title,Priority,Estimate_SP,Size,Sprint,Dependencies,Epic,Status
+E00,Epic,,Foundations (repo/monorepo/CI-CD/tooling),P0,,,S0,,E00,Todo
+E01,Epic,,Arquitectura & Design System,P0,,,S1,E00,E01,Todo
+E02,Epic,,Backend & Datos (Supabase),P0,,,S1-S2,E00,E02,Todo
+E03,Epic,,Autenticacion & Perfil,P0,,,S2,E01;E02,E03,Todo
+E04,Epic,,Captura & Pipeline de imagen,P0,,,S3-S4,E03;E09,E04,Todo
+E05,Epic,,Inventario,P0,,,S4-S5,E04;E09,E05,Todo
+E06,Epic,,Outfits / Studio,P0,,,S5-S6,E05,E06,Todo
+E07,Epic,,Home,P1,,,S6-S7,E05;E06,E07,Todo
+E08,Epic,,Trips,P1,,,S7-S8,E05;E06,E08,Todo
+E09,Epic,,Servicios IA (transversal),P0,,,S3-S8,E02,E09,Todo
+E10,Epic,,Offline & Sync (transversal),P1,,,S4-S9,E02;E04,E10,Todo
+E11,Epic,,Observabilidad/Testing/Calidad/A11y,P0,,,S0-S10,E00,E11,Todo
+E12,Epic,,Release & Lanzamiento,P0,,,S9-S10,E04;E05;E06;E07;E08,E12,Todo
+T-0001,Task,E00,Monorepo pnpm + Turborepo,P0,3,M,S0,,E00,Todo
+T-0002,Task,E00,Config compartida tsconfig/ESLint(boundaries)/Prettier,P0,3,M,S0,T-0001,E00,Todo
+T-0003,Task,E00,Bootstrap apps/mobile (Expo + Expo Router),P0,3,M,S0,T-0001,E00,Todo
+T-0004,Task,E00,Bootstrap apps/web (React + Vite),P0,2,S,S0,T-0001,E00,Todo
+T-0005,Task,E00,Proyecto Supabase dev/staging/prod + CLI,P0,3,M,S0,,E00,Todo
+T-0006,Task,E00,Storybook para packages/ui,P1,2,S,S0,T-0001,E00,Todo
+T-0007,Task,E00,Vitest + config test compartida,P0,2,S,S0,T-0002,E00,Todo
+T-0008,Task,E00,GitHub Actions CI (lint/typecheck/test/build afectados),P0,5,L,S0,T-0002;T-0007,E00,Todo
+T-0009,Task,E00,Variables de entorno + secrets + .env.example,P0,2,S,S0,T-0005,E00,Todo
+T-0010,Task,E00,Sentry + PostHog tras interfaz Telemetry,P0,3,M,S0,T-0003;T-0004,E00,Todo
+T-0101,Task,E01,Tailwind preset tokens Woven (NativeWind+web),P0,3,M,S1,T-0002,E01,Todo
+T-0102,Task,E01,Atoms + stories,P0,8,L,S1,T-0101,E01,Todo
+T-0103,Task,E01,Molecules base + stories,P0,5,L,S1,T-0102,E01,Todo
+T-0104,Task,E01,Organisms de navegacion (BottomNav/TopNav),P0,3,M,S1,T-0102,E01,Todo
+T-0105,Task,E01,Routing Expo Router + gate auth (stub),P0,5,L,S1,T-0104,E01,Todo
+T-0106,Task,E01,Theme provider claro/oscuro/sistema,P0,3,M,S1,T-0101,E01,Todo
+T-0107,Task,E01,Providers raiz (Sentry/Query/Auth/Theme/Telemetry),P0,3,M,S1,T-0010;T-0106,E01,Todo
+T-0108,Task,E01,Templates (TabScreen/FullScreenFlow/EmptyState/TwoColumn),P1,3,M,S1,T-0103,E01,Todo
+T-0111,Task,E11,Visual regression baseline,P1,3,M,S1,T-0102,E11,Todo
+T-0201,Task,E02,Migraciones nucleo (enums/referencia/profile/image_asset),P0,5,L,S1,T-0005,E02,Todo
+T-0202,Task,E02,Tipos generados + check en CI,P0,3,M,S1,T-0201,E02,Todo
+T-0203,Task,E02,Migraciones entidades principales (garment/outfit/trip/collection/ai),P0,8,L,S2,T-0201,E02,Todo
+T-0204,Task,E02,RLS en todas las tablas + policies por join,P0,5,L,S2,T-0203,E02,Todo
+T-0205,Task,E02,Storage buckets privados + policies + sign-upload,P0,5,L,S2,T-0201,E02,Todo
+T-0206,Task,E02,Triggers/funciones (updated_at/handle_new_user/trip_day/soft_delete),P0,3,M,S2,T-0203,E02,Todo
+T-0207,Task,E02,Seeds de referencia,P1,2,S,S2,T-0203,E02,Todo
+T-0301,Task,E03,AuthService (Supabase Auth) + secure-store,P0,3,M,S2,T-0203,E03,Todo
+T-0302,Task,E03,Gate de auth real + AuthContext,P0,3,M,S2,T-0301;T-0105,E03,Todo
+T-0303,Task,E03,ProfileRepository + hooks,P0,3,M,S2,T-0202;T-0204,E03,Todo
+T-0304,Task,E03,Pantalla Perfil (analiticas PD ocultas),P0,5,L,S2,T-0303,E03,Todo
+T-0305,Task,E03,Style Preferences add/remove,P1,3,M,S2,T-0303,E03,Todo
+T-0306,Task,E03,Ajustes (dark mode/unidades; resto PD),P1,3,M,S2,T-0304;T-0106,E03,Todo
+T-0307,Task,E11,Tests integracion RLS (aislamiento),P0,3,M,S2,T-0204,E11,Todo
+T-0308,Task,E03,UI auth stub (bloqueado PD-01),P0,2,S,S2,T-0302,E03,Blocked
+T-0901,Task,E09,Interfaces AiService/BackgroundRemoval/ImageService,P0,3,M,S3,T-0202,E09,Todo
+T-0902,Task,E09,Edge Fn remove-background + cache,P0,5,L,S3,T-0205;T-0901,E09,Todo
+T-0401,Task,E04,Camara + permisos (Photo),P0,3,M,S3,T-0107,E04,Todo
+T-0402,Task,E04,Compresion + limpieza EXIF,P0,3,M,S3,T-0401,E04,Todo
+T-0403,Task,E04,Subida firmada + registro image_asset,P0,3,M,S3,T-0205;T-0402,E04,Todo
+T-0404,Task,E04,Etapa procesado + recorte + fallback,P0,5,L,S3,T-0902;T-0403,E04,Todo
+T-0405,Task,E04,Encolado captura offline,P1,3,M,S3,T-0403,E04,Todo
+T-0910,Task,E09,Rate-limit + logging de coste,P0,3,M,S3,T-0902,E09,Todo
+T-0903,Task,E09,Edge Fn classify-garment (Zod),P0,5,L,S4,T-0901,E09,Todo
+T-0406,Task,E04,Etapa revision 5 campos editables + validacion,P0,5,L,S4,T-0903,E04,Todo
+T-0407,Task,E04,Confirmar -> GarmentRepository.create,P0,3,M,S4,T-0203;T-0406,E04,Todo
+T-0408,Task,E04,Modo Burst,P1,5,L,S4,T-0407,E04,Todo
+T-0409,Task,E04,Modo Import,P1,5,L,S4,T-0407,E04,Todo
+T-0501,Task,E05,Rejilla Editorial virtualizada (FlashList),P0,5,L,S4,T-0407,E05,Todo
+T-0502,Task,E05,useGarments keyset infinite + estados vacios,P0,3,M,S4,T-0501,E05,Todo
+T-0503,Task,E05,FAB -> Captura,P1,1,S,S4,T-0501,E05,Todo
+T-1001,Task,E10,Persistencia cache TanStack,P1,3,M,S4,T-0107,E10,Todo
+T-1002,Task,E10,Cola offline + drenaje basico,P1,5,L,S4,T-1001;T-0405,E10,Todo
+T-0904,Task,E09,Edge Fn embed-garment + pgvector,P0,5,L,S5,T-0903,E09,Todo
+T-0905,Task,E09,Edge Fn semantic-search + RPC search_garments,P0,5,L,S5,T-0904,E09,Todo
+T-0504,Task,E05,Busqueda semantica UI + fallback atributos,P0,5,L,S5,T-0905,E05,Todo
+T-0505,Task,E05,Modos Compact/Categories + persistencia,P1,3,M,S5,T-0501,E05,Todo
+T-0506,Task,E05,Colecciones CRUD + filtro chip,P1,5,L,S5,T-0502,E05,Todo
+T-0507,Task,E05,Favoritos optimistic,P1,3,M,S5,T-0502,E05,Todo
+T-0508,Task,E05,Detalle de prenda (editar/soft-delete),P0,5,L,S5,T-0502,E05,Todo
+T-0509,Task,E05,Insight IA + creacion coleccion,P2,3,M,S5,T-0906,E05,Todo
+T-0906,Task,E09,Edge Fn generate-insights (batch),P1,3,M,S5,T-0904,E09,Todo
+T-0601,Task,E06,Lienzo + render items (gesture-handler/reanimated),P0,5,L,S6,T-0508,E06,Todo
+T-0602,Task,E06,DnD tactil + puntero,P0,13,XL,S6,T-0601,E06,Todo
+T-0603,Task,E06,Capas + rotacion + escala,P0,5,L,S6,T-0602,E06,Todo
+T-0604,Task,E06,Bandeja de armario colapsable,P0,5,L,S6,T-0502,E06,Todo
+T-0605,Task,E06,useStudioDraft + autosave,P1,3,M,S6,T-0601,E06,Todo
+T-0606,Task,E06,undo/redo,P1,5,L,S6,T-0605,E06,Todo
+T-0607,Task,E06,Guardar (RPC save_outfit) + validacion,P0,5,L,S6,T-0203,E06,Todo
+T-0608,Task,E06,Alternativa accesible al drag (WCAG 2.5.7),P0,3,M,S6,T-0602,E06,Todo
+T-0907,Task,E09,Edge Fn recommend-outfit,P0,5,L,S7,T-0904,E09,Todo
+T-0609,Task,E06,Match score + estilista + Apply Suggestion,P1,5,L,S7,T-0907;T-0602,E06,Todo
+T-0701,Task,E07,Forgotten Pieces (>60d) + carrusel,P1,3,M,S7,T-0502,E07,Todo
+T-0702,Task,E07,Today's Look (outfit + clima),P1,5,L,S7,T-0907,E07,Todo
+T-0703,Task,E07,Bento analiticas Home (Style Score oculto PD-12),P2,3,M,S7,T-0304,E07,Todo
+T-0704,Task,E07,Agenda Home stub (PD-06),P2,1,S,S7,,E07,Blocked
+T-0801,Task,E08,Edge Fn get-weather + snapshot + cache,P1,5,L,S8,T-0901,E08,Todo
+T-0802,Task,E08,Crear viaje + TripRepository,P1,3,M,S8,T-0203,E08,Todo
+T-0803,Task,E08,Maleta visual add/remove,P1,5,L,S8,T-0508,E08,Todo
+T-0804,Task,E08,Outfits por dia (assign_outfit_to_day),P1,5,L,S8,T-0607,E08,Todo
+T-0805,Task,E08,Clima por dia en detalle,P1,3,M,S8,T-0801,E08,Todo
+T-0705,Task,E07,Home pulido + estados vacios + pull-to-refresh,P1,3,M,S8,T-0702,E07,Todo
+T-0806,Task,E08,Packing Insight + Add to Trip,P1,5,L,S9,T-0801;T-0907,E08,Todo
+T-0807,Task,E08,Estado Outfit Incomplete por dia,P1,3,M,S9,T-0804,E08,Todo
+T-0808,Task,E08,Journey Blueprint (mapa PD-05),P2,3,M,S9,T-0803,E08,Todo
+T-1003,Task,E10,Reintentos/backoff + last-write-wins,P1,5,L,S9,T-1002,E10,Todo
+T-1004,Task,E10,Background sync (movil/web),P2,5,L,S9,T-1003,E10,Todo
+T-1101,Task,E11,Telemetria eventos KPI + dashboards,P0,3,M,S9,T-0010,E11,Todo
+T-1102,Task,E11,Alertas Sentry + monitor coste IA,P0,3,M,S9,T-0910,E11,Todo
+T-1103,Task,E11,Auditoria WCAG 2.2 AA (axe+VoiceOver/TalkBack),P0,5,L,S10,,E11,Todo
+T-1104,Task,E11,Perf budgets en CI,P1,3,M,S10,T-1101,E11,Todo
+T-1201,Task,E12,Hardening errores/estados/edge cases,P0,5,L,S10,,E12,Todo
+T-1202,Task,E12,EAS Build/Submit + canales pr/staging/prod,P0,5,L,S10,T-0003,E12,Todo
+T-1203,Task,E12,Assets de tienda + compliance,P0,3,M,S10,T-1202,E12,Todo
+T-1204,Task,E12,Kill-switch feature flag + rollback,P0,3,M,S10,T-1101,E12,Todo
+T-1205,Task,E11,E2E flujos criticos (Detox/Maestro + Playwright),P0,5,L,S10,,E11,Todo
