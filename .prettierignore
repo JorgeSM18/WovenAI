@@ -1,0 +1,15 @@
+node_modules
+dist
+build
+coverage
+.turbo
+.expo
+pnpm-lock.yaml
+docs
+design
+assets
+**/generated
+
+# Hand-authored rule/docs markdown (prose, not Prettier-managed)
+CLAUDE.md
+AGENTS.md

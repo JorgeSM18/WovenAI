@@ -1,6 +1,11 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "stream",
+  "globalDependencies": [
+    "packages/config/tsconfig.base.json",
+    "packages/config/eslint.config.mjs",
+    "packages/config/prettier.config.mjs"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
