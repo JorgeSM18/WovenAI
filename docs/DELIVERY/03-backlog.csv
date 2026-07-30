@@ -15,6 +15,7 @@ E12,Epic,,Release & Lanzamiento,P0,,,S9-S10,E04;E05;E06;E07;E08,E12,Todo
 T-0001,Task,E00,Monorepo pnpm + Turborepo,P0,3,M,S0,,E00,Todo
 T-0002,Task,E00,Config compartida tsconfig/ESLint(boundaries)/Prettier,P0,3,M,S0,T-0001,E00,Todo
 T-0003,Task,E00,Bootstrap apps/mobile (Expo + Expo Router),P0,3,M,S0,T-0001,E00,Todo
+T-0003.1,Subtask,T-0003,Wire eslint-import-resolver-typescript so boundaries enforce @woven/* alias imports + boundary test,P1,2,S,S0,T-0002,E00,Todo
 T-0004,Task,E00,Bootstrap apps/web (React + Vite),P0,2,S,S0,T-0001,E00,Todo
 T-0005,Task,E00,Proyecto Supabase dev/staging/prod + CLI,P0,3,M,S0,,E00,Todo
 T-0006,Task,E00,Storybook para packages/ui,P1,2,S,S0,T-0001,E00,Todo

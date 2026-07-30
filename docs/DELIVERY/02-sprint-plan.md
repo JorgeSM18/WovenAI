@@ -19,6 +19,7 @@ Cadencia: 2 semanas/sprint. Cada tarea: `ID · título · SP(talla) · deps`. Ri
 | T-0001 | Monorepo pnpm + Turborepo (workspaces, pipelines) | M | — |
 | T-0002 | `packages/config`: tsconfig base, ESLint (+boundaries ADR-013), Prettier | M | T-0001 |
 | T-0003 | Bootstrap `apps/mobile` (Expo + Expo Router) que arranca | M | T-0001 |
+| T-0003.1 | Wire `eslint-import-resolver-typescript` en `@woven/config` para que `boundaries` enforce los imports por alias `@woven/*` (+ test de boundary). Necesario cuando aparezcan `tsconfig` con `paths` y los primeros imports entre paquetes. | S | T-0002 |
 | T-0004 | Bootstrap `apps/web` (React + Vite) que arranca | S | T-0001 |
 | T-0005 | Proyecto Supabase (dev/staging/prod) + CLI + `supabase/` | M | — |
 | T-0006 | Storybook para `packages/ui` | S | T-0001 |
