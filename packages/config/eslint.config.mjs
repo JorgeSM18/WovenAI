@@ -62,9 +62,11 @@ export default tseslint.config(
     },
   },
 
-  // Layer dependency boundaries (applies to all workspace source).
+  // Layer dependency boundaries (applies to workspace runtime source, not
+  // to build/test tooling config which may reference @woven/config).
   {
     files: ['{apps,packages}/**/*.{ts,tsx,js,mjs}'],
+    ignores: ['**/*.config.{ts,js,mjs,cjs}', '**/.storybook/**'],
     plugins: { boundaries },
     settings: {
       'boundaries/elements': [
