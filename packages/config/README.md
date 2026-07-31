@@ -7,6 +7,18 @@ Configuración de tooling compartida del monorepo (T-0002). **No contiene lógic
 - `tsconfig.base.json` — base TypeScript estricta (extiéndela en cada paquete).
 - `eslint.config.mjs` — ESLint flat config con **boundaries** de dependencia (ADR-013).
 - `prettier.config.mjs` — formato.
+- `vitest.base.ts` — config base de Vitest.
+- `tailwind-preset.cjs` — tokens Woven (colores/tipografía/espaciado/radios) para NativeWind (móvil) y Tailwind (web). Fuente: `design/woven/DESIGN.md`.
+
+## Tailwind preset (tokens)
+
+En el `tailwind.config` de cada app:
+
+```js
+module.exports = { presets: [require('@woven/config/tailwind-preset')] };
+```
+
+Solo se codifican los tokens **light**; los valores dark se cablean con el theme provider (T-0106).
 
 ## Uso en un paquete/app
 

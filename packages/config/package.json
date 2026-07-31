@@ -8,6 +8,7 @@
     "./eslint": "./eslint.config.mjs",
     "./prettier": "./prettier.config.mjs",
     "./vitest": "./vitest.base.ts",
+    "./tailwind-preset": "./tailwind-preset.cjs",
     "./tsconfig.base.json": "./tsconfig.base.json"
   },
   "scripts": {
