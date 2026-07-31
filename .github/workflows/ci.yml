@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Format · Lint · Typecheck · Test · Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history so `turbo --affected` can find the base
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4 # version comes from package.json "packageManager"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Format check
+        run: pnpm format
+
+      - name: Lint, typecheck, test, build
+        # `--affected` on PRs (compares against main); full run on push to main.
+        run: pnpm exec turbo run lint typecheck test build ${{ github.event_name == 'pull_request' && '--affected' || '' }}
