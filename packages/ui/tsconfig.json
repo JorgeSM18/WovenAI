@@ -2,9 +2,10 @@
   "extends": "@woven/config/tsconfig.base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
+    "jsxImportSource": "nativewind",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "noEmit": true
   },
-  "include": ["src", ".storybook"],
+  "include": ["src", ".storybook", "nativewind-env.d.ts"],
   "exclude": ["node_modules", "storybook-static"]
 }
