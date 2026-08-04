@@ -1,24 +1,15 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Redirect } from 'expo-router';
 
-// Placeholder boot screen (T-0003). Replaced by the design system + real
-// screens in later tasks (S1+). Kept intentionally minimal.
+import { useSession } from '../src/auth/session';
+
+/**
+ * Auth gate (stub). PD-01: with no auth UI yet, unauthenticated users are sent
+ * to onboarding; once designed they would go to a dedicated auth flow.
+ */
 export default function Index() {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.wordmark}>Woven</Text>
-    </View>
-  );
+  const { isAuthenticated, hasCompletedOnboarding } = useSession();
+  if (!isAuthenticated || !hasCompletedOnboarding) {
+    return <Redirect href="/onboarding" />;
+  }
+  return <Redirect href="/home" />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  wordmark: {
-    fontSize: 32,
-    fontWeight: '300',
-    letterSpacing: 2,
-  },
-});

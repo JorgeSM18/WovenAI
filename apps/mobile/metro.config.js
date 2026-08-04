@@ -1,6 +1,6 @@
-// Metro config for Expo inside the pnpm monorepo.
-// Watches the workspace root and resolves modules from both the app and the root.
+// Metro config for Expo inside the pnpm monorepo, wrapped with NativeWind.
 const { getDefaultConfig } = require('expo/metro-config');
+const { withNativeWind } = require('nativewind/metro');
 const path = require('path');
 
 const projectRoot = __dirname;
@@ -13,6 +13,5 @@ config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),
   path.resolve(workspaceRoot, 'node_modules'),
 ];
-config.resolver.disableHierarchicalLookup = true;
 
-module.exports = config;
+module.exports = withNativeWind(config, { input: './global.css' });
