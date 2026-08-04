@@ -27,3 +27,12 @@ export { SettingRow, type SettingRowProps } from './molecules/SettingRow';
 
 export { BottomNavBar, type BottomNavBarProps, type BottomNavItem } from './organisms/BottomNavBar';
 export { TopNavBar, type TopNavBarProps, type TopNavItem } from './organisms/TopNavBar';
+
+export {
+  ThemeProvider,
+  useTheme,
+  type ThemeProviderProps,
+  type ThemeContextValue,
+  type ThemeMode,
+  type ResolvedScheme,
+} from './theme/ThemeProvider';
