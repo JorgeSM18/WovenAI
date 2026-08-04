@@ -19,7 +19,7 @@ export type ViewModeToggleProps = {
 export function ViewModeToggle({ options, value, onChange, className }: ViewModeToggleProps) {
   return (
     <View
-      accessibilityRole="tablist"
+      accessibilityRole="radiogroup"
       className={cn('flex-row rounded-lg bg-surface-container-low p-xs', className)}
     >
       {options.map((option) => {
@@ -27,7 +27,7 @@ export function ViewModeToggle({ options, value, onChange, className }: ViewMode
         return (
           <Pressable
             key={option.value}
-            accessibilityRole="tab"
+            accessibilityRole="radio"
             accessibilityState={{ selected: active }}
             onPress={() => onChange(option.value)}
             className={cn(

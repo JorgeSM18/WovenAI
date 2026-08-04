@@ -21,7 +21,7 @@ export function SearchBar({ className, placeholder, ...props }: SearchBarProps) 
       </Text>
       <TextInput
         accessibilityLabel="Search"
-        placeholder={placeholder ?? 'Find something for a rainy dinner'}
+        placeholder={placeholder ?? 'Search'}
         className="flex-1 font-sans text-body-lg text-on-surface placeholder:text-outline"
         {...props}
       />

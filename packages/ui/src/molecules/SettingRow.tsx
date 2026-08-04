@@ -17,8 +17,7 @@ export function SettingRow({ title, subtitle, leading, onPress, className }: Set
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={title}
-      accessibilityHint={subtitle}
+      accessibilityLabel={subtitle ? `${title}. ${subtitle}` : title}
       onPress={onPress}
       className={cn('min-h-touch-target-min flex-row items-center gap-md px-md py-sm', className)}
     >

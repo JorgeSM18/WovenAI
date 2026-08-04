@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { View } from 'react-native';
 
 import { Text } from '../atoms/Text';
@@ -6,11 +7,13 @@ import { cn } from '../utils/cn';
 export type WeatherPillProps = {
   temperature: string;
   condition?: string;
+  /** Optional weather icon. No default: a fixed glyph would misrepresent the condition. */
+  icon?: ReactNode;
   className?: string;
 };
 
-/** Compact weather indicator (glyph + temperature + condition). */
-export function WeatherPill({ temperature, condition, className }: WeatherPillProps) {
+/** Compact weather indicator (optional icon + temperature + condition). */
+export function WeatherPill({ temperature, condition, icon, className }: WeatherPillProps) {
   return (
     <View
       className={cn(
@@ -18,9 +21,7 @@ export function WeatherPill({ temperature, condition, className }: WeatherPillPr
         className,
       )}
     >
-      <Text variant="body-md" className="text-on-surface" accessibilityElementsHidden>
-        ☀
-      </Text>
+      {icon}
       <Text variant="label-caps" className="text-on-surface">
         {temperature}
       </Text>
