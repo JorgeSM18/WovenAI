@@ -155,6 +155,14 @@ export default tseslint.config(
     },
   },
 
+  // Storybook test-runner config runs in a Jest context.
+  {
+    files: ['**/.storybook/test-runner.{ts,js}'],
+    languageOptions: {
+      globals: { ...globals.jest },
+    },
+  },
+
   // Prettier owns formatting: disable conflicting stylistic rules (keep last).
   prettier,
 );
