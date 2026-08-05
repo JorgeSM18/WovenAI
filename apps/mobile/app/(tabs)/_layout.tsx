@@ -1,6 +1,8 @@
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
 
 import { BottomNavBar, Text, type BottomNavItem } from '@woven/ui';
+
+import { useAuth } from '../../src/providers/AuthProvider';
 
 const glyph = (value: string) => (active: boolean) => (
   <Text variant="headline-md" className={active ? 'text-primary' : 'text-on-surface-variant'}>
@@ -17,6 +19,11 @@ const items: BottomNavItem[] = [
 ];
 
 export default function TabsLayout() {
+  // Protect the shell against deep links; the entry gate lives in app/index.tsx.
+  const { isAuthenticated, isLoading } = useAuth();
+  if (isLoading) return null;
+  if (!isAuthenticated) return <Redirect href="/onboarding" />;
+
   return (
     <Tabs
       screenOptions={{ headerShown: false }}
