@@ -34,6 +34,74 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_recommendation: {
+        Row: {
+          context: Json
+          created_at: string
+          garment_id: string | null
+          id: string
+          message: string | null
+          outfit_id: string | null
+          status: Database["public"]["Enums"]["ai_reco_status"]
+          trip_id: string | null
+          type: Database["public"]["Enums"]["ai_reco_type"]
+          user_id: string
+        }
+        Insert: {
+          context?: Json
+          created_at?: string
+          garment_id?: string | null
+          id?: string
+          message?: string | null
+          outfit_id?: string | null
+          status?: Database["public"]["Enums"]["ai_reco_status"]
+          trip_id?: string | null
+          type: Database["public"]["Enums"]["ai_reco_type"]
+          user_id: string
+        }
+        Update: {
+          context?: Json
+          created_at?: string
+          garment_id?: string | null
+          id?: string
+          message?: string | null
+          outfit_id?: string | null
+          status?: Database["public"]["Enums"]["ai_reco_status"]
+          trip_id?: string | null
+          type?: Database["public"]["Enums"]["ai_reco_type"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_recommendation_garment_id_fkey"
+            columns: ["garment_id"]
+            isOneToOne: false
+            referencedRelation: "garment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_recommendation_outfit_id_fkey"
+            columns: ["outfit_id"]
+            isOneToOne: false
+            referencedRelation: "outfit"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_recommendation_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trip"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_recommendation_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profile"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brand: {
         Row: {
           id: string
@@ -92,6 +160,71 @@ export type Database = {
           },
         ]
       }
+      collection: {
+        Row: {
+          created_at: string
+          id: string
+          is_ai_generated: boolean
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_ai_generated?: boolean
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_ai_generated?: boolean
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collection_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profile"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collection_item: {
+        Row: {
+          collection_id: string
+          garment_id: string
+        }
+        Insert: {
+          collection_id: string
+          garment_id: string
+        }
+        Update: {
+          collection_id?: string
+          garment_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collection_item_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collection"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_item_garment_id_fkey"
+            columns: ["garment_id"]
+            isOneToOne: false
+            referencedRelation: "garment"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       color: {
         Row: {
           hex: string
@@ -124,6 +257,142 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      garment: {
+        Row: {
+          brand_id: string | null
+          category_id: string
+          created_at: string
+          deleted_at: string | null
+          embedding: string | null
+          id: string
+          is_favorite: boolean
+          last_worn_at: string | null
+          name: string
+          original_image_id: string | null
+          primary_color_id: string
+          processed_image_id: string | null
+          purchase_price: number | null
+          season: Database["public"]["Enums"]["season"] | null
+          status: Database["public"]["Enums"]["garment_status"]
+          style: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          brand_id?: string | null
+          category_id: string
+          created_at?: string
+          deleted_at?: string | null
+          embedding?: string | null
+          id?: string
+          is_favorite?: boolean
+          last_worn_at?: string | null
+          name: string
+          original_image_id?: string | null
+          primary_color_id: string
+          processed_image_id?: string | null
+          purchase_price?: number | null
+          season?: Database["public"]["Enums"]["season"] | null
+          status?: Database["public"]["Enums"]["garment_status"]
+          style?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          brand_id?: string | null
+          category_id?: string
+          created_at?: string
+          deleted_at?: string | null
+          embedding?: string | null
+          id?: string
+          is_favorite?: boolean
+          last_worn_at?: string | null
+          name?: string
+          original_image_id?: string | null
+          primary_color_id?: string
+          processed_image_id?: string | null
+          purchase_price?: number | null
+          season?: Database["public"]["Enums"]["season"] | null
+          status?: Database["public"]["Enums"]["garment_status"]
+          style?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "garment_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brand"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garment_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "category"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garment_original_image_id_fkey"
+            columns: ["original_image_id"]
+            isOneToOne: false
+            referencedRelation: "image_asset"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garment_primary_color_id_fkey"
+            columns: ["primary_color_id"]
+            isOneToOne: false
+            referencedRelation: "color"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garment_processed_image_id_fkey"
+            columns: ["processed_image_id"]
+            isOneToOne: false
+            referencedRelation: "image_asset"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garment_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profile"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      garment_fabric: {
+        Row: {
+          fabric_id: string
+          garment_id: string
+        }
+        Insert: {
+          fabric_id: string
+          garment_id: string
+        }
+        Update: {
+          fabric_id?: string
+          garment_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "garment_fabric_fabric_id_fkey"
+            columns: ["fabric_id"]
+            isOneToOne: false
+            referencedRelation: "fabric"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garment_fabric_garment_id_fkey"
+            columns: ["garment_id"]
+            isOneToOne: false
+            referencedRelation: "garment"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       image_asset: {
         Row: {
@@ -165,6 +434,102 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profile"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outfit: {
+        Row: {
+          cover_image_id: string | null
+          created_at: string
+          id: string
+          match_score: number | null
+          name: string | null
+          occasion: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cover_image_id?: string | null
+          created_at?: string
+          id?: string
+          match_score?: number | null
+          name?: string | null
+          occasion?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cover_image_id?: string | null
+          created_at?: string
+          id?: string
+          match_score?: number | null
+          name?: string | null
+          occasion?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outfit_cover_image_id_fkey"
+            columns: ["cover_image_id"]
+            isOneToOne: false
+            referencedRelation: "image_asset"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "outfit_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profile"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outfit_item: {
+        Row: {
+          garment_id: string
+          id: string
+          outfit_id: string
+          pos_x: number
+          pos_y: number
+          rotation: number
+          scale: number
+          z_index: number
+        }
+        Insert: {
+          garment_id: string
+          id?: string
+          outfit_id: string
+          pos_x?: number
+          pos_y?: number
+          rotation?: number
+          scale?: number
+          z_index?: number
+        }
+        Update: {
+          garment_id?: string
+          id?: string
+          outfit_id?: string
+          pos_x?: number
+          pos_y?: number
+          rotation?: number
+          scale?: number
+          z_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outfit_item_garment_id_fkey"
+            columns: ["garment_id"]
+            isOneToOne: false
+            referencedRelation: "garment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "outfit_item_outfit_id_fkey"
+            columns: ["outfit_id"]
+            isOneToOne: false
+            referencedRelation: "outfit"
             referencedColumns: ["id"]
           },
         ]
@@ -219,12 +584,189 @@ export type Database = {
           },
         ]
       }
+      style_preference: {
+        Row: {
+          id: string
+          tag: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          tag: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          tag?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "style_preference_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profile"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trip: {
+        Row: {
+          created_at: string
+          destination: string
+          end_date: string
+          id: string
+          start_date: string
+          status: Database["public"]["Enums"]["trip_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          destination: string
+          end_date: string
+          id?: string
+          start_date: string
+          status?: Database["public"]["Enums"]["trip_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          destination?: string
+          end_date?: string
+          id?: string
+          start_date?: string
+          status?: Database["public"]["Enums"]["trip_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profile"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trip_day: {
+        Row: {
+          date: string
+          id: string
+          is_outfit_complete: boolean
+          label: string | null
+          outfit_id: string | null
+          trip_id: string
+        }
+        Insert: {
+          date: string
+          id?: string
+          is_outfit_complete?: boolean
+          label?: string | null
+          outfit_id?: string | null
+          trip_id: string
+        }
+        Update: {
+          date?: string
+          id?: string
+          is_outfit_complete?: boolean
+          label?: string | null
+          outfit_id?: string | null
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_day_outfit_id_fkey"
+            columns: ["outfit_id"]
+            isOneToOne: false
+            referencedRelation: "outfit"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trip_day_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trip"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trip_garment: {
+        Row: {
+          garment_id: string
+          trip_id: string
+        }
+        Insert: {
+          garment_id: string
+          trip_id: string
+        }
+        Update: {
+          garment_id?: string
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_garment_garment_id_fkey"
+            columns: ["garment_id"]
+            isOneToOne: false
+            referencedRelation: "garment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trip_garment_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trip"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      weather_snapshot: {
+        Row: {
+          condition: string | null
+          date: string
+          fetched_at: string
+          id: string
+          location: string | null
+          temp_c: number | null
+          trip_id: string | null
+        }
+        Insert: {
+          condition?: string | null
+          date: string
+          fetched_at?: string
+          id?: string
+          location?: string | null
+          temp_c?: number | null
+          trip_id?: string | null
+        }
+        Update: {
+          condition?: string | null
+          date?: string
+          fetched_at?: string
+          id?: string
+          location?: string | null
+          temp_c?: number | null
+          trip_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weather_snapshot_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trip"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      soft_delete_garment: { Args: { g: string }; Returns: undefined }
     }
     Enums: {
       ai_reco_status: "active" | "dismissed" | "applied"
