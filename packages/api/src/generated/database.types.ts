@@ -766,7 +766,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      soft_delete_garment: { Args: { g: string }; Returns: undefined }
     }
     Enums: {
       ai_reco_status: "active" | "dismissed" | "applied"
