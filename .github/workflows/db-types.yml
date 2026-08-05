@@ -1,0 +1,54 @@
+name: DB Types
+
+# Contrato (T-0202): los tipos commiteados en packages/api deben coincidir con el
+# esquema que producen las migraciones. Solo corre cuando cambian migraciones o
+# los tipos generados, porque levanta la pila Supabase (lento).
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/config.toml'
+      - 'packages/api/src/generated/**'
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/config.toml'
+      - 'packages/api/src/generated/**'
+
+concurrency:
+  group: db-types-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  types-drift:
+    name: Generated types match migrations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Start Supabase (applies migrations)
+        run: pnpm exec supabase start
+
+      - name: Regenerate types from schema
+        run: pnpm --filter @woven/api gen:types
+
+      - name: Fail if committed types drifted from schema
+        run: git diff --exit-code -- packages/api/src/generated/database.types.ts

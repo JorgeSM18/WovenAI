@@ -112,6 +112,8 @@ importers:
 
   packages/analytics: {}
 
+  packages/api: {}
+
   packages/config:
     dependencies:
       '@eslint/js':
