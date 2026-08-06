@@ -766,6 +766,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      save_outfit: { Args: { items: Json; name: string }; Returns: string }
       soft_delete_garment: { Args: { g: string }; Returns: undefined }
     }
     Enums: {
