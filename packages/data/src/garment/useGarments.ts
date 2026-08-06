@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { queryKeys } from '../queryKeys';
 import { useSupabaseClient } from '../supabaseContext';
-import { listGarments } from './garmentRepository';
+import { getGarment, listGarments } from './garmentRepository';
 
 /** The user's wardrobe (active garments + signed thumbnails). */
 export function useGarments(userId: string) {
@@ -11,5 +11,15 @@ export function useGarments(userId: string) {
     queryKey: queryKeys.garments(userId),
     queryFn: () => listGarments(client),
     enabled: userId.length > 0,
+  });
+}
+
+/** A single garment's detail (category/color names + signed image URL). */
+export function useGarment(id: string) {
+  const client = useSupabaseClient();
+  return useQuery({
+    queryKey: queryKeys.garment(id),
+    queryFn: () => getGarment(client, id),
+    enabled: id.length > 0,
   });
 }
