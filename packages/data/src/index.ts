@@ -7,8 +7,12 @@ export {
   profileUpdateToRow,
 } from './profile/profileRepository';
 export { useProfile, useUpdateProfile } from './profile/useProfile';
-export { countGarments } from './garment/garmentRepository';
+export { countGarments, createGarment } from './garment/garmentRepository';
+export type { CreateGarmentInput } from './garment/garmentRepository';
 export { useGarmentCount } from './garment/useGarmentCount';
+export { useCreateGarment } from './garment/useCreateGarment';
+export { listCategories, listColors } from './reference/referenceRepository';
+export { useCategories, useColors } from './reference/useReference';
 export {
   listStylePreferences,
   addStylePreference,

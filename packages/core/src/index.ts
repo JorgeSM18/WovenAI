@@ -8,3 +8,4 @@ export type {
   ViewDensity,
 } from './profile';
 export type { StylePreference } from './stylePreference';
+export type { Category, Color, Season } from './reference';
