@@ -1,8 +1,10 @@
-import { Button, Skeleton, StatCard, TabScreenTemplate, Text } from '@woven/ui';
+import { Button, SettingRow, Skeleton, StatCard, TabScreenTemplate, Text } from '@woven/ui';
 import { useGarmentCount, useProfile } from '@woven/data';
+import { router } from 'expo-router';
 import { View } from 'react-native';
 
 import { authService } from '../../src/auth/client';
+import { StylePreferences } from '../../src/features/profile/StylePreferences';
 import { useAuth } from '../../src/providers/AuthProvider';
 
 export default function ProfileScreen() {
@@ -47,6 +49,10 @@ export default function ProfileScreen() {
 
       {/* Cost / Sustainability / Style analytics are hidden until defined
           (PD-07 / PD-08 / PD-12). Do not render placeholders for them. */}
+
+      {userId ? <StylePreferences userId={userId} /> : null}
+
+      <SettingRow title="Settings" onPress={() => router.push('/settings')} />
 
       <Button
         label="Log Out"

@@ -9,3 +9,14 @@ export {
 export { useProfile, useUpdateProfile } from './profile/useProfile';
 export { countGarments } from './garment/garmentRepository';
 export { useGarmentCount } from './garment/useGarmentCount';
+export {
+  listStylePreferences,
+  addStylePreference,
+  removeStylePreference,
+  rowToStylePreference,
+} from './stylePreference/stylePreferenceRepository';
+export {
+  useStylePreferences,
+  useAddStylePreference,
+  useRemoveStylePreference,
+} from './stylePreference/useStylePreferences';
