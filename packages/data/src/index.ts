@@ -20,3 +20,8 @@ export {
   useAddStylePreference,
   useRemoveStylePreference,
 } from './stylePreference/useStylePreferences';
+export { createImageAsset } from './image/imageAssetRepository';
+export type { ImageType, NewImageAsset } from './image/imageAssetRepository';
+export { uploadImage } from './image/uploadImage';
+export type { UploadImageInput, UploadedImage } from './image/uploadImage';
+export { useUploadImage } from './image/useUploadImage';

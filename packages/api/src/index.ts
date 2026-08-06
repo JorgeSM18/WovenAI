@@ -8,3 +8,7 @@ export type { WovenClient, WovenClientConfig, AuthStorage } from './client';
 export { createAuthService } from './auth';
 export type { AuthService } from './auth';
 export type { Session, User, AuthError, AuthChangeEvent } from '@supabase/supabase-js';
+
+// Edge function contracts.
+export { signUpload, signUploadResultSchema, IMAGE_MIMES } from './edge/signUpload';
+export type { SignUploadInput, SignUploadResult, ImageMime } from './edge/signUpload';

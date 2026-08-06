@@ -1,3 +1,4 @@
+import { useUploadImage } from '@woven/data';
 import {
   Button,
   EmptyStateTemplate,
@@ -11,18 +12,29 @@ import { router } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Image, Linking, View } from 'react-native';
 
+import { processForUpload } from '../src/features/capture/processImage';
+import { useAuth } from '../src/providers/AuthProvider';
+
+type CapturedPhoto = { uri: string; width: number; height: number };
+
 /**
- * Photo capture (T-0401). Handles the camera permission states explicitly and
- * lets the user take, review and retake a photo. "Use Photo" is the handoff to
- * the compression + signed-upload pipeline (T-0402/T-0403), stubbed for now.
+ * Photo capture (T-0401/T-0402/T-0403). Handles camera permission states, takes
+ * and reviews a photo, then processes it (resize + EXIF strip) and uploads it to
+ * Storage, recording an image_asset. "Use Photo" hands off to the review/create
+ * garment flow (T-0406/T-0407) — for now it returns after a successful upload.
  */
 export default function CaptureScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
-  const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [photo, setPhoto] = useState<CapturedPhoto | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Permission state still loading.
+  const { session } = useAuth();
+  const userId = session?.user.id ?? '';
+  const upload = useUploadImage();
+
   if (!permission) {
     return (
       <FullScreenFlowTemplate>
@@ -31,7 +43,6 @@ export default function CaptureScreen() {
     );
   }
 
-  // Permission denied — explain why and offer the right recovery action.
   if (!permission.granted) {
     return (
       <FullScreenFlowTemplate>
@@ -64,40 +75,74 @@ export default function CaptureScreen() {
     if (!cameraRef.current || isCapturing) return;
     setIsCapturing(true);
     try {
-      const photo = await cameraRef.current.takePictureAsync();
-      if (photo) setPhotoUri(photo.uri);
+      const result = await cameraRef.current.takePictureAsync();
+      if (result) setPhoto({ uri: result.uri, width: result.width, height: result.height });
     } finally {
       setIsCapturing(false);
     }
   };
 
-  // Review the captured photo.
-  if (photoUri) {
+  const usePhoto = async () => {
+    if (!photo || !userId) return;
+    setIsSaving(true);
+    setError(null);
+    try {
+      const processed = await processForUpload(photo);
+      await upload.mutateAsync({
+        userId,
+        uri: processed.uri,
+        type: 'original',
+        mime: processed.mime,
+        width: processed.width,
+        height: processed.height,
+      });
+      router.back();
+    } catch {
+      setError('Upload failed. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (photo) {
     return (
       <FullScreenFlowTemplate>
         <View className="flex-1 bg-background">
           <Image
-            source={{ uri: photoUri }}
+            source={{ uri: photo.uri }}
             resizeMode="contain"
             className="flex-1"
             accessibilityLabel="Captured garment photo"
           />
-          <View className="flex-row gap-md p-md">
-            <Button
-              label="Retake"
-              variant="secondary"
-              className="flex-1"
-              onPress={() => setPhotoUri(null)}
-            />
-            {/* T-0402/T-0403: compress + EXIF cleanup → signed upload → review. */}
-            <Button label="Use Photo" className="flex-1" onPress={() => router.back()} />
+          <View className="gap-sm p-md">
+            {error ? (
+              <Text variant="body-md" className="text-error">
+                {error}
+              </Text>
+            ) : null}
+            <View className="flex-row gap-md">
+              <Button
+                label="Retake"
+                variant="secondary"
+                className="flex-1"
+                disabled={isSaving}
+                onPress={() => setPhoto(null)}
+              />
+              <Button
+                label={isSaving ? 'Saving…' : 'Use Photo'}
+                className="flex-1"
+                disabled={isSaving}
+                onPress={() => {
+                  void usePhoto();
+                }}
+              />
+            </View>
           </View>
         </View>
       </FullScreenFlowTemplate>
     );
   }
 
-  // Live camera.
   return (
     <FullScreenFlowTemplate>
       <View className="flex-1 bg-background">
