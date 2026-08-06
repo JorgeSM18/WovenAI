@@ -22,6 +22,7 @@ export {
 } from './molecules/ViewModeToggle';
 export { CollectionChipRow, type CollectionChipRowProps } from './molecules/CollectionChipRow';
 export { StatCard, type StatCardProps } from './molecules/StatCard';
+export { GarmentCard, type GarmentCardProps } from './molecules/GarmentCard';
 export { WeatherPill, type WeatherPillProps } from './molecules/WeatherPill';
 export { SettingRow, type SettingRowProps } from './molecules/SettingRow';
 

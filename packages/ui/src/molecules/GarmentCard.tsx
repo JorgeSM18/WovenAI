@@ -1,0 +1,39 @@
+import { Image, Pressable, View } from 'react-native';
+
+import { Text } from '../atoms/Text';
+import { cn } from '../utils/cn';
+
+export type GarmentCardProps = {
+  name: string;
+  /** Signed thumbnail URL; a placeholder shows while absent. */
+  imageUri?: string | null;
+  onPress?: () => void;
+  className?: string;
+};
+
+/** Wardrobe grid item: garment thumbnail with its name. */
+export function GarmentCard({ name, imageUri, onPress, className }: GarmentCardProps) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={name}
+      onPress={onPress}
+      className={cn('gap-xs', className)}
+    >
+      <View className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-surface-container">
+        {imageUri ? (
+          <Image
+            source={{ uri: imageUri }}
+            resizeMode="cover"
+            className="h-full w-full"
+            accessibilityElementsHidden
+            importantForAccessibility="no"
+          />
+        ) : null}
+      </View>
+      <Text variant="body-md" className="text-on-surface" numberOfLines={1}>
+        {name}
+      </Text>
+    </Pressable>
+  );
+}
