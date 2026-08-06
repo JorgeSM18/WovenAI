@@ -1,8 +1,10 @@
-import { useGarment } from '@woven/data';
-import { ColorSwatch, FullScreenFlowTemplate, IconButton, Skeleton, Text } from '@woven/ui';
+import { useDeleteGarment, useGarment, useSetFavorite } from '@woven/data';
+import { Button, ColorSwatch, FullScreenFlowTemplate, IconButton, Skeleton, Text } from '@woven/ui';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ScrollView, View } from 'react-native';
+import { Alert, ScrollView, View } from 'react-native';
+
+import { useAuth } from '../../src/providers/AuthProvider';
 
 const capitalize = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
 
@@ -21,7 +23,26 @@ function Attribute({ label, value }: { label: string; value: string }) {
 
 export default function GarmentDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const garment = useGarment(id ?? '');
+  const garmentId = id ?? '';
+  const { session } = useAuth();
+  const userId = session?.user.id ?? '';
+
+  const garment = useGarment(garmentId);
+  const setFavorite = useSetFavorite(userId);
+  const remove = useDeleteGarment(userId);
+
+  const confirmDelete = () => {
+    Alert.alert('Delete garment', 'This garment will be removed from your wardrobe.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => remove.mutate(garmentId, { onSuccess: () => router.back() }),
+      },
+    ]);
+  };
+
+  const isFavorite = garment.data?.isFavorite ?? false;
 
   const header = (
     <View className="flex-row items-center gap-sm border-b border-outline-variant bg-surface px-md py-sm">
@@ -34,9 +55,20 @@ export default function GarmentDetailScreen() {
         accessibilityLabel="Go back"
         onPress={() => router.back()}
       />
-      <Text variant="title-sm" className="text-on-surface" numberOfLines={1}>
+      <Text variant="title-sm" className="flex-1 text-on-surface" numberOfLines={1}>
         {garment.data?.name ?? 'Garment'}
       </Text>
+      {garment.data ? (
+        <IconButton
+          icon={
+            <Text variant="headline-md" className={isFavorite ? 'text-primary' : 'text-on-surface'}>
+              {isFavorite ? '♥' : '♡'}
+            </Text>
+          }
+          accessibilityLabel={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          onPress={() => setFavorite.mutate({ id: garmentId, isFavorite: !isFavorite })}
+        />
+      ) : null}
     </View>
   );
 
@@ -88,6 +120,13 @@ export default function GarmentDetailScreen() {
                 ) : null}
                 <Attribute label="Status" value={capitalize(garment.data.status)} />
               </View>
+
+              <Button
+                label={remove.isPending ? 'Deleting…' : 'Delete garment'}
+                variant="secondary"
+                disabled={remove.isPending}
+                onPress={confirmDelete}
+              />
             </>
           )}
         </View>

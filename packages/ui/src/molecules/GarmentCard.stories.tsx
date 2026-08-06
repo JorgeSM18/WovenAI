@@ -15,3 +15,6 @@ export const Placeholder: Story = {};
 export const WithPhoto: Story = {
   args: { imageUri: 'https://picsum.photos/seed/woven/300/400' },
 };
+export const Favorite: Story = {
+  args: { imageUri: 'https://picsum.photos/seed/woven/300/400', isFavorite: true },
+};
