@@ -88,7 +88,7 @@ export default function CaptureScreen() {
     setError(null);
     try {
       const processed = await processForUpload(photo);
-      await upload.mutateAsync({
+      const uploaded = await upload.mutateAsync({
         userId,
         uri: processed.uri,
         type: 'original',
@@ -96,7 +96,10 @@ export default function CaptureScreen() {
         width: processed.width,
         height: processed.height,
       });
-      router.back();
+      router.replace({
+        pathname: '/garment-review',
+        params: { imageId: uploaded.id, uri: processed.uri },
+      });
     } catch {
       setError('Upload failed. Please try again.');
     } finally {
