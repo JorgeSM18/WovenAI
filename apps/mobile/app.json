@@ -11,7 +11,17 @@
       "bundler": "metro",
       "output": "single"
     },
-    "plugins": ["expo-router", "expo-status-bar", "expo-secure-store"],
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Woven to use your camera to capture garments."
+        }
+      ]
+    ],
     "experiments": {
       "typedRoutes": true
     }
