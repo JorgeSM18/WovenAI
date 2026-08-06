@@ -8,12 +8,13 @@ export type GarmentCardProps = {
   name: string;
   /** Signed thumbnail URL; a placeholder shows while absent. */
   imageUri?: string | null;
+  isFavorite?: boolean;
   onPress?: () => void;
   className?: string;
 };
 
 /** Wardrobe grid item: garment thumbnail with its name. */
-export function GarmentCard({ name, imageUri, onPress, className }: GarmentCardProps) {
+export function GarmentCard({ name, imageUri, isFavorite, onPress, className }: GarmentCardProps) {
   return (
     <Pressable
       accessibilityRole="button"
@@ -29,6 +30,13 @@ export function GarmentCard({ name, imageUri, onPress, className }: GarmentCardP
             cachePolicy="memory-disk"
             style={{ width: '100%', height: '100%' }}
           />
+        ) : null}
+        {isFavorite ? (
+          <View className="absolute right-xs top-xs">
+            <Text variant="body-md" className="text-primary" accessibilityElementsHidden>
+              ♥
+            </Text>
+          </View>
         ) : null}
       </View>
       <Text variant="body-md" className="text-on-surface" numberOfLines={1}>

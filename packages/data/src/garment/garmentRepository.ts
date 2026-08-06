@@ -19,6 +19,7 @@ const SIGNED_URL_TTL = 60 * 60;
 export type WardrobeItem = {
   id: string;
   name: string;
+  isFavorite: boolean;
   thumbnailUrl: string | null;
 };
 
@@ -27,7 +28,7 @@ export type WardrobeItem = {
 export async function listGarments(client: WovenClient): Promise<WardrobeItem[]> {
   const { data: garments, error } = await client
     .from('garment')
-    .select('id, name, original_image_id')
+    .select('id, name, is_favorite, original_image_id')
     .is('deleted_at', null)
     .order('created_at', { ascending: false })
     .limit(100); // ponytail: fixed cap; switch to keyset pagination when wardrobes grow
@@ -67,9 +68,26 @@ export async function listGarments(client: WovenClient): Promise<WardrobeItem[]>
     return {
       id: garment.id,
       name: garment.name,
+      isFavorite: garment.is_favorite,
       thumbnailUrl: key ? (urlByKey.get(key) ?? null) : null,
     };
   });
+}
+
+/** Toggles the favorite flag. */
+export async function setGarmentFavorite(
+  client: WovenClient,
+  id: string,
+  isFavorite: boolean,
+): Promise<void> {
+  const { error } = await client.from('garment').update({ is_favorite: isFavorite }).eq('id', id);
+  if (error) throw error;
+}
+
+/** Soft-deletes a garment (marks deleted_at, keeps references) via RPC. */
+export async function deleteGarment(client: WovenClient, id: string): Promise<void> {
+  const { error } = await client.rpc('soft_delete_garment', { g: id });
+  if (error) throw error;
 }
 
 /** Removes the `<bucket>/` prefix from a stored storage_path to get the key. */

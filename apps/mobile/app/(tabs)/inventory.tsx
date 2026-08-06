@@ -1,7 +1,8 @@
 import { useGarments } from '@woven/data';
-import { EmptyStateTemplate, Fab, GarmentCard, Text } from '@woven/ui';
+import { EmptyStateTemplate, Fab, GarmentCard, SearchBar, Text } from '@woven/ui';
 import { FlashList } from '@shopify/flash-list';
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { View } from 'react-native';
 
 import { useAuth } from '../../src/providers/AuthProvider';
@@ -12,22 +13,37 @@ export default function InventoryScreen() {
   const garments = useGarments(userId);
   const items = garments.data ?? [];
 
+  const [query, setQuery] = useState('');
+  const term = query.trim().toLowerCase();
+  const filtered = term ? items.filter((item) => item.name.toLowerCase().includes(term)) : items;
+
+  const isEmpty = items.length === 0 && !garments.isPending;
+
   return (
     <View className="flex-1 bg-background">
-      <View className="px-md pt-md">
+      <View className="gap-md px-md pt-md">
         <Text variant="display-lg" className="text-on-surface">
           Wardrobe
         </Text>
+        {!isEmpty ? (
+          <SearchBar placeholder="Search garments" value={query} onChangeText={setQuery} />
+        ) : null}
       </View>
 
-      {items.length === 0 && !garments.isPending ? (
+      {isEmpty ? (
         <EmptyStateTemplate
           title="Your wardrobe is empty"
           description="Tap the + button to add your first garment."
         />
+      ) : filtered.length === 0 ? (
+        <View className="p-md">
+          <Text variant="body-md" className="text-on-surface-variant">
+            No garments match “{query.trim()}”.
+          </Text>
+        </View>
       ) : (
         <FlashList
-          data={items}
+          data={filtered}
           numColumns={2}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
@@ -35,6 +51,7 @@ export default function InventoryScreen() {
               <GarmentCard
                 name={item.name}
                 imageUri={item.thumbnailUrl}
+                isFavorite={item.isFavorite}
                 onPress={() => router.push(`/garment/${item.id}`)}
               />
             </View>
