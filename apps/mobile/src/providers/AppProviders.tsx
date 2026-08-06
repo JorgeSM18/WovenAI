@@ -1,8 +1,10 @@
 import { QueryClientProvider } from '@tanstack/react-query';
+import { SupabaseProvider } from '@woven/data';
 import { ThemeProvider, useTheme } from '@woven/ui';
 import { colorScheme } from 'nativewind';
 import { useEffect, type ReactNode } from 'react';
 
+import { supabase } from '../auth/client';
 import { AuthProvider } from './AuthProvider';
 import { ErrorBoundary } from './ErrorBoundary';
 import { createQueryClient } from './queryClient';
@@ -19,17 +21,19 @@ function ThemeSync() {
   return null;
 }
 
-/** Root provider stack: ErrorBoundary → Query → Auth → Theme → Telemetry. */
+/** Root provider stack: ErrorBoundary → Query → Supabase → Auth → Theme → Telemetry. */
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <ThemeProvider>
-            <ThemeSync />
-            <TelemetryProvider>{children}</TelemetryProvider>
-          </ThemeProvider>
-        </AuthProvider>
+        <SupabaseProvider client={supabase}>
+          <AuthProvider>
+            <ThemeProvider>
+              <ThemeSync />
+              <TelemetryProvider>{children}</TelemetryProvider>
+            </ThemeProvider>
+          </AuthProvider>
+        </SupabaseProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );
