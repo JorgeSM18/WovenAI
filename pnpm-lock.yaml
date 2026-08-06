@@ -41,6 +41,9 @@ importers:
       '@woven/api':
         specifier: workspace:^
         version: link:../../packages/api
+      '@woven/core':
+        specifier: workspace:^
+        version: link:../../packages/core
       '@woven/data':
         specifier: workspace:^
         version: link:../../packages/data

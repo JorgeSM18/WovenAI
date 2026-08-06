@@ -7,3 +7,4 @@ export type {
   UnitsPreference,
   ViewDensity,
 } from './profile';
+export type { StylePreference } from './stylePreference';
