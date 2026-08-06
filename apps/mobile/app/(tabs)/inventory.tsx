@@ -32,7 +32,11 @@ export default function InventoryScreen() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <View className="p-xs">
-              <GarmentCard name={item.name} imageUri={item.thumbnailUrl} />
+              <GarmentCard
+                name={item.name}
+                imageUri={item.thumbnailUrl}
+                onPress={() => router.push(`/garment/${item.id}`)}
+              />
             </View>
           )}
         />

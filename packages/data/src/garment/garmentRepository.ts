@@ -77,6 +77,65 @@ export function stripBucket(storagePath: string): string {
   return storagePath.startsWith(`${BUCKET}/`) ? storagePath.slice(BUCKET.length + 1) : storagePath;
 }
 
+async function signedUrlFor(client: WovenClient, imageId: string | null): Promise<string | null> {
+  if (!imageId) return null;
+  const { data: asset, error } = await client
+    .from('image_asset')
+    .select('storage_path')
+    .eq('id', imageId)
+    .single();
+  if (error) throw error;
+  const { data: signed } = await client.storage
+    .from(BUCKET)
+    .createSignedUrl(stripBucket(asset.storage_path), SIGNED_URL_TTL);
+  return signed?.signedUrl ?? null;
+}
+
+export type GarmentDetail = {
+  id: string;
+  name: string;
+  season: Season | null;
+  status: Database['public']['Enums']['garment_status'];
+  isFavorite: boolean;
+  categoryName: string;
+  colorName: string;
+  colorHex: string;
+  imageUrl: string | null;
+};
+
+/** Full garment view for the detail screen: resolves category/color names and a
+ *  signed image URL. RLS scopes access to the owner. */
+export async function getGarment(client: WovenClient, id: string): Promise<GarmentDetail> {
+  const { data: garment, error } = await client
+    .from('garment')
+    .select(
+      'id, name, season, status, is_favorite, category_id, primary_color_id, original_image_id',
+    )
+    .eq('id', id)
+    .single();
+  if (error) throw error;
+
+  const [category, color, imageUrl] = await Promise.all([
+    client.from('category').select('name').eq('id', garment.category_id).single(),
+    client.from('color').select('name, hex').eq('id', garment.primary_color_id).single(),
+    signedUrlFor(client, garment.original_image_id),
+  ]);
+  if (category.error) throw category.error;
+  if (color.error) throw color.error;
+
+  return {
+    id: garment.id,
+    name: garment.name,
+    season: garment.season,
+    status: garment.status,
+    isFavorite: garment.is_favorite,
+    categoryName: category.data.name,
+    colorName: color.data.name,
+    colorHex: color.data.hex,
+    imageUrl,
+  };
+}
+
 export type CreateGarmentInput = {
   userId: string;
   name: string;
