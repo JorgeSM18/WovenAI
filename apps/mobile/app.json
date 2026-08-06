@@ -20,7 +20,8 @@
         {
           "cameraPermission": "Allow Woven to use your camera to capture garments."
         }
-      ]
+      ],
+      "expo-image"
     ],
     "experiments": {
       "typedRoutes": true

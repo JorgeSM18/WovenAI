@@ -1,4 +1,5 @@
-import { Image, Pressable, View } from 'react-native';
+import { Image } from 'expo-image';
+import { Pressable, View } from 'react-native';
 
 import { Text } from '../atoms/Text';
 import { cn } from '../utils/cn';
@@ -24,10 +25,9 @@ export function GarmentCard({ name, imageUri, onPress, className }: GarmentCardP
         {imageUri ? (
           <Image
             source={{ uri: imageUri }}
-            resizeMode="cover"
-            className="h-full w-full"
-            accessibilityElementsHidden
-            importantForAccessibility="no"
+            contentFit="cover"
+            cachePolicy="memory-disk"
+            style={{ width: '100%', height: '100%' }}
           />
         ) : null}
       </View>
