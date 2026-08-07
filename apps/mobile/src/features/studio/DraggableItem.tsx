@@ -10,22 +10,25 @@ const ITEM_H = 150;
 
 type Props = {
   item: CanvasItem;
+  isSelected: boolean;
   onMove: (garmentId: string, posX: number, posY: number) => void;
   onScale: (garmentId: string, scale: number) => void;
   onRotate: (garmentId: string, rotation: number) => void;
-  onBringToFront: (garmentId: string) => void;
+  onSelect: (garmentId: string) => void;
   onRemove: (garmentId: string) => void;
 };
 
 /** A garment on the Studio canvas: drag to move, pinch to scale, rotate with two
- *  fingers, tap to bring to front, long press to remove. Live transform lives in
- *  reanimated shared values; committed to the draft store on gesture end. */
+ *  fingers, tap to select (then use the accessible controls), long press to
+ *  remove. Live transform lives in reanimated shared values; committed to the
+ *  draft store on gesture end. */
 export function DraggableItem({
   item,
+  isSelected,
   onMove,
   onScale,
   onRotate,
-  onBringToFront,
+  onSelect,
   onRemove,
 }: Props) {
   const x = useSharedValue(item.posX);
@@ -63,7 +66,7 @@ export function DraggableItem({
     });
 
   const tap = Gesture.Tap().onEnd(() => {
-    runOnJS(onBringToFront)(item.garmentId);
+    runOnJS(onSelect)(item.garmentId);
   });
 
   const longPress = Gesture.LongPress().onStart(() => {
@@ -91,7 +94,9 @@ export function DraggableItem({
         ]}
       >
         <View
-          className="overflow-hidden rounded-lg bg-surface-container"
+          className={`overflow-hidden rounded-lg bg-surface-container ${
+            isSelected ? 'border-2 border-primary' : ''
+          }`}
           style={{ width: '100%', height: '100%' }}
         >
           {item.thumbnailUrl ? (

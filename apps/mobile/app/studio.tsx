@@ -4,16 +4,21 @@ import { useStudioDraft } from '@woven/store';
 import { Button, FullScreenFlowTemplate, IconButton, Text } from '@woven/ui';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 
 import { DraggableItem } from '../src/features/studio/DraggableItem';
 import { useAuth } from '../src/providers/AuthProvider';
 
+const NUDGE = 12;
+const SCALE_STEP = 1.15;
+const ROTATE_STEP = Math.PI / 12; // 15°
+
 /**
- * Studio (E06). Tap tray garments to add them, then drag to move, pinch to
- * scale, two-finger rotate, tap to bring to front, long press to remove. The
- * composition lives in the draft store (survives navigation, undo/redo); Save
- * persists it via the transactional save_outfit RPC.
+ * Studio (E06). Add tray garments to the canvas, then arrange them by gesture
+ * (drag / pinch / rotate) OR, for accessibility (WCAG 2.5.7), select an item and
+ * use the single-tap controls. The draft store keeps the composition + undo/redo;
+ * Save persists it via the transactional save_outfit RPC.
  */
 export default function StudioScreen() {
   const { session } = useAuth();
@@ -34,8 +39,17 @@ export default function StudioScreen() {
   const canUndo = useStudioDraft((state) => state.past.length > 0);
   const canRedo = useStudioDraft((state) => state.future.length > 0);
 
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selected = items.find((item) => item.garmentId === selectedId) ?? null;
+
   const add = (garment: WardrobeItem) =>
     addItem({ garmentId: garment.id, thumbnailUrl: garment.thumbnailUrl });
+
+  const removeSelected = () => {
+    if (!selected) return;
+    removeItem(selected.garmentId);
+    setSelectedId(null);
+  };
 
   const onSave = () => {
     if (items.length === 0) return;
@@ -54,13 +68,14 @@ export default function StudioScreen() {
       {
         onSuccess: () => {
           reset();
+          setSelectedId(null);
           router.back();
         },
       },
     );
   };
 
-  const glyphButton = (glyph: string, label: string, onPress: () => void, disabled: boolean) => (
+  const glyphButton = (glyph: string, label: string, onPress: () => void, disabled = false) => (
     <IconButton
       icon={
         <Text variant="headline-md" className={disabled ? 'text-outline' : 'text-on-surface'}>
@@ -75,15 +90,7 @@ export default function StudioScreen() {
 
   const header = (
     <View className="flex-row items-center gap-xs border-b border-outline-variant bg-surface px-md py-sm">
-      <IconButton
-        icon={
-          <Text variant="headline-md" className="text-on-surface">
-            ‹
-          </Text>
-        }
-        accessibilityLabel="Cancel"
-        onPress={() => router.back()}
-      />
+      {glyphButton('‹', 'Cancel', () => router.back())}
       <View className="flex-1" />
       {glyphButton('↶', 'Undo', undo, !canUndo)}
       {glyphButton('↷', 'Redo', redo, !canRedo)}
@@ -101,7 +108,7 @@ export default function StudioScreen() {
         {items.length === 0 ? (
           <View className="flex-1 items-center justify-center p-lg">
             <Text variant="body-md" className="text-center text-on-surface-variant">
-              Tap garments below to add them, then drag, pinch and rotate.
+              Tap garments below to add them, then arrange by gesture or by selecting an item.
             </Text>
           </View>
         ) : (
@@ -109,19 +116,59 @@ export default function StudioScreen() {
             <DraggableItem
               key={item.garmentId}
               item={item}
+              isSelected={item.garmentId === selectedId}
               onMove={moveItem}
               onScale={scaleItem}
               onRotate={rotateItem}
-              onBringToFront={bringToFront}
+              onSelect={setSelectedId}
               onRemove={removeItem}
             />
           ))
         )}
       </View>
 
+      {/* WCAG 2.5.7: single-tap alternative to drag/pinch/rotate for the selected item. */}
+      {selected ? (
+        <View className="border-t border-outline-variant bg-surface px-md py-sm">
+          <Text variant="label-caps" className="text-on-surface-variant">
+            Selected item
+          </Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View className="flex-row items-center">
+              {glyphButton('←', 'Move left', () =>
+                moveItem(selected.garmentId, selected.posX - NUDGE, selected.posY),
+              )}
+              {glyphButton('→', 'Move right', () =>
+                moveItem(selected.garmentId, selected.posX + NUDGE, selected.posY),
+              )}
+              {glyphButton('↑', 'Move up', () =>
+                moveItem(selected.garmentId, selected.posX, selected.posY - NUDGE),
+              )}
+              {glyphButton('↓', 'Move down', () =>
+                moveItem(selected.garmentId, selected.posX, selected.posY + NUDGE),
+              )}
+              {glyphButton('＋', 'Scale up', () =>
+                scaleItem(selected.garmentId, selected.scale * SCALE_STEP),
+              )}
+              {glyphButton('－', 'Scale down', () =>
+                scaleItem(selected.garmentId, selected.scale / SCALE_STEP),
+              )}
+              {glyphButton('↺', 'Rotate left', () =>
+                rotateItem(selected.garmentId, selected.rotation - ROTATE_STEP),
+              )}
+              {glyphButton('↻', 'Rotate right', () =>
+                rotateItem(selected.garmentId, selected.rotation + ROTATE_STEP),
+              )}
+              {glyphButton('⤒', 'Bring to front', () => bringToFront(selected.garmentId))}
+              {glyphButton('✕', 'Remove', removeSelected)}
+            </View>
+          </ScrollView>
+        </View>
+      ) : null}
+
       <View className="gap-sm border-t border-outline-variant bg-surface p-md">
         <Text variant="label-caps" className="text-on-surface-variant">
-          Tap to add · drag / pinch / rotate · long press to remove
+          Tap to add · drag / pinch / rotate · tap an item for controls
         </Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View className="flex-row gap-sm">
