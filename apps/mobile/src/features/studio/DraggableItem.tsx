@@ -1,15 +1,8 @@
+import type { CanvasItem } from '@woven/store';
 import { Image } from 'expo-image';
 import { View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
-
-export type CanvasItem = {
-  garmentId: string;
-  thumbnailUrl: string | null;
-  posX: number;
-  posY: number;
-  zIndex: number;
-};
 
 // Free-form canvas sizes are pixel-based, not design tokens.
 const ITEM_W = 110;
@@ -18,16 +11,29 @@ const ITEM_H = 150;
 type Props = {
   item: CanvasItem;
   onMove: (garmentId: string, posX: number, posY: number) => void;
+  onScale: (garmentId: string, scale: number) => void;
+  onRotate: (garmentId: string, rotation: number) => void;
   onBringToFront: (garmentId: string) => void;
   onRemove: (garmentId: string) => void;
 };
 
-/** A garment on the Studio canvas: drag to move, tap to bring to front, long
- *  press to remove. Position lives in reanimated shared values; committed to
- *  React state on gesture end. */
-export function DraggableItem({ item, onMove, onBringToFront, onRemove }: Props) {
+/** A garment on the Studio canvas: drag to move, pinch to scale, rotate with two
+ *  fingers, tap to bring to front, long press to remove. Live transform lives in
+ *  reanimated shared values; committed to the draft store on gesture end. */
+export function DraggableItem({
+  item,
+  onMove,
+  onScale,
+  onRotate,
+  onBringToFront,
+  onRemove,
+}: Props) {
   const x = useSharedValue(item.posX);
   const y = useSharedValue(item.posY);
+  const scale = useSharedValue(item.scale);
+  const savedScale = useSharedValue(item.scale);
+  const rotation = useSharedValue(item.rotation);
+  const savedRotation = useSharedValue(item.rotation);
 
   const pan = Gesture.Pan()
     .onChange((event) => {
@@ -38,6 +44,24 @@ export function DraggableItem({ item, onMove, onBringToFront, onRemove }: Props)
       runOnJS(onMove)(item.garmentId, x.value, y.value);
     });
 
+  const pinch = Gesture.Pinch()
+    .onUpdate((event) => {
+      scale.value = savedScale.value * event.scale;
+    })
+    .onEnd(() => {
+      savedScale.value = scale.value;
+      runOnJS(onScale)(item.garmentId, scale.value);
+    });
+
+  const rotate = Gesture.Rotation()
+    .onUpdate((event) => {
+      rotation.value = savedRotation.value + event.rotation;
+    })
+    .onEnd(() => {
+      savedRotation.value = rotation.value;
+      runOnJS(onRotate)(item.garmentId, rotation.value);
+    });
+
   const tap = Gesture.Tap().onEnd(() => {
     runOnJS(onBringToFront)(item.garmentId);
   });
@@ -46,10 +70,15 @@ export function DraggableItem({ item, onMove, onBringToFront, onRemove }: Props)
     runOnJS(onRemove)(item.garmentId);
   });
 
-  const gesture = Gesture.Race(pan, longPress, tap);
+  const gesture = Gesture.Race(Gesture.Simultaneous(pan, pinch, rotate), longPress, tap);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: x.value }, { translateY: y.value }],
+    transform: [
+      { translateX: x.value },
+      { translateY: y.value },
+      { scale: scale.value },
+      { rotate: `${rotation.value}rad` },
+    ],
   }));
 
   return (

@@ -1,59 +1,41 @@
 import type { WardrobeItem } from '@woven/data';
 import { useGarments, useSaveOutfit } from '@woven/data';
+import { useStudioDraft } from '@woven/store';
 import { Button, FullScreenFlowTemplate, IconButton, Text } from '@woven/ui';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 
-import { DraggableItem, type CanvasItem } from '../src/features/studio/DraggableItem';
+import { DraggableItem } from '../src/features/studio/DraggableItem';
 import { useAuth } from '../src/providers/AuthProvider';
 
-const STEP = 24;
-
 /**
- * Studio (E06). Tap tray garments to add them to the canvas, then drag to move,
- * tap to bring to front (z-index), long press to remove. Save persists the
- * composed outfit via the transactional save_outfit RPC.
+ * Studio (E06). Tap tray garments to add them, then drag to move, pinch to
+ * scale, two-finger rotate, tap to bring to front, long press to remove. The
+ * composition lives in the draft store (survives navigation, undo/redo); Save
+ * persists it via the transactional save_outfit RPC.
  */
 export default function StudioScreen() {
   const { session } = useAuth();
   const userId = session?.user.id ?? '';
   const garments = useGarments(userId);
   const save = useSaveOutfit(userId);
-  const [items, setItems] = useState<CanvasItem[]>([]);
 
-  const add = (garment: WardrobeItem) => {
-    setItems((prev) => {
-      if (prev.some((item) => item.garmentId === garment.id)) return prev;
-      return [
-        ...prev,
-        {
-          garmentId: garment.id,
-          thumbnailUrl: garment.thumbnailUrl,
-          posX: STEP * prev.length,
-          posY: STEP * prev.length,
-          zIndex: prev.length,
-        },
-      ];
-    });
-  };
+  const items = useStudioDraft((state) => state.items);
+  const addItem = useStudioDraft((state) => state.addItem);
+  const moveItem = useStudioDraft((state) => state.moveItem);
+  const scaleItem = useStudioDraft((state) => state.scaleItem);
+  const rotateItem = useStudioDraft((state) => state.rotateItem);
+  const bringToFront = useStudioDraft((state) => state.bringToFront);
+  const removeItem = useStudioDraft((state) => state.removeItem);
+  const undo = useStudioDraft((state) => state.undo);
+  const redo = useStudioDraft((state) => state.redo);
+  const reset = useStudioDraft((state) => state.reset);
+  const canUndo = useStudioDraft((state) => state.past.length > 0);
+  const canRedo = useStudioDraft((state) => state.future.length > 0);
 
-  const moveTo = (garmentId: string, posX: number, posY: number) =>
-    setItems((prev) =>
-      prev.map((item) => (item.garmentId === garmentId ? { ...item, posX, posY } : item)),
-    );
-
-  const bringToFront = (garmentId: string) =>
-    setItems((prev) => {
-      const max = prev.reduce((acc, item) => Math.max(acc, item.zIndex), -1);
-      return prev.map((item) =>
-        item.garmentId === garmentId ? { ...item, zIndex: max + 1 } : item,
-      );
-    });
-
-  const remove = (garmentId: string) =>
-    setItems((prev) => prev.filter((item) => item.garmentId !== garmentId));
+  const add = (garment: WardrobeItem) =>
+    addItem({ garmentId: garment.id, thumbnailUrl: garment.thumbnailUrl });
 
   const onSave = () => {
     if (items.length === 0) return;
@@ -65,14 +47,34 @@ export default function StudioScreen() {
           posX: item.posX,
           posY: item.posY,
           zIndex: item.zIndex,
+          rotation: item.rotation,
+          scale: item.scale,
         })),
       },
-      { onSuccess: () => router.back() },
+      {
+        onSuccess: () => {
+          reset();
+          router.back();
+        },
+      },
     );
   };
 
+  const glyphButton = (glyph: string, label: string, onPress: () => void, disabled: boolean) => (
+    <IconButton
+      icon={
+        <Text variant="headline-md" className={disabled ? 'text-outline' : 'text-on-surface'}>
+          {glyph}
+        </Text>
+      }
+      accessibilityLabel={label}
+      disabled={disabled}
+      onPress={onPress}
+    />
+  );
+
   const header = (
-    <View className="flex-row items-center gap-sm border-b border-outline-variant bg-surface px-md py-sm">
+    <View className="flex-row items-center gap-xs border-b border-outline-variant bg-surface px-md py-sm">
       <IconButton
         icon={
           <Text variant="headline-md" className="text-on-surface">
@@ -82,9 +84,9 @@ export default function StudioScreen() {
         accessibilityLabel="Cancel"
         onPress={() => router.back()}
       />
-      <Text variant="title-sm" className="flex-1 text-on-surface">
-        New outfit
-      </Text>
+      <View className="flex-1" />
+      {glyphButton('↶', 'Undo', undo, !canUndo)}
+      {glyphButton('↷', 'Redo', redo, !canRedo)}
       <Button
         label={save.isPending ? 'Saving…' : 'Save'}
         disabled={items.length === 0 || save.isPending}
@@ -99,7 +101,7 @@ export default function StudioScreen() {
         {items.length === 0 ? (
           <View className="flex-1 items-center justify-center p-lg">
             <Text variant="body-md" className="text-center text-on-surface-variant">
-              Tap garments below to add them, then drag to arrange.
+              Tap garments below to add them, then drag, pinch and rotate.
             </Text>
           </View>
         ) : (
@@ -107,9 +109,11 @@ export default function StudioScreen() {
             <DraggableItem
               key={item.garmentId}
               item={item}
-              onMove={moveTo}
+              onMove={moveItem}
+              onScale={scaleItem}
+              onRotate={rotateItem}
               onBringToFront={bringToFront}
-              onRemove={remove}
+              onRemove={removeItem}
             />
           ))
         )}
@@ -117,7 +121,7 @@ export default function StudioScreen() {
 
       <View className="gap-sm border-t border-outline-variant bg-surface p-md">
         <Text variant="label-caps" className="text-on-surface-variant">
-          Tap to add · drag to move · long press to remove
+          Tap to add · drag / pinch / rotate · long press to remove
         </Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View className="flex-row gap-sm">

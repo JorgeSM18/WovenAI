@@ -18,6 +18,7 @@
     "@woven/api": "workspace:^",
     "@woven/core": "workspace:^",
     "@woven/data": "workspace:^",
+    "@woven/store": "workspace:^",
     "@woven/ui": "workspace:^",
     "expo": "^57.0.9",
     "expo-camera": "~57.0.3",
