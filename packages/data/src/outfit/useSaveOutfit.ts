@@ -1,8 +1,8 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { queryKeys } from '../queryKeys';
 import { useSupabaseClient } from '../supabaseContext';
-import { saveOutfit, type CreateOutfitInput } from './outfitRepository';
+import { listOutfits, saveOutfit, type CreateOutfitInput } from './outfitRepository';
 
 /** Saves an outfit (transactional RPC) and refreshes the outfit list. */
 export function useSaveOutfit(userId: string) {
@@ -11,5 +11,15 @@ export function useSaveOutfit(userId: string) {
   return useMutation({
     mutationFn: (input: CreateOutfitInput) => saveOutfit(client, input),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.outfits(userId) }),
+  });
+}
+
+/** The user's saved outfits. */
+export function useOutfits(userId: string) {
+  const client = useSupabaseClient();
+  return useQuery({
+    queryKey: queryKeys.outfits(userId),
+    queryFn: () => listOutfits(client),
+    enabled: userId.length > 0,
   });
 }
