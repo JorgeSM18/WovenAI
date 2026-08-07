@@ -6,25 +6,15 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 
+import { DraggableItem, type CanvasItem } from '../src/features/studio/DraggableItem';
 import { useAuth } from '../src/providers/AuthProvider';
 
-type CanvasItem = {
-  garmentId: string;
-  thumbnailUrl: string | null;
-  posX: number;
-  posY: number;
-  zIndex: number;
-};
-
-// Free-form canvas coordinates/sizes are inherently pixel-based, not tokens.
 const STEP = 24;
-const ITEM_W = 110;
-const ITEM_H = 150;
 
 /**
- * Studio (T-0607 + basic canvas). Tap garments in the tray to add them to the
- * canvas and save the outfit. Real touch drag / layers / undo are T-0602/03/06
- * (gesture-handler + reanimated, device-only) — items cascade by default here.
+ * Studio (E06). Tap tray garments to add them to the canvas, then drag to move,
+ * tap to bring to front (z-index), long press to remove. Save persists the
+ * composed outfit via the transactional save_outfit RPC.
  */
 export default function StudioScreen() {
   const { session } = useAuth();
@@ -34,19 +24,36 @@ export default function StudioScreen() {
   const [items, setItems] = useState<CanvasItem[]>([]);
 
   const add = (garment: WardrobeItem) => {
-    setItems((prev) => [
-      ...prev,
-      {
-        garmentId: garment.id,
-        thumbnailUrl: garment.thumbnailUrl,
-        posX: STEP * prev.length,
-        posY: STEP * prev.length,
-        zIndex: prev.length,
-      },
-    ]);
+    setItems((prev) => {
+      if (prev.some((item) => item.garmentId === garment.id)) return prev;
+      return [
+        ...prev,
+        {
+          garmentId: garment.id,
+          thumbnailUrl: garment.thumbnailUrl,
+          posX: STEP * prev.length,
+          posY: STEP * prev.length,
+          zIndex: prev.length,
+        },
+      ];
+    });
   };
 
-  const removeAt = (index: number) => setItems((prev) => prev.filter((_, i) => i !== index));
+  const moveTo = (garmentId: string, posX: number, posY: number) =>
+    setItems((prev) =>
+      prev.map((item) => (item.garmentId === garmentId ? { ...item, posX, posY } : item)),
+    );
+
+  const bringToFront = (garmentId: string) =>
+    setItems((prev) => {
+      const max = prev.reduce((acc, item) => Math.max(acc, item.zIndex), -1);
+      return prev.map((item) =>
+        item.garmentId === garmentId ? { ...item, zIndex: max + 1 } : item,
+      );
+    });
+
+  const remove = (garmentId: string) =>
+    setItems((prev) => prev.filter((item) => item.garmentId !== garmentId));
 
   const onSave = () => {
     if (items.length === 0) return;
@@ -92,45 +99,25 @@ export default function StudioScreen() {
         {items.length === 0 ? (
           <View className="flex-1 items-center justify-center p-lg">
             <Text variant="body-md" className="text-center text-on-surface-variant">
-              Tap garments below to build your outfit.
+              Tap garments below to add them, then drag to arrange.
             </Text>
           </View>
         ) : (
-          items.map((item, index) => (
-            <Pressable
-              key={`${item.garmentId}-${index}`}
-              accessibilityLabel="Remove from outfit"
-              onPress={() => removeAt(index)}
-              style={{
-                position: 'absolute',
-                left: item.posX,
-                top: item.posY,
-                zIndex: item.zIndex,
-                width: ITEM_W,
-                height: ITEM_H,
-              }}
-            >
-              <View
-                className="overflow-hidden rounded-lg bg-surface-container"
-                style={{ width: '100%', height: '100%' }}
-              >
-                {item.thumbnailUrl ? (
-                  <Image
-                    source={{ uri: item.thumbnailUrl }}
-                    contentFit="cover"
-                    cachePolicy="memory-disk"
-                    style={{ width: '100%', height: '100%' }}
-                  />
-                ) : null}
-              </View>
-            </Pressable>
+          items.map((item) => (
+            <DraggableItem
+              key={item.garmentId}
+              item={item}
+              onMove={moveTo}
+              onBringToFront={bringToFront}
+              onRemove={remove}
+            />
           ))
         )}
       </View>
 
       <View className="gap-sm border-t border-outline-variant bg-surface p-md">
         <Text variant="label-caps" className="text-on-surface-variant">
-          Tap to add
+          Tap to add · drag to move · long press to remove
         </Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View className="flex-row gap-sm">
