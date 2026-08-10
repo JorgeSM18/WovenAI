@@ -9,4 +9,5 @@ export const queryKeys = {
   stylePreferences: (userId: string) => ['style-preference', userId] as const,
   categories: () => ['category'] as const,
   colors: () => ['color'] as const,
+  trips: (userId: string) => ['trip', userId, 'list'] as const,
 };
