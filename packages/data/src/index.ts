@@ -29,6 +29,8 @@ export type {
   OutfitItemView,
 } from './outfit/outfitRepository';
 export { useSaveOutfit, useOutfits, useOutfit } from './outfit/useSaveOutfit';
+export { listTrips, createTrip } from './trip/tripRepository';
+export { useTrips, useCreateTrip } from './trip/useTrips';
 export { listCategories, listColors } from './reference/referenceRepository';
 export { useCategories, useColors } from './reference/useReference';
 export {
