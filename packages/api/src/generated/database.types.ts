@@ -766,6 +766,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_outfit_to_day: {
+        Args: { p_date: string; p_outfit: string; p_trip: string }
+        Returns: string
+      }
       save_outfit: { Args: { items: Json; name: string }; Returns: string }
       soft_delete_garment: { Args: { g: string }; Returns: undefined }
     }

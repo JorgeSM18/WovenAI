@@ -10,4 +10,7 @@ export const queryKeys = {
   categories: () => ['category'] as const,
   colors: () => ['color'] as const,
   trips: (userId: string) => ['trip', userId, 'list'] as const,
+  trip: (id: string) => ['trip', 'detail', id] as const,
+  tripGarments: (tripId: string) => ['trip', tripId, 'garments'] as const,
+  tripDays: (tripId: string) => ['trip', tripId, 'days'] as const,
 };

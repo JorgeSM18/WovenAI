@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { validateTripDraft } from './trip';
+import { enumerateDates, validateTripDraft } from './trip';
 
 const base = { destination: 'Lisbon', startDate: '2026-09-01', endDate: '2026-09-05' };
 
@@ -22,5 +22,25 @@ describe('validateTripDraft', () => {
     expect(validateTripDraft({ ...base, startDate: '2026-09-05', endDate: '2026-09-01' })).toMatch(
       /on or after/i,
     );
+  });
+});
+
+describe('enumerateDates', () => {
+  it('lists dates inclusive, crossing a month boundary', () => {
+    expect(enumerateDates('2026-09-29', '2026-10-02')).toEqual([
+      '2026-09-29',
+      '2026-09-30',
+      '2026-10-01',
+      '2026-10-02',
+    ]);
+  });
+
+  it('returns a single day when start equals end', () => {
+    expect(enumerateDates('2026-09-01', '2026-09-01')).toEqual(['2026-09-01']);
+  });
+
+  it('returns [] for an inverted or invalid range', () => {
+    expect(enumerateDates('2026-09-05', '2026-09-01')).toEqual([]);
+    expect(enumerateDates('bad', '2026-09-01')).toEqual([]);
   });
 });
