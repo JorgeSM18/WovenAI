@@ -2,7 +2,7 @@ import { useOutfits } from '@woven/data';
 import { Fab, Text } from '@woven/ui';
 import { FlashList } from '@shopify/flash-list';
 import { router } from 'expo-router';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { useAuth } from '../../src/providers/AuthProvider';
 
@@ -32,11 +32,15 @@ export default function OutfitsScreen() {
           data={items}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <View className="border-b border-outline-variant px-md py-md">
+            <Pressable
+              accessibilityLabel={item.name}
+              onPress={() => router.push(`/outfit/${item.id}`)}
+              className="border-b border-outline-variant px-md py-md"
+            >
               <Text variant="body-lg" className="text-on-surface">
                 {item.name}
               </Text>
-            </View>
+            </Pressable>
           )}
         />
       )}
