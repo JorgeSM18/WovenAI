@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { queryKeys } from '../queryKeys';
 import { useSupabaseClient } from '../supabaseContext';
-import { getGarment, listGarments } from './garmentRepository';
+import { getGarment, listForgottenGarments, listGarments } from './garmentRepository';
 
 /** The user's wardrobe (active garments + signed thumbnails). */
 export function useGarments(userId: string) {
@@ -10,6 +10,16 @@ export function useGarments(userId: string) {
   return useQuery({
     queryKey: queryKeys.garments(userId),
     queryFn: () => listGarments(client),
+    enabled: userId.length > 0,
+  });
+}
+
+/** Forgotten pieces for the Home carousel (>60 days / never worn). */
+export function useForgottenGarments(userId: string) {
+  const client = useSupabaseClient();
+  return useQuery({
+    queryKey: queryKeys.forgottenGarments(userId),
+    queryFn: () => listForgottenGarments(client),
     enabled: userId.length > 0,
   });
 }

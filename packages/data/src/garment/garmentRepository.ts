@@ -1,6 +1,8 @@
 import type { Database, WovenClient } from '@woven/api';
 import type { Season } from '@woven/core';
 
+import { signedThumbnailsByGarment } from './thumbnails';
+
 type GarmentInsert = Database['public']['Tables']['garment']['Insert'];
 
 /** Number of the user's active (non-deleted) garments. RLS scopes to the caller. */
@@ -12,9 +14,6 @@ export async function countGarments(client: WovenClient): Promise<number> {
   if (error) throw error;
   return count ?? 0;
 }
-
-const BUCKET = 'images';
-const SIGNED_URL_TTL = 60 * 60;
 
 export type WardrobeItem = {
   id: string;
@@ -28,50 +27,22 @@ export type WardrobeItem = {
 export async function listGarments(client: WovenClient): Promise<WardrobeItem[]> {
   const { data: garments, error } = await client
     .from('garment')
-    .select('id, name, is_favorite, original_image_id')
+    .select('id, name, is_favorite')
     .is('deleted_at', null)
     .order('created_at', { ascending: false })
     .limit(100); // ponytail: fixed cap; switch to keyset pagination when wardrobes grow
   if (error) throw error;
 
-  const imageIds = garments
-    .map((garment) => garment.original_image_id)
-    .filter((id): id is string => id !== null);
-
-  const pathByImageId = new Map<string, string>();
-  if (imageIds.length > 0) {
-    const { data: assets, error: assetError } = await client
-      .from('image_asset')
-      .select('id, storage_path')
-      .in('id', imageIds);
-    if (assetError) throw assetError;
-    for (const asset of assets) pathByImageId.set(asset.id, asset.storage_path);
-  }
-
-  // storage_path is stored as `images/<key>`; the storage API wants the key.
-  const keys = [...new Set(pathByImageId.values())].map((path) => stripBucket(path));
-  const urlByKey = new Map<string, string>();
-  if (keys.length > 0) {
-    const { data: signed } = await client.storage
-      .from(BUCKET)
-      .createSignedUrls(keys, SIGNED_URL_TTL);
-    for (const entry of signed ?? []) {
-      if (entry.path && entry.signedUrl) urlByKey.set(entry.path, entry.signedUrl);
-    }
-  }
-
-  return garments.map((garment) => {
-    const path = garment.original_image_id
-      ? pathByImageId.get(garment.original_image_id)
-      : undefined;
-    const key = path ? stripBucket(path) : undefined;
-    return {
-      id: garment.id,
-      name: garment.name,
-      isFavorite: garment.is_favorite,
-      thumbnailUrl: key ? (urlByKey.get(key) ?? null) : null,
-    };
-  });
+  const thumbnails = await signedThumbnailsByGarment(
+    client,
+    garments.map((garment) => garment.id),
+  );
+  return garments.map((garment) => ({
+    id: garment.id,
+    name: garment.name,
+    isFavorite: garment.is_favorite,
+    thumbnailUrl: thumbnails.get(garment.id) ?? null,
+  }));
 }
 
 /** Toggles the favorite flag. */
@@ -90,23 +61,31 @@ export async function deleteGarment(client: WovenClient, id: string): Promise<vo
   if (error) throw error;
 }
 
-/** Removes the `<bucket>/` prefix from a stored storage_path to get the key. */
-export function stripBucket(storagePath: string): string {
-  return storagePath.startsWith(`${BUCKET}/`) ? storagePath.slice(BUCKET.length + 1) : storagePath;
-}
+const FORGOTTEN_DAYS = 60;
 
-async function signedUrlFor(client: WovenClient, imageId: string | null): Promise<string | null> {
-  if (!imageId) return null;
-  const { data: asset, error } = await client
-    .from('image_asset')
-    .select('storage_path')
-    .eq('id', imageId)
-    .single();
+/** Forgotten pieces (T-0701): garments not worn in >60 days, plus never-worn
+ *  ones (no wear tracking yet). Oldest / never-worn first. RLS-scoped. */
+export async function listForgottenGarments(client: WovenClient): Promise<WardrobeItem[]> {
+  const cutoff = new Date(Date.now() - FORGOTTEN_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  const { data: garments, error } = await client
+    .from('garment')
+    .select('id, name, is_favorite')
+    .is('deleted_at', null)
+    .or(`last_worn_at.is.null,last_worn_at.lt.${cutoff}`)
+    .order('last_worn_at', { ascending: true, nullsFirst: true })
+    .limit(12);
   if (error) throw error;
-  const { data: signed } = await client.storage
-    .from(BUCKET)
-    .createSignedUrl(stripBucket(asset.storage_path), SIGNED_URL_TTL);
-  return signed?.signedUrl ?? null;
+
+  const thumbnails = await signedThumbnailsByGarment(
+    client,
+    garments.map((garment) => garment.id),
+  );
+  return garments.map((garment) => ({
+    id: garment.id,
+    name: garment.name,
+    isFavorite: garment.is_favorite,
+    thumbnailUrl: thumbnails.get(garment.id) ?? null,
+  }));
 }
 
 export type GarmentDetail = {
@@ -133,10 +112,10 @@ export async function getGarment(client: WovenClient, id: string): Promise<Garme
     .single();
   if (error) throw error;
 
-  const [category, color, imageUrl] = await Promise.all([
+  const [category, color, thumbnails] = await Promise.all([
     client.from('category').select('name').eq('id', garment.category_id).single(),
     client.from('color').select('name, hex').eq('id', garment.primary_color_id).single(),
-    signedUrlFor(client, garment.original_image_id),
+    signedThumbnailsByGarment(client, [garment.id]),
   ]);
   if (category.error) throw category.error;
   if (color.error) throw color.error;
@@ -150,7 +129,7 @@ export async function getGarment(client: WovenClient, id: string): Promise<Garme
     categoryName: category.data.name,
     colorName: color.data.name,
     colorHex: color.data.hex,
-    imageUrl,
+    imageUrl: thumbnails.get(garment.id) ?? null,
   };
 }
 
