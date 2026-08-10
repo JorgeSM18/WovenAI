@@ -9,5 +9,5 @@ export type {
 } from './profile';
 export type { StylePreference } from './stylePreference';
 export type { Category, Color, Season } from './reference';
-export { validateTripDraft } from './trip';
+export { validateTripDraft, enumerateDates } from './trip';
 export type { Trip, TripStatus, TripDraft } from './trip';

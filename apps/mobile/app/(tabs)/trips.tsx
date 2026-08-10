@@ -2,7 +2,7 @@ import { useTrips } from '@woven/data';
 import { Fab, Text } from '@woven/ui';
 import { FlashList } from '@shopify/flash-list';
 import { router } from 'expo-router';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { useAuth } from '../../src/providers/AuthProvider';
 
@@ -32,14 +32,18 @@ export default function TripsScreen() {
           data={items}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <View className="gap-xs border-b border-outline-variant px-md py-md">
+            <Pressable
+              accessibilityLabel={item.destination}
+              onPress={() => router.push(`/trip/${item.id}`)}
+              className="gap-xs border-b border-outline-variant px-md py-md"
+            >
               <Text variant="body-lg" className="text-on-surface">
                 {item.destination}
               </Text>
               <Text variant="body-md" className="text-on-surface-variant">
                 {item.startDate} → {item.endDate}
               </Text>
-            </View>
+            </Pressable>
           )}
         />
       )}

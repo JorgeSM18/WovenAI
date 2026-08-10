@@ -30,3 +30,16 @@ export function validateTripDraft(draft: TripDraft): string | null {
   if (draft.startDate > draft.endDate) return 'End date must be on or after the start date.';
   return null;
 }
+
+/** All dates (YYYY-MM-DD) from start to end inclusive; [] if the range is invalid. */
+export function enumerateDates(startDate: string, endDate: string): string[] {
+  if (!isValidDate(startDate) || !isValidDate(endDate) || startDate > endDate) return [];
+  const dates: string[] = [];
+  const current = new Date(`${startDate}T00:00:00Z`);
+  const end = new Date(`${endDate}T00:00:00Z`);
+  while (current <= end) {
+    dates.push(current.toISOString().slice(0, 10));
+    current.setUTCDate(current.getUTCDate() + 1);
+  }
+  return dates;
+}
