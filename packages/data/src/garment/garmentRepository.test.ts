@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { stripBucket } from './garmentRepository';
+import { stripBucket } from './thumbnails';
 
 describe('stripBucket', () => {
   it('drops the bucket prefix to get the storage key', () => {
