@@ -5,6 +5,7 @@ export const queryKeys = {
   garments: (userId: string) => ['garment', userId, 'list'] as const,
   garment: (id: string) => ['garment', 'detail', id] as const,
   outfits: (userId: string) => ['outfit', userId, 'list'] as const,
+  outfit: (id: string) => ['outfit', 'detail', id] as const,
   stylePreferences: (userId: string) => ['style-preference', userId] as const,
   categories: () => ['category'] as const,
   colors: () => ['color'] as const,

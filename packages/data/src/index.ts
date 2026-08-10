@@ -20,9 +20,15 @@ export { useGarmentCount } from './garment/useGarmentCount';
 export { useCreateGarment } from './garment/useCreateGarment';
 export { useGarments, useGarment } from './garment/useGarments';
 export { useSetFavorite, useDeleteGarment } from './garment/useGarmentActions';
-export { saveOutfit, listOutfits } from './outfit/outfitRepository';
-export type { CreateOutfitInput, OutfitItemInput, OutfitSummary } from './outfit/outfitRepository';
-export { useSaveOutfit, useOutfits } from './outfit/useSaveOutfit';
+export { saveOutfit, listOutfits, getOutfit } from './outfit/outfitRepository';
+export type {
+  CreateOutfitInput,
+  OutfitItemInput,
+  OutfitSummary,
+  OutfitDetail,
+  OutfitItemView,
+} from './outfit/outfitRepository';
+export { useSaveOutfit, useOutfits, useOutfit } from './outfit/useSaveOutfit';
 export { listCategories, listColors } from './reference/referenceRepository';
 export { useCategories, useColors } from './reference/useReference';
 export {
