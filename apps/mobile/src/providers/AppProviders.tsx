@@ -9,6 +9,7 @@ import { AuthProvider } from './AuthProvider';
 import { ErrorBoundary } from './ErrorBoundary';
 import { createQueryClient } from './queryClient';
 import { TelemetryProvider } from './TelemetryProvider';
+import { UploadQueueDrain } from './UploadQueueDrain';
 
 const queryClient = createQueryClient();
 
@@ -28,6 +29,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
       <QueryClientProvider client={queryClient}>
         <SupabaseProvider client={supabase}>
           <AuthProvider>
+            <UploadQueueDrain />
             <ThemeProvider>
               <ThemeSync />
               <TelemetryProvider>{children}</TelemetryProvider>

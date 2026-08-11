@@ -16,6 +16,7 @@ export {
   setGarmentFavorite,
   deleteGarment,
   markGarmentWorn,
+  setGarmentImage,
 } from './garment/garmentRepository';
 export type { CreateGarmentInput, WardrobeItem, GarmentDetail } from './garment/garmentRepository';
 export { useGarmentCount } from './garment/useGarmentCount';
