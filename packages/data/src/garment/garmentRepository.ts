@@ -61,6 +61,20 @@ export async function deleteGarment(client: WovenClient, id: string): Promise<vo
   if (error) throw error;
 }
 
+/** Links a (deferred) uploaded image to its garment and activates it — used when
+ *  the offline upload queue drains. */
+export async function setGarmentImage(
+  client: WovenClient,
+  garmentId: string,
+  imageId: string,
+): Promise<void> {
+  const { error } = await client
+    .from('garment')
+    .update({ original_image_id: imageId, status: 'active' })
+    .eq('id', garmentId);
+  if (error) throw error;
+}
+
 /** Records that the garment was worn now (drives Forgotten Pieces). */
 export async function markGarmentWorn(client: WovenClient, id: string): Promise<void> {
   const { error } = await client
