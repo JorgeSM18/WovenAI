@@ -22,7 +22,7 @@ export default function TabsLayout() {
   // Protect the shell against deep links; the entry gate lives in app/index.tsx.
   const { isAuthenticated, isLoading } = useAuth();
   if (isLoading) return null;
-  if (!isAuthenticated) return <Redirect href="/onboarding" />;
+  if (!isAuthenticated) return <Redirect href="/login" />;
 
   return (
     <Tabs
