@@ -15,12 +15,13 @@ export {
   getGarment,
   setGarmentFavorite,
   deleteGarment,
+  markGarmentWorn,
 } from './garment/garmentRepository';
 export type { CreateGarmentInput, WardrobeItem, GarmentDetail } from './garment/garmentRepository';
 export { useGarmentCount } from './garment/useGarmentCount';
 export { useCreateGarment } from './garment/useCreateGarment';
 export { useGarments, useGarment, useForgottenGarments } from './garment/useGarments';
-export { useSetFavorite, useDeleteGarment } from './garment/useGarmentActions';
+export { useSetFavorite, useDeleteGarment, useMarkGarmentWorn } from './garment/useGarmentActions';
 export { saveOutfit, listOutfits, getOutfit } from './outfit/outfitRepository';
 export type {
   CreateOutfitInput,
