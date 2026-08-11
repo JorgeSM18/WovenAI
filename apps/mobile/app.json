@@ -26,6 +26,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "ios": {
+      "bundleIdentifier": "com.woven.app"
+    },
+    "android": {
+      "package": "com.woven.app"
     }
   }
 }
