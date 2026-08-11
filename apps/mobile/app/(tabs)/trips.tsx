@@ -31,6 +31,8 @@ export default function TripsScreen() {
         <FlashList
           data={items}
           keyExtractor={(item) => item.id}
+          refreshing={trips.isRefetching}
+          onRefresh={() => void trips.refetch()}
           renderItem={({ item }) => (
             <Pressable
               accessibilityLabel={item.destination}

@@ -1,4 +1,4 @@
-import { useDeleteGarment, useGarment, useSetFavorite } from '@woven/data';
+import { useDeleteGarment, useGarment, useMarkGarmentWorn, useSetFavorite } from '@woven/data';
 import { Button, ColorSwatch, FullScreenFlowTemplate, IconButton, Skeleton, Text } from '@woven/ui';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -29,6 +29,7 @@ export default function GarmentDetailScreen() {
 
   const garment = useGarment(garmentId);
   const setFavorite = useSetFavorite(userId);
+  const markWorn = useMarkGarmentWorn(userId);
   const remove = useDeleteGarment(userId);
 
   const confirmDelete = () => {
@@ -120,6 +121,12 @@ export default function GarmentDetailScreen() {
                 ) : null}
                 <Attribute label="Status" value={capitalize(garment.data.status)} />
               </View>
+
+              <Button
+                label={markWorn.isPending ? 'Saving…' : 'Mark as worn today'}
+                disabled={markWorn.isPending}
+                onPress={() => markWorn.mutate(garmentId)}
+              />
 
               <Button
                 label={remove.isPending ? 'Deleting…' : 'Delete garment'}

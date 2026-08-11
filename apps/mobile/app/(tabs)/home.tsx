@@ -1,7 +1,7 @@
 import { useForgottenGarments } from '@woven/data';
 import { GarmentCard, Text } from '@woven/ui';
 import { router } from 'expo-router';
-import { ScrollView, View } from 'react-native';
+import { RefreshControl, ScrollView, View } from 'react-native';
 
 import { useAuth } from '../../src/providers/AuthProvider';
 
@@ -17,7 +17,16 @@ export default function HomeScreen() {
   const forgotten = useForgottenGarments(userId);
 
   return (
-    <ScrollView className="flex-1 bg-background" showsVerticalScrollIndicator={false}>
+    <ScrollView
+      className="flex-1 bg-background"
+      showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl
+          refreshing={forgotten.isRefetching}
+          onRefresh={() => void forgotten.refetch()}
+        />
+      }
+    >
       <View className="gap-lg p-md">
         <Text variant="display-lg" className="text-on-surface">
           {greeting(new Date().getHours())}

@@ -61,6 +61,15 @@ export async function deleteGarment(client: WovenClient, id: string): Promise<vo
   if (error) throw error;
 }
 
+/** Records that the garment was worn now (drives Forgotten Pieces). */
+export async function markGarmentWorn(client: WovenClient, id: string): Promise<void> {
+  const { error } = await client
+    .from('garment')
+    .update({ last_worn_at: new Date().toISOString() })
+    .eq('id', id);
+  if (error) throw error;
+}
+
 const FORGOTTEN_DAYS = 60;
 
 /** Forgotten pieces (T-0701): garments not worn in >60 days, plus never-worn

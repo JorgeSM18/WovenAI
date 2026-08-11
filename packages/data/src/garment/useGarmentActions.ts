@@ -4,6 +4,7 @@ import { queryKeys } from '../queryKeys';
 import { useSupabaseClient } from '../supabaseContext';
 import {
   deleteGarment,
+  markGarmentWorn,
   setGarmentFavorite,
   type GarmentDetail,
   type WardrobeItem,
@@ -42,6 +43,19 @@ export function useSetFavorite(userId: string) {
     onSettled: (_data, _error, { id }) => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.garment(id) });
       void queryClient.invalidateQueries({ queryKey: queryKeys.garments(userId) });
+    },
+  });
+}
+
+/** Marks a garment as worn now and refreshes the affected lists. */
+export function useMarkGarmentWorn(userId: string) {
+  const client = useSupabaseClient();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => markGarmentWorn(client, id),
+    onSuccess: (_data, id) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.garment(id) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.forgottenGarments(userId) });
     },
   });
 }
