@@ -1,9 +1,11 @@
 import type { Season } from '@woven/core';
 import { useCategories, useColors, useCreateGarment } from '@woven/data';
+import { useImportQueue, usePendingUploads } from '@woven/store';
 import { Button, Chip, FullScreenFlowTemplate, IconButton, Input, Text } from '@woven/ui';
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Image, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
 import { useAuth } from '../src/providers/AuthProvider';
 
@@ -15,18 +17,34 @@ const SEASONS: { value: Season; label: string }[] = [
 ];
 
 /**
- * Review & create a garment from a captured image (T-0406 manual / T-0407).
- * AI pre-fill of the fields (classification) is blocked by PD-05, so fields are
- * entered manually here; Category and Color are required.
+ * Review & create a garment (T-0406 manual / T-0407). Handles three sources:
+ * a single online capture (params.imageId), an offline capture (params.offline —
+ * the image upload is deferred and enqueued), and the import queue (T-0409 —
+ * reviewed one item at a time). AI pre-fill is blocked by PD-05.
  */
 export default function GarmentReviewScreen() {
-  const { imageId, uri } = useLocalSearchParams<{ imageId: string; uri: string }>();
+  const params = useLocalSearchParams<{
+    imageId?: string;
+    uri?: string;
+    offline?: string;
+    width?: string;
+    height?: string;
+  }>();
   const { session } = useAuth();
   const userId = session?.user.id ?? '';
 
   const categories = useCategories();
   const colors = useColors();
   const create = useCreateGarment(userId);
+
+  const importItem = useImportQueue((state) => state.items[0]);
+  const importCount = useImportQueue((state) => state.items.length);
+  const dequeueImport = useImportQueue((state) => state.dequeue);
+  const enqueuePending = usePendingUploads((state) => state.enqueue);
+
+  const imageId = importItem?.imageId ?? params.imageId ?? null;
+  const previewUri = importItem?.uri ?? params.uri;
+  const isOffline = params.offline === '1' && !importItem;
 
   const [name, setName] = useState('');
   const [categoryId, setCategoryId] = useState<string | null>(null);
@@ -36,18 +54,46 @@ export default function GarmentReviewScreen() {
 
   const canSave = name.trim().length > 0 && categoryId !== null && colorId !== null;
 
+  const resetForm = () => {
+    setName('');
+    setCategoryId(null);
+    setColorId(null);
+    setSeason(null);
+    setError(null);
+  };
+
   const save = async () => {
     if (!canSave || !userId) return;
     setError(null);
     try {
-      await create.mutateAsync({
+      const newGarmentId = await create.mutateAsync({
         userId,
         name: name.trim(),
         categoryId,
         primaryColorId: colorId,
         season,
-        originalImageId: imageId ?? null,
+        originalImageId: imageId,
       });
+
+      if (isOffline && params.uri) {
+        enqueuePending({
+          id: `${Date.now()}-${Math.random()}`,
+          garmentId: newGarmentId,
+          uri: params.uri,
+          type: 'original',
+          mime: 'image/jpeg',
+          width: Number(params.width ?? 0),
+          height: Number(params.height ?? 0),
+        });
+      }
+
+      if (importItem) {
+        dequeueImport();
+        if (importCount > 1) {
+          resetForm();
+          return;
+        }
+      }
       router.replace('/home');
     } catch {
       setError('Could not save the garment. Please try again.');
@@ -66,7 +112,7 @@ export default function GarmentReviewScreen() {
         onPress={() => router.back()}
       />
       <Text variant="title-sm" className="text-on-surface">
-        New garment
+        {importCount > 1 ? `New garment (${importCount} left)` : 'New garment'}
       </Text>
     </View>
   );
@@ -75,15 +121,21 @@ export default function GarmentReviewScreen() {
     <FullScreenFlowTemplate header={header}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="gap-lg p-md">
-          {uri ? (
+          {previewUri ? (
             <View className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-surface-container">
               <Image
-                source={{ uri }}
-                resizeMode="cover"
+                source={{ uri: previewUri }}
+                contentFit="cover"
                 className="h-full w-full"
                 accessibilityLabel="Garment photo"
               />
             </View>
+          ) : null}
+
+          {isOffline ? (
+            <Text variant="body-md" className="text-on-surface-variant">
+              You&apos;re offline — the photo will upload automatically once you reconnect.
+            </Text>
           ) : null}
 
           <Input

@@ -1,4 +1,6 @@
+import NetInfo from '@react-native-community/netinfo';
 import { useUploadImage } from '@woven/data';
+import { useImportQueue } from '@woven/store';
 import {
   Button,
   EmptyStateTemplate,
@@ -8,6 +10,7 @@ import {
   Text,
 } from '@woven/ui';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Image, Linking, View } from 'react-native';
@@ -88,20 +91,72 @@ export default function CaptureScreen() {
     setError(null);
     try {
       const processed = await processForUpload(photo);
-      const uploaded = await upload.mutateAsync({
-        userId,
-        uri: processed.uri,
-        type: 'original',
-        mime: processed.mime,
-        width: processed.width,
-        height: processed.height,
-      });
-      router.replace({
-        pathname: '/garment-review',
-        params: { imageId: uploaded.id, uri: processed.uri },
-      });
+      const net = await NetInfo.fetch();
+      if (net.isConnected) {
+        const uploaded = await upload.mutateAsync({
+          userId,
+          uri: processed.uri,
+          type: 'original',
+          mime: processed.mime,
+          width: processed.width,
+          height: processed.height,
+        });
+        router.replace({
+          pathname: '/garment-review',
+          params: { imageId: uploaded.id, uri: processed.uri },
+        });
+      } else {
+        // Offline (T-0405): create the garment now; the upload is deferred and
+        // linked to it when connectivity returns (see UploadQueueDrain).
+        router.replace({
+          pathname: '/garment-review',
+          params: {
+            uri: processed.uri,
+            offline: '1',
+            width: String(processed.width),
+            height: String(processed.height),
+          },
+        });
+      }
     } catch {
       setError('Upload failed. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const importFromGallery = async () => {
+    if (!userId) return;
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsMultipleSelection: true,
+      quality: 1,
+    });
+    if (result.canceled) return;
+    setIsSaving(true);
+    setError(null);
+    try {
+      const items = [];
+      for (const asset of result.assets) {
+        const processed = await processForUpload({
+          uri: asset.uri,
+          width: asset.width,
+          height: asset.height,
+        });
+        const uploaded = await upload.mutateAsync({
+          userId,
+          uri: processed.uri,
+          type: 'original',
+          mime: processed.mime,
+          width: processed.width,
+          height: processed.height,
+        });
+        items.push({ imageId: uploaded.id, uri: processed.uri });
+      }
+      useImportQueue.getState().enqueue(items);
+      router.replace('/garment-review');
+    } catch {
+      setError('Import failed. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -150,7 +205,7 @@ export default function CaptureScreen() {
     <FullScreenFlowTemplate>
       <View className="flex-1 bg-background">
         <CameraView ref={cameraRef} facing="back" style={{ flex: 1 }} />
-        <View className="absolute inset-x-0 top-0 flex-row p-md">
+        <View className="absolute inset-x-0 top-0 flex-row items-center justify-between p-md">
           <IconButton
             icon={
               <Text variant="headline-md" className="text-on-surface">
@@ -159,6 +214,14 @@ export default function CaptureScreen() {
             }
             accessibilityLabel="Close camera"
             onPress={() => router.back()}
+          />
+          <Button
+            label="Import"
+            variant="secondary"
+            disabled={isSaving}
+            onPress={() => {
+              void importFromGallery();
+            }}
           />
         </View>
         <View className="absolute inset-x-0 bottom-lg items-center">
