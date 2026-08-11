@@ -11,6 +11,6 @@ import { useAuth } from '../src/providers/AuthProvider';
 export default function Index() {
   const { isAuthenticated, isLoading } = useAuth();
   if (isLoading) return null; // native splash covers the initial session lookup
-  if (!isAuthenticated) return <Redirect href="/onboarding" />;
+  if (!isAuthenticated) return <Redirect href="/login" />;
   return <Redirect href="/home" />;
 }
