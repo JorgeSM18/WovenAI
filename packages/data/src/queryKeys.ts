@@ -14,4 +14,5 @@ export const queryKeys = {
   trip: (id: string) => ['trip', 'detail', id] as const,
   tripGarments: (tripId: string) => ['trip', tripId, 'garments'] as const,
   tripDays: (tripId: string) => ['trip', tripId, 'days'] as const,
+  tripWeather: (tripId: string) => ['trip', tripId, 'weather'] as const,
 };

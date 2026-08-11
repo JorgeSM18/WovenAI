@@ -52,6 +52,7 @@ export {
   useTripDays,
   useAssignOutfitToDay,
 } from './trip/useTrips';
+export { useTripWeather, useClassifyGarment } from './ai/useAi';
 export { listCategories, listColors } from './reference/referenceRepository';
 export { useCategories, useColors } from './reference/useReference';
 export {

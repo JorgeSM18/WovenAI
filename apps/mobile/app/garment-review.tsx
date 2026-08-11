@@ -1,5 +1,5 @@
 import type { Season } from '@woven/core';
-import { useCategories, useColors, useCreateGarment } from '@woven/data';
+import { useCategories, useClassifyGarment, useColors, useCreateGarment } from '@woven/data';
 import { useImportQueue, usePendingUploads } from '@woven/store';
 import { Button, Chip, FullScreenFlowTemplate, IconButton, Input, Text } from '@woven/ui';
 import { Image } from 'expo-image';
@@ -36,6 +36,7 @@ export default function GarmentReviewScreen() {
   const categories = useCategories();
   const colors = useColors();
   const create = useCreateGarment(userId);
+  const classify = useClassifyGarment();
 
   const importItem = useImportQueue((state) => state.items[0]);
   const importCount = useImportQueue((state) => state.items.length);
@@ -60,6 +61,29 @@ export default function GarmentReviewScreen() {
     setColorId(null);
     setSeason(null);
     setError(null);
+  };
+
+  const suggest = async () => {
+    if (!imageId) return;
+    try {
+      const result = await classify.mutateAsync(imageId);
+      const category = categories.data?.find(
+        (c) => c.name.toLowerCase() === result.categoryName?.toLowerCase(),
+      );
+      if (category) setCategoryId(category.id);
+      const color = colors.data?.find(
+        (c) => c.name.toLowerCase() === result.colorName?.toLowerCase(),
+      );
+      if (color) setColorId(color.id);
+      const seasonMatch = SEASONS.find((s) => s.value === result.season);
+      if (seasonMatch) setSeason(seasonMatch.value);
+      if (name.trim().length === 0) {
+        const suggested = [result.colorName, result.categoryName].filter(Boolean).join(' ').trim();
+        if (suggested) setName(suggested);
+      }
+    } catch {
+      // AI unavailable — the manual form still works.
+    }
   };
 
   const save = async () => {
@@ -136,6 +160,17 @@ export default function GarmentReviewScreen() {
             <Text variant="body-md" className="text-on-surface-variant">
               You&apos;re offline — the photo will upload automatically once you reconnect.
             </Text>
+          ) : null}
+
+          {imageId ? (
+            <Button
+              label={classify.isPending ? 'Suggesting…' : 'Suggest with AI'}
+              variant="secondary"
+              disabled={classify.isPending}
+              onPress={() => {
+                void suggest();
+              }}
+            />
           ) : null}
 
           <Input

@@ -12,3 +12,7 @@ export type { Session, User, AuthError, AuthChangeEvent } from '@supabase/supaba
 // Edge function contracts.
 export { signUpload, signUploadResultSchema, IMAGE_MIMES } from './edge/signUpload';
 export type { SignUploadInput, SignUploadResult, ImageMime } from './edge/signUpload';
+export { getWeather, weatherSnapshotSchema } from './edge/getWeather';
+export type { WeatherSnapshot } from './edge/getWeather';
+export { classifyGarment, classificationSchema } from './edge/classifyGarment';
+export type { ClassificationResult } from './edge/classifyGarment';
