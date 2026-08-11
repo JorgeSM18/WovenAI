@@ -46,6 +46,8 @@ export default function InventoryScreen() {
           data={filtered}
           numColumns={2}
           keyExtractor={(item) => item.id}
+          refreshing={garments.isRefetching}
+          onRefresh={() => void garments.refetch()}
           renderItem={({ item }) => (
             <View className="p-xs">
               <GarmentCard

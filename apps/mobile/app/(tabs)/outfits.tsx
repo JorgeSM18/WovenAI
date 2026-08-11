@@ -31,6 +31,8 @@ export default function OutfitsScreen() {
         <FlashList
           data={items}
           keyExtractor={(item) => item.id}
+          refreshing={outfits.isRefetching}
+          onRefresh={() => void outfits.refetch()}
           renderItem={({ item }) => (
             <Pressable
               accessibilityLabel={item.name}

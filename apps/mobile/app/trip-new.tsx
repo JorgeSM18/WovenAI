@@ -1,21 +1,66 @@
 import { validateTripDraft } from '@woven/core';
 import { useCreateTrip } from '@woven/data';
 import { Button, FullScreenFlowTemplate, IconButton, Input, Text } from '@woven/ui';
+import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 
 import { useAuth } from '../src/providers/AuthProvider';
+
+type Field = 'start' | 'end';
+
+function DateField({
+  label,
+  value,
+  onPress,
+}: {
+  label: string;
+  value: string;
+  onPress: () => void;
+}) {
+  return (
+    <View className="gap-xs">
+      <Text variant="label-caps" className="text-on-surface-variant">
+        {label}
+      </Text>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${label}: ${value || 'not set'}`}
+        onPress={onPress}
+        className="min-h-touch-target-min justify-center border-b border-outline-variant py-xs"
+      >
+        <Text variant="body-lg" className={value ? 'text-on-surface' : 'text-outline'}>
+          {value || 'YYYY-MM-DD'}
+        </Text>
+      </Pressable>
+    </View>
+  );
+}
 
 export default function NewTripScreen() {
   const { session } = useAuth();
   const userId = session?.user.id ?? '';
   const create = useCreateTrip(userId);
-
   const [destination, setDestination] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [picker, setPicker] = useState<Field | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const pickerValue = (() => {
+    const current = picker === 'start' ? startDate : endDate;
+    return current ? new Date(`${current}T00:00:00Z`) : new Date();
+  })();
+
+  const onPickerChange = (event: DateTimePickerEvent, date?: Date) => {
+    const field = picker;
+    setPicker(null);
+    if (event.type !== 'set' || !date || !field) return;
+    const iso = date.toISOString().slice(0, 10);
+    if (field === 'start') setStartDate(iso);
+    else setEndDate(iso);
+  };
 
   const onCreate = () => {
     const draft = { destination, startDate, endDate };
@@ -58,22 +103,12 @@ export default function NewTripScreen() {
             value={destination}
             onChangeText={setDestination}
           />
-          <Input
-            label="Start date"
-            placeholder="YYYY-MM-DD"
-            value={startDate}
-            onChangeText={setStartDate}
-            autoCapitalize="none"
-            keyboardType="numbers-and-punctuation"
-          />
-          <Input
-            label="End date"
-            placeholder="YYYY-MM-DD"
-            value={endDate}
-            onChangeText={setEndDate}
-            autoCapitalize="none"
-            keyboardType="numbers-and-punctuation"
-          />
+          <DateField label="Start date" value={startDate} onPress={() => setPicker('start')} />
+          <DateField label="End date" value={endDate} onPress={() => setPicker('end')} />
+
+          {picker ? (
+            <DateTimePicker value={pickerValue} mode="date" onChange={onPickerChange} />
+          ) : null}
 
           {error ? (
             <Text variant="body-md" className="text-error">
