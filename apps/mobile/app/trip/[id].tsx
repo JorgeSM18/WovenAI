@@ -6,6 +6,7 @@ import {
   useTrip,
   useTripDays,
   useTripGarments,
+  useTripWeather,
   useToggleTripGarment,
 } from '@woven/data';
 import { Chip, FullScreenFlowTemplate, IconButton, Text } from '@woven/ui';
@@ -28,9 +29,11 @@ export default function TripDetailScreen() {
   const outfits = useOutfits(userId);
   const days = useTripDays(tripId);
   const assign = useAssignOutfitToDay(tripId);
+  const weather = useTripWeather(tripId);
 
   const packedIds = new Set(packed.data?.map((item) => item.garmentId));
   const outfitByDate = new Map(days.data?.map((day) => [day.date, day.outfitId]));
+  const weatherByDate = new Map(weather.data?.map((snapshot) => [snapshot.date, snapshot]));
   const outfitName = new Map(outfits.data?.map((outfit) => [outfit.id, outfit.name]));
   const dates = trip.data ? enumerateDates(trip.data.startDate, trip.data.endDate) : [];
 
@@ -108,12 +111,20 @@ export default function TripDetailScreen() {
             </Text>
             {dates.map((date) => {
               const assignedId = outfitByDate.get(date) ?? null;
+              const forecast = weatherByDate.get(date);
               return (
                 <View key={date} className="gap-xs">
                   <Text variant="body-lg" className="text-on-surface">
                     {date}
                     {assignedId ? ` · ${outfitName.get(assignedId) ?? 'Outfit'}` : ''}
                   </Text>
+                  {forecast?.condition || forecast?.temp_c != null ? (
+                    <Text variant="body-md" className="text-on-surface-variant">
+                      {forecast.temp_c != null ? `${Math.round(forecast.temp_c)}°C` : ''}
+                      {forecast.temp_c != null && forecast.condition ? ' · ' : ''}
+                      {forecast.condition ?? ''}
+                    </Text>
+                  ) : null}
                   <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     <View className="flex-row gap-sm">
                       {(outfits.data ?? []).map((outfit) => (
