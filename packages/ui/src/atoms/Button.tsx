@@ -6,11 +6,13 @@ import { Text } from './Text';
 const CONTAINER = {
   primary: 'bg-primary',
   secondary: 'bg-surface border border-outline-variant',
+  danger: 'bg-error',
 } as const;
 
 const LABEL = {
   primary: 'text-on-primary',
   secondary: 'text-on-surface',
+  danger: 'text-on-error',
 } as const;
 
 export type ButtonVariant = keyof typeof CONTAINER;

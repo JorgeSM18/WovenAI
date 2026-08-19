@@ -1,10 +1,20 @@
 import { useTrips } from '@woven/data';
-import { Fab, Text } from '@woven/ui';
+import { AppHeader, Badge, Fab, Icon, Text } from '@woven/ui';
 import { FlashList } from '@shopify/flash-list';
 import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
 import { useAuth } from '../../src/providers/AuthProvider';
+
+const MONTHS_ES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+const STATUS_LABEL = { upcoming: 'Próximo', active: 'En curso', past: 'Pasado' } as const;
+
+/** "2024-10-12" -> "12 oct" (Hermes-safe, no Intl dependency). */
+function formatDay(iso: string): string {
+  const [, month, day] = iso.split('-');
+  const monthName = MONTHS_ES[Number(month) - 1] ?? '';
+  return `${Number(day)} ${monthName}`;
+}
 
 export default function TripsScreen() {
   const { session } = useAuth();
@@ -15,35 +25,54 @@ export default function TripsScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <View className="px-md pt-md">
-        <Text variant="display-lg" className="text-on-surface">
-          Trips
+      <AppHeader
+        trailing={
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Perfil"
+            onPress={() => router.push('/profile')}
+            className="h-9 w-9 rounded-full bg-surface-container"
+          />
+        }
+      />
+
+      <View className="gap-base px-md pt-md">
+        <Text variant="headline-lg-mobile" className="text-on-surface">
+          Tus viajes
+        </Text>
+        <Text variant="body-md" className="text-on-surface-variant">
+          {items.length} {items.length === 1 ? 'viaje planificado' : 'viajes planificados'}
         </Text>
       </View>
 
       {isEmpty ? (
         <View className="flex-1 items-center justify-center p-lg">
           <Text variant="body-md" className="text-center text-on-surface-variant">
-            Tap the + button to plan your first trip.
+            Pulsa el botón + para planificar tu primer viaje.
           </Text>
         </View>
       ) : (
         <FlashList
           data={items}
           keyExtractor={(item) => item.id}
+          contentContainerStyle={{ padding: 16 }}
           refreshing={trips.isRefetching}
           onRefresh={() => void trips.refetch()}
           renderItem={({ item }) => (
             <Pressable
+              accessibilityRole="button"
               accessibilityLabel={item.destination}
               onPress={() => router.push(`/trip/${item.id}`)}
-              className="gap-xs border-b border-outline-variant px-md py-md"
+              className="mb-sm gap-xs rounded-lg bg-surface-container-lowest p-md"
             >
-              <Text variant="body-lg" className="text-on-surface">
-                {item.destination}
-              </Text>
+              <View className="flex-row items-center justify-between gap-sm">
+                <Text variant="title-sm" className="flex-1 text-on-surface" numberOfLines={1}>
+                  {item.destination}
+                </Text>
+                <Badge label={STATUS_LABEL[item.status]} />
+              </View>
               <Text variant="body-md" className="text-on-surface-variant">
-                {item.startDate} → {item.endDate}
+                {formatDay(item.startDate)} — {formatDay(item.endDate)}
               </Text>
             </Pressable>
           )}
@@ -52,12 +81,8 @@ export default function TripsScreen() {
 
       <View className="absolute bottom-lg right-md">
         <Fab
-          icon={
-            <Text variant="headline-md" className="text-background">
-              +
-            </Text>
-          }
-          accessibilityLabel="Plan a trip"
+          icon={<Icon name="plus" size={24} className="text-on-primary" />}
+          accessibilityLabel="Planificar viaje"
           onPress={() => router.push('/trip-new')}
         />
       </View>

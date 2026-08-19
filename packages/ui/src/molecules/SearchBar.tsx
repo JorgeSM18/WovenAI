@@ -1,13 +1,13 @@
 import { TextInput, View, type TextInputProps } from 'react-native';
 
-import { Text } from '../atoms/Text';
+import { Icon } from '../atoms/Icon';
 import { cn } from '../utils/cn';
 
 export type SearchBarProps = TextInputProps & {
   className?: string;
 };
 
-/** Search field with a leading glyph. */
+/** Search field with a leading icon. */
 export function SearchBar({ className, placeholder, ...props }: SearchBarProps) {
   return (
     <View
@@ -16,12 +16,10 @@ export function SearchBar({ className, placeholder, ...props }: SearchBarProps) 
         className,
       )}
     >
-      <Text variant="body-lg" className="text-outline" accessibilityElementsHidden>
-        ⌕
-      </Text>
+      <Icon name="magnify" size={20} className="text-outline" />
       <TextInput
-        accessibilityLabel="Search"
-        placeholder={placeholder ?? 'Search'}
+        accessibilityLabel="Buscar"
+        placeholder={placeholder ?? 'Buscar'}
         className="flex-1 font-sans text-body-lg text-on-surface placeholder:text-outline"
         {...props}
       />

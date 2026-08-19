@@ -1,5 +1,5 @@
 import { useOutfit } from '@woven/data';
-import { FullScreenFlowTemplate, IconButton, Skeleton, Text } from '@woven/ui';
+import { FlowHeader, FullScreenFlowTemplate, Skeleton, Text } from '@woven/ui';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { View } from 'react-native';
@@ -12,25 +12,10 @@ export default function OutfitDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const outfit = useOutfit(id ?? '');
 
-  const header = (
-    <View className="flex-row items-center gap-sm border-b border-outline-variant bg-surface px-md py-sm">
-      <IconButton
-        icon={
-          <Text variant="headline-md" className="text-on-surface">
-            ‹
-          </Text>
-        }
-        accessibilityLabel="Go back"
-        onPress={() => router.back()}
-      />
-      <Text variant="title-sm" className="flex-1 text-on-surface" numberOfLines={1}>
-        {outfit.data?.name ?? 'Outfit'}
-      </Text>
-    </View>
-  );
-
   return (
-    <FullScreenFlowTemplate header={header}>
+    <FullScreenFlowTemplate
+      header={<FlowHeader title={outfit.data?.name ?? 'Look'} onBack={() => router.back()} />}
+    >
       <View className="flex-1 bg-surface-container-lowest">
         {outfit.isPending ? (
           <View className="p-md">
@@ -39,14 +24,14 @@ export default function OutfitDetailScreen() {
         ) : outfit.isError ? (
           <View className="p-md">
             <Text variant="body-md" className="text-error">
-              We couldn&apos;t load this outfit.
+              No pudimos cargar este look.
             </Text>
           </View>
         ) : (
           outfit.data.items.map((item) => (
             <View
               key={item.garmentId}
-              accessibilityLabel="Outfit item"
+              accessibilityLabel="Elemento del look"
               style={{
                 position: 'absolute',
                 left: item.posX,

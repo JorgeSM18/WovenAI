@@ -1,7 +1,7 @@
 import type { WardrobeItem } from '@woven/data';
 import { useGarments, useSaveOutfit } from '@woven/data';
 import { useStudioDraft } from '@woven/store';
-import { Button, FullScreenFlowTemplate, IconButton, Text } from '@woven/ui';
+import { Button, FullScreenFlowTemplate, Icon, IconButton, type IconName, Text } from '@woven/ui';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -55,7 +55,7 @@ export default function StudioScreen() {
     if (items.length === 0) return;
     save.mutate(
       {
-        name: 'Outfit',
+        name: 'Look',
         items: items.map((item) => ({
           garmentId: item.garmentId,
           posX: item.posX,
@@ -75,13 +75,9 @@ export default function StudioScreen() {
     );
   };
 
-  const glyphButton = (glyph: string, label: string, onPress: () => void, disabled = false) => (
+  const iconBtn = (name: IconName, label: string, onPress: () => void, disabled = false) => (
     <IconButton
-      icon={
-        <Text variant="headline-md" className={disabled ? 'text-outline' : 'text-on-surface'}>
-          {glyph}
-        </Text>
-      }
+      icon={<Icon name={name} className={disabled ? 'text-outline' : 'text-on-surface'} />}
       accessibilityLabel={label}
       disabled={disabled}
       onPress={onPress}
@@ -90,12 +86,12 @@ export default function StudioScreen() {
 
   const header = (
     <View className="flex-row items-center gap-xs border-b border-outline-variant bg-surface px-md py-sm">
-      {glyphButton('‹', 'Cancel', () => router.back())}
+      {iconBtn('close', 'Cancelar', () => router.back())}
       <View className="flex-1" />
-      {glyphButton('↶', 'Undo', undo, !canUndo)}
-      {glyphButton('↷', 'Redo', redo, !canRedo)}
+      {iconBtn('undo-variant', 'Deshacer', undo, !canUndo)}
+      {iconBtn('redo-variant', 'Rehacer', redo, !canRedo)}
       <Button
-        label={save.isPending ? 'Saving…' : 'Save'}
+        label={save.isPending ? 'Guardando…' : 'Guardar'}
         disabled={items.length === 0 || save.isPending}
         onPress={onSave}
       />
@@ -108,7 +104,8 @@ export default function StudioScreen() {
         {items.length === 0 ? (
           <View className="flex-1 items-center justify-center p-lg">
             <Text variant="body-md" className="text-center text-on-surface-variant">
-              Tap garments below to add them, then arrange by gesture or by selecting an item.
+              Toca las prendas de abajo para añadirlas y colócalas con gestos o seleccionando un
+              elemento.
             </Text>
           </View>
         ) : (
@@ -131,36 +128,38 @@ export default function StudioScreen() {
       {selected ? (
         <View className="border-t border-outline-variant bg-surface px-md py-sm">
           <Text variant="label-caps" className="text-on-surface-variant">
-            Selected item
+            Elemento seleccionado
           </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View className="flex-row items-center">
-              {glyphButton('←', 'Move left', () =>
+              {iconBtn('arrow-left', 'Mover a la izquierda', () =>
                 moveItem(selected.garmentId, selected.posX - NUDGE, selected.posY),
               )}
-              {glyphButton('→', 'Move right', () =>
+              {iconBtn('arrow-right', 'Mover a la derecha', () =>
                 moveItem(selected.garmentId, selected.posX + NUDGE, selected.posY),
               )}
-              {glyphButton('↑', 'Move up', () =>
+              {iconBtn('arrow-up', 'Mover arriba', () =>
                 moveItem(selected.garmentId, selected.posX, selected.posY - NUDGE),
               )}
-              {glyphButton('↓', 'Move down', () =>
+              {iconBtn('arrow-down', 'Mover abajo', () =>
                 moveItem(selected.garmentId, selected.posX, selected.posY + NUDGE),
               )}
-              {glyphButton('＋', 'Scale up', () =>
+              {iconBtn('magnify-plus-outline', 'Agrandar', () =>
                 scaleItem(selected.garmentId, selected.scale * SCALE_STEP),
               )}
-              {glyphButton('－', 'Scale down', () =>
+              {iconBtn('magnify-minus-outline', 'Reducir', () =>
                 scaleItem(selected.garmentId, selected.scale / SCALE_STEP),
               )}
-              {glyphButton('↺', 'Rotate left', () =>
+              {iconBtn('rotate-left', 'Girar a la izquierda', () =>
                 rotateItem(selected.garmentId, selected.rotation - ROTATE_STEP),
               )}
-              {glyphButton('↻', 'Rotate right', () =>
+              {iconBtn('rotate-right', 'Girar a la derecha', () =>
                 rotateItem(selected.garmentId, selected.rotation + ROTATE_STEP),
               )}
-              {glyphButton('⤒', 'Bring to front', () => bringToFront(selected.garmentId))}
-              {glyphButton('✕', 'Remove', removeSelected)}
+              {iconBtn('arrange-bring-to-front', 'Traer al frente', () =>
+                bringToFront(selected.garmentId),
+              )}
+              {iconBtn('delete-outline', 'Quitar', removeSelected)}
             </View>
           </ScrollView>
         </View>
@@ -168,14 +167,14 @@ export default function StudioScreen() {
 
       <View className="gap-sm border-t border-outline-variant bg-surface p-md">
         <Text variant="label-caps" className="text-on-surface-variant">
-          Tap to add · drag / pinch / rotate · tap an item for controls
+          Toca para añadir · arrastra / pellizca / gira · toca un elemento para más opciones
         </Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View className="flex-row gap-sm">
             {(garments.data ?? []).map((garment) => (
               <Pressable
                 key={garment.id}
-                accessibilityLabel={`Add ${garment.name}`}
+                accessibilityLabel={`Añadir ${garment.name}`}
                 onPress={() => add(garment)}
                 style={{ width: 72 }}
               >

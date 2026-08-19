@@ -16,3 +16,4 @@ export { getWeather, weatherSnapshotSchema } from './edge/getWeather';
 export type { WeatherSnapshot } from './edge/getWeather';
 export { classifyGarment, classificationSchema } from './edge/classifyGarment';
 export type { ClassificationResult } from './edge/classifyGarment';
+export { deleteAccount } from './edge/deleteAccount';

@@ -3,6 +3,7 @@ export { cn } from './utils/cn';
 
 export { Text, type TextProps, type TextVariant } from './atoms/Text';
 export { Button, type ButtonProps, type ButtonVariant } from './atoms/Button';
+export { Icon, type IconProps, type IconName } from './atoms/Icon';
 export { IconButton, type IconButtonProps } from './atoms/IconButton';
 export { Chip, type ChipProps } from './atoms/Chip';
 export { Input, type InputProps } from './atoms/Input';
@@ -14,6 +15,8 @@ export { ProgressBar, type ProgressBarProps } from './atoms/ProgressBar';
 export { Skeleton, type SkeletonProps } from './atoms/Skeleton';
 export { Fab, type FabProps } from './atoms/Fab';
 
+export { AppHeader, type AppHeaderProps } from './molecules/AppHeader';
+export { FlowHeader, type FlowHeaderProps } from './molecules/FlowHeader';
 export { SearchBar, type SearchBarProps } from './molecules/SearchBar';
 export {
   ViewModeToggle,

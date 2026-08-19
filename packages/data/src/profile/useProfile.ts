@@ -1,9 +1,10 @@
+import { deleteAccount } from '@woven/api';
 import type { Profile, ProfileUpdate } from '@woven/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { queryKeys } from '../queryKeys';
 import { useSupabaseClient } from '../supabaseContext';
-import { getProfile, updateProfile } from './profileRepository';
+import { getProfile, signedAvatarUrl, updateProfile } from './profileRepository';
 
 /** Reads the current user's profile. Disabled until a userId is known. */
 export function useProfile(userId: string) {
@@ -12,6 +13,24 @@ export function useProfile(userId: string) {
     queryKey: queryKeys.profile(userId),
     queryFn: () => getProfile(client, userId),
     enabled: userId.length > 0,
+  });
+}
+
+/** Permanently deletes the account and all its data (irreversible). Caller
+ *  should sign out on success — the session is invalid afterwards. */
+export function useDeleteAccount() {
+  const client = useSupabaseClient();
+  return useMutation({ mutationFn: () => deleteAccount(client) });
+}
+
+/** Resolves a signed URL for the profile avatar. Disabled until an asset id exists. */
+export function useAvatarUrl(avatarAssetId: string | null) {
+  const client = useSupabaseClient();
+  return useQuery({
+    queryKey: queryKeys.avatarUrl(avatarAssetId ?? ''),
+    queryFn: () => (avatarAssetId ? signedAvatarUrl(client, avatarAssetId) : null),
+    enabled: Boolean(avatarAssetId),
+    staleTime: 50 * 60 * 1000,
   });
 }
 
