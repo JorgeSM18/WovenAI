@@ -44,6 +44,19 @@ describe('createAuthService', () => {
     await expect(service.signOut()).rejects.toBe(authError);
   });
 
+  it('updatePassword forwards the new password and throws on error', async () => {
+    const updateUser = vi.fn().mockResolvedValue({ data: {}, error: null });
+    const service = createAuthService(clientWith({ updateUser }));
+
+    await expect(service.updatePassword('newpw')).resolves.toBeUndefined();
+    expect(updateUser).toHaveBeenCalledWith({ password: 'newpw' });
+
+    const failing = createAuthService(
+      clientWith({ updateUser: vi.fn().mockResolvedValue({ data: {}, error: authError }) }),
+    );
+    await expect(failing.updatePassword('x')).rejects.toBe(authError);
+  });
+
   it('getSession returns the current session', async () => {
     const getSession = vi.fn().mockResolvedValue({ data: { session }, error: null });
     const service = createAuthService(clientWith({ getSession }));

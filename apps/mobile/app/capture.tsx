@@ -6,6 +6,7 @@ import {
   EmptyStateTemplate,
   Fab,
   FullScreenFlowTemplate,
+  Icon,
   IconButton,
   Text,
 } from '@woven/ui';
@@ -50,19 +51,19 @@ export default function CaptureScreen() {
     return (
       <FullScreenFlowTemplate>
         <EmptyStateTemplate
-          title="Camera access needed"
-          description="Woven uses your camera to capture garments. Photos stay private to your wardrobe."
+          title="Necesitamos acceso a la cámara"
+          description="Woven usa tu cámara para capturar prendas. Tus fotos quedan privadas en tu armario."
           action={
             permission.canAskAgain ? (
               <Button
-                label="Allow camera"
+                label="Permitir cámara"
                 onPress={() => {
                   void requestPermission();
                 }}
               />
             ) : (
               <Button
-                label="Open settings"
+                label="Abrir ajustes"
                 onPress={() => {
                   void Linking.openSettings();
                 }}
@@ -119,7 +120,7 @@ export default function CaptureScreen() {
         });
       }
     } catch {
-      setError('Upload failed. Please try again.');
+      setError('No se pudo subir la foto. Inténtalo de nuevo.');
     } finally {
       setIsSaving(false);
     }
@@ -156,7 +157,7 @@ export default function CaptureScreen() {
       useImportQueue.getState().enqueue(items);
       router.replace('/garment-review');
     } catch {
-      setError('Import failed. Please try again.');
+      setError('No se pudo importar. Inténtalo de nuevo.');
     } finally {
       setIsSaving(false);
     }
@@ -170,7 +171,7 @@ export default function CaptureScreen() {
             source={{ uri: photo.uri }}
             resizeMode="contain"
             className="flex-1"
-            accessibilityLabel="Captured garment photo"
+            accessibilityLabel="Foto de la prenda capturada"
           />
           <View className="gap-sm p-md">
             {error ? (
@@ -180,14 +181,14 @@ export default function CaptureScreen() {
             ) : null}
             <View className="flex-row gap-md">
               <Button
-                label="Retake"
+                label="Repetir"
                 variant="secondary"
                 className="flex-1"
                 disabled={isSaving}
                 onPress={() => setPhoto(null)}
               />
               <Button
-                label={isSaving ? 'Saving…' : 'Use Photo'}
+                label={isSaving ? 'Guardando…' : 'Usar foto'}
                 className="flex-1"
                 disabled={isSaving}
                 onPress={() => {
@@ -207,16 +208,12 @@ export default function CaptureScreen() {
         <CameraView ref={cameraRef} facing="back" style={{ flex: 1 }} />
         <View className="absolute inset-x-0 top-0 flex-row items-center justify-between p-md">
           <IconButton
-            icon={
-              <Text variant="headline-md" className="text-on-surface">
-                ‹
-              </Text>
-            }
-            accessibilityLabel="Close camera"
+            icon={<Icon name="close" />}
+            accessibilityLabel="Cerrar cámara"
             onPress={() => router.back()}
           />
           <Button
-            label="Import"
+            label="Importar"
             variant="secondary"
             disabled={isSaving}
             onPress={() => {
@@ -227,7 +224,7 @@ export default function CaptureScreen() {
         <View className="absolute inset-x-0 bottom-lg items-center">
           <Fab
             icon={<View className="h-md w-md rounded-full bg-surface" />}
-            accessibilityLabel="Take photo"
+            accessibilityLabel="Hacer foto"
             onPress={() => {
               void takePhoto();
             }}

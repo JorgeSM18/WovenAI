@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
 import { Pressable, View } from 'react-native';
 
+import { Icon } from '../atoms/Icon';
 import { Text } from '../atoms/Text';
 import { cn } from '../utils/cn';
 
@@ -33,9 +34,7 @@ export function GarmentCard({ name, imageUri, isFavorite, onPress, className }: 
         ) : null}
         {isFavorite ? (
           <View className="absolute right-xs top-xs">
-            <Text variant="body-md" className="text-primary" accessibilityElementsHidden>
-              ♥
-            </Text>
+            <Icon name="heart" size={18} className="text-primary" />
           </View>
         ) : null}
       </View>

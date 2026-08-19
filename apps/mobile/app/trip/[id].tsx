@@ -9,7 +9,7 @@ import {
   useTripWeather,
   useToggleTripGarment,
 } from '@woven/data';
-import { Chip, FullScreenFlowTemplate, IconButton, Text } from '@woven/ui';
+import { Chip, FlowHeader, FullScreenFlowTemplate, Text } from '@woven/ui';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Pressable, ScrollView, View } from 'react-native';
@@ -37,25 +37,10 @@ export default function TripDetailScreen() {
   const outfitName = new Map(outfits.data?.map((outfit) => [outfit.id, outfit.name]));
   const dates = trip.data ? enumerateDates(trip.data.startDate, trip.data.endDate) : [];
 
-  const header = (
-    <View className="flex-row items-center gap-sm border-b border-outline-variant bg-surface px-md py-sm">
-      <IconButton
-        icon={
-          <Text variant="headline-md" className="text-on-surface">
-            ‹
-          </Text>
-        }
-        accessibilityLabel="Go back"
-        onPress={() => router.back()}
-      />
-      <Text variant="title-sm" className="flex-1 text-on-surface" numberOfLines={1}>
-        {trip.data?.destination ?? 'Trip'}
-      </Text>
-    </View>
-  );
-
   return (
-    <FullScreenFlowTemplate header={header}>
+    <FullScreenFlowTemplate
+      header={<FlowHeader title={trip.data?.destination ?? 'Viaje'} onBack={() => router.back()} />}
+    >
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="gap-lg p-md">
           {trip.data ? (
@@ -67,7 +52,7 @@ export default function TripDetailScreen() {
           {/* Packing: tap a garment to add/remove it from the suitcase. */}
           <View className="gap-sm">
             <Text variant="label-caps" className="text-on-surface-variant">
-              Packing ({packedIds.size})
+              Equipaje ({packedIds.size})
             </Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View className="flex-row gap-sm">
@@ -76,7 +61,7 @@ export default function TripDetailScreen() {
                   return (
                     <Pressable
                       key={garment.id}
-                      accessibilityLabel={`${isPacked ? 'Remove' : 'Add'} ${garment.name}`}
+                      accessibilityLabel={`${isPacked ? 'Quitar' : 'Añadir'} ${garment.name}`}
                       accessibilityState={{ selected: isPacked }}
                       onPress={() =>
                         togglePacked.mutate({ garmentId: garment.id, packed: isPacked })
@@ -107,7 +92,7 @@ export default function TripDetailScreen() {
           {/* Outfit per day. */}
           <View className="gap-md">
             <Text variant="label-caps" className="text-on-surface-variant">
-              Days
+              Días
             </Text>
             {dates.map((date) => {
               const assignedId = outfitByDate.get(date) ?? null;
@@ -116,7 +101,7 @@ export default function TripDetailScreen() {
                 <View key={date} className="gap-xs">
                   <Text variant="body-lg" className="text-on-surface">
                     {date}
-                    {assignedId ? ` · ${outfitName.get(assignedId) ?? 'Outfit'}` : ''}
+                    {assignedId ? ` · ${outfitName.get(assignedId) ?? 'Look'}` : ''}
                   </Text>
                   {forecast?.condition || forecast?.temp_c != null ? (
                     <Text variant="body-md" className="text-on-surface-variant">

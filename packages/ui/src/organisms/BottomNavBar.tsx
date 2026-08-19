@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Text } from '../atoms/Text';
 import { cn } from '../utils/cn';
@@ -20,11 +21,13 @@ export type BottomNavBarProps = {
 
 /** Mobile bottom navigation bar (icon + label per destination). */
 export function BottomNavBar({ items, activeKey, onSelect, className }: BottomNavBarProps) {
+  const insets = useSafeAreaInsets();
   return (
     <View
       accessibilityRole="tablist"
+      style={{ paddingBottom: insets.bottom + 8 }}
       className={cn(
-        'flex-row items-center justify-around border-t border-outline-variant bg-surface px-sm py-xs',
+        'flex-row items-center justify-around border-t border-outline-variant bg-surface px-sm pt-xs',
         className,
       )}
     >

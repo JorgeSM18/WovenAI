@@ -1,6 +1,7 @@
 // Central query-key factory (one source of truth for cache keys/invalidation).
 export const queryKeys = {
   profile: (userId: string) => ['profile', userId] as const,
+  avatarUrl: (assetId: string) => ['avatar-url', assetId] as const,
   garmentCount: (userId: string) => ['garment', userId, 'count'] as const,
   garments: (userId: string) => ['garment', userId, 'list'] as const,
   forgottenGarments: (userId: string) => ['garment', userId, 'forgotten'] as const,

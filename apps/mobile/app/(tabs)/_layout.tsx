@@ -1,21 +1,25 @@
 import { Redirect, Tabs } from 'expo-router';
 
-import { BottomNavBar, Text, type BottomNavItem } from '@woven/ui';
+import { BottomNavBar, Icon, type BottomNavItem, type IconName } from '@woven/ui';
 
 import { useAuth } from '../../src/providers/AuthProvider';
 
-const glyph = (value: string) => (active: boolean) => (
-  <Text variant="headline-md" className={active ? 'text-primary' : 'text-on-surface-variant'}>
-    {value}
-  </Text>
-);
+const navIcon =
+  (inactive: IconName, active: IconName) =>
+  (isActive: boolean) => (
+    <Icon
+      name={isActive ? active : inactive}
+      size={26}
+      className={isActive ? 'text-primary' : 'text-on-surface-variant'}
+    />
+  );
 
 const items: BottomNavItem[] = [
-  { key: 'home', label: 'Home', icon: glyph('⌂') },
-  { key: 'inventory', label: 'Inventory', icon: glyph('▦') },
-  { key: 'outfits', label: 'Outfits', icon: glyph('◈') },
-  { key: 'trips', label: 'Trips', icon: glyph('✈') },
-  { key: 'profile', label: 'Profile', icon: glyph('☻') },
+  { key: 'home', label: 'Inicio', icon: navIcon('home-variant-outline', 'home-variant') },
+  { key: 'inventory', label: 'Armario', icon: navIcon('wardrobe-outline', 'wardrobe') },
+  { key: 'outfits', label: 'Looks', icon: navIcon('auto-fix', 'auto-fix') },
+  { key: 'trips', label: 'Viajes', icon: navIcon('bag-suitcase-outline', 'bag-suitcase') },
+  { key: 'profile', label: 'Perfil', icon: navIcon('account-outline', 'account') },
 ];
 
 export default function TabsLayout() {

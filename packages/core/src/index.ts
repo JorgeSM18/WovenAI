@@ -9,6 +9,7 @@ export type {
 } from './profile';
 export type { StylePreference } from './stylePreference';
 export type { Category, Color, Season } from './reference';
+export { generateUsername } from './username';
 export { validateTripDraft, enumerateDates } from './trip';
 export type { Trip, TripStatus, TripDraft } from './trip';
 export { aiServiceStub, backgroundRemovalServiceStub } from './ports';

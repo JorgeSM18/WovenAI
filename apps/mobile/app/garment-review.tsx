@@ -1,7 +1,7 @@
 import type { Season } from '@woven/core';
 import { useCategories, useClassifyGarment, useColors, useCreateGarment } from '@woven/data';
 import { useImportQueue, usePendingUploads } from '@woven/store';
-import { Button, Chip, FullScreenFlowTemplate, IconButton, Input, Text } from '@woven/ui';
+import { Button, Chip, FlowHeader, FullScreenFlowTemplate, Input, Text } from '@woven/ui';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
@@ -10,10 +10,10 @@ import { ScrollView, View } from 'react-native';
 import { useAuth } from '../src/providers/AuthProvider';
 
 const SEASONS: { value: Season; label: string }[] = [
-  { value: 'spring', label: 'Spring' },
-  { value: 'summer', label: 'Summer' },
-  { value: 'fall', label: 'Fall' },
-  { value: 'winter', label: 'Winter' },
+  { value: 'spring', label: 'Primavera' },
+  { value: 'summer', label: 'Verano' },
+  { value: 'fall', label: 'Otoño' },
+  { value: 'winter', label: 'Invierno' },
 ];
 
 /**
@@ -120,25 +120,15 @@ export default function GarmentReviewScreen() {
       }
       router.replace('/home');
     } catch {
-      setError('Could not save the garment. Please try again.');
+      setError('No se pudo guardar la prenda. Inténtalo de nuevo.');
     }
   };
 
   const header = (
-    <View className="flex-row items-center gap-sm border-b border-outline-variant bg-surface px-md py-sm">
-      <IconButton
-        icon={
-          <Text variant="headline-md" className="text-on-surface">
-            ‹
-          </Text>
-        }
-        accessibilityLabel="Go back"
-        onPress={() => router.back()}
-      />
-      <Text variant="title-sm" className="text-on-surface">
-        {importCount > 1 ? `New garment (${importCount} left)` : 'New garment'}
-      </Text>
-    </View>
+    <FlowHeader
+      title={importCount > 1 ? `Nueva prenda (quedan ${importCount})` : 'Nueva prenda'}
+      onBack={() => router.back()}
+    />
   );
 
   return (
@@ -151,20 +141,20 @@ export default function GarmentReviewScreen() {
                 source={{ uri: previewUri }}
                 contentFit="cover"
                 className="h-full w-full"
-                accessibilityLabel="Garment photo"
+                accessibilityLabel="Foto de la prenda"
               />
             </View>
           ) : null}
 
           {isOffline ? (
             <Text variant="body-md" className="text-on-surface-variant">
-              You&apos;re offline — the photo will upload automatically once you reconnect.
+              Estás sin conexión — la foto se subirá automáticamente cuando vuelvas a conectarte.
             </Text>
           ) : null}
 
           {imageId ? (
             <Button
-              label={classify.isPending ? 'Suggesting…' : 'Suggest with AI'}
+              label={classify.isPending ? 'Sugiriendo…' : 'Sugerir con IA'}
               variant="secondary"
               disabled={classify.isPending}
               onPress={() => {
@@ -174,15 +164,15 @@ export default function GarmentReviewScreen() {
           ) : null}
 
           <Input
-            label="Name"
-            placeholder="e.g. Blue linen shirt"
+            label="Nombre"
+            placeholder="p. ej. Camisa de lino azul"
             value={name}
             onChangeText={setName}
           />
 
           <View className="gap-sm">
             <Text variant="label-caps" className="text-on-surface-variant">
-              Category
+              Categoría
             </Text>
             <View className="flex-row flex-wrap gap-sm">
               {categories.data?.map((category) => (
@@ -214,7 +204,7 @@ export default function GarmentReviewScreen() {
 
           <View className="gap-sm">
             <Text variant="label-caps" className="text-on-surface-variant">
-              Season (optional)
+              Temporada (opcional)
             </Text>
             <View className="flex-row flex-wrap gap-sm">
               {SEASONS.map((option) => (
@@ -235,7 +225,7 @@ export default function GarmentReviewScreen() {
           ) : null}
 
           <Button
-            label={create.isPending ? 'Saving…' : 'Save garment'}
+            label={create.isPending ? 'Guardando…' : 'Guardar prenda'}
             disabled={!canSave || create.isPending}
             onPress={() => {
               void save();
