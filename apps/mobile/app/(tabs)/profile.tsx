@@ -1,5 +1,11 @@
 import { generateUsername } from '@woven/core';
-import { useAvatarUrl, useGarmentCount, useProfile, useUpdateProfile, useUploadImage } from '@woven/data';
+import {
+  useAvatarUrl,
+  useGarmentCount,
+  useProfile,
+  useUpdateProfile,
+  useUploadImage,
+} from '@woven/data';
 import {
   AppHeader,
   Avatar,
@@ -102,7 +108,11 @@ export default function ProfileScreen() {
           </Text>
         )}
 
-        <Button label="Editar perfil" variant="secondary" onPress={() => router.push('/edit-profile')} />
+        <Button
+          label="Editar perfil"
+          variant="secondary"
+          onPress={() => router.push('/edit-profile')}
+        />
       </View>
 
       <StatCard

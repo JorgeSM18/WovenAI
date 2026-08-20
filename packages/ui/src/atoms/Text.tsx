@@ -26,7 +26,8 @@ export type TextProps = RNTextProps & {
 
 // True when className already sets a text color (a token role), so we don't add
 // the default on-surface and let plain `cn` join produce two competing colors.
-const COLOR_RE = /(^|\s)text-(on-|primary|secondary|tertiary|error|outline|inverse|surface|background)/;
+const COLOR_RE =
+  /(^|\s)text-(on-|primary|secondary|tertiary|error|outline|inverse|surface|background)/;
 
 /** Typographic primitive. Renders Hanken Grotesk with a token-based scale. */
 export function Text({ variant = 'body-md', className, ...props }: TextProps) {
