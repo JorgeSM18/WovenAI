@@ -2,6 +2,7 @@ import {
   classifyGarment,
   embedGarment,
   getWeather,
+  recommendOutfit,
   removeBackground,
   searchGarments,
 } from '@woven/api';
@@ -53,5 +54,13 @@ export function useSemanticSearch() {
   const client = useSupabaseClient();
   return useMutation({
     mutationFn: (query: string) => searchGarments(client, query),
+  });
+}
+
+/** Scores how well a set of garments work together (Gemini via Edge). */
+export function useRecommendOutfit() {
+  const client = useSupabaseClient();
+  return useMutation({
+    mutationFn: (garmentIds: string[]) => recommendOutfit(client, garmentIds),
   });
 }

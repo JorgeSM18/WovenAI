@@ -20,4 +20,6 @@ export { removeBackground } from './edge/removeBackground';
 export { embedGarment } from './edge/embedGarment';
 export { searchGarments, garmentMatchSchema } from './edge/searchGarments';
 export type { GarmentMatch } from './edge/searchGarments';
+export { recommendOutfit, outfitRecommendationSchema } from './edge/recommendOutfit';
+export type { OutfitRecommendation } from './edge/recommendOutfit';
 export { deleteAccount } from './edge/deleteAccount';
