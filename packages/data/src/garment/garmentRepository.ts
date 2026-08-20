@@ -179,6 +179,8 @@ export type CreateGarmentInput = {
   primaryColorId: string;
   season: Season | null;
   originalImageId: string | null;
+  /** Background-removed image, when the AI flow produced one. */
+  processedImageId?: string | null;
 };
 
 /** Creates a garment. Without AI processing it goes straight to `active`.
@@ -194,6 +196,7 @@ export async function createGarment(
     primary_color_id: input.primaryColorId,
     season: input.season,
     original_image_id: input.originalImageId,
+    processed_image_id: input.processedImageId ?? null,
     status: 'active',
   };
   const { data, error } = await client.from('garment').insert(row).select('id').single();
