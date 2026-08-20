@@ -1,0 +1,136 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Woven design tokens (source of truth) > snapshots the full token registry so drift is caught in CI 1`] = `
+{
+  "colorTokens": [
+    "background",
+    "error",
+    "error-container",
+    "inverse-on-surface",
+    "inverse-primary",
+    "inverse-surface",
+    "on-background",
+    "on-error",
+    "on-error-container",
+    "on-primary",
+    "on-primary-container",
+    "on-primary-fixed",
+    "on-primary-fixed-variant",
+    "on-secondary",
+    "on-secondary-container",
+    "on-secondary-fixed",
+    "on-secondary-fixed-variant",
+    "on-surface",
+    "on-surface-variant",
+    "on-tertiary",
+    "on-tertiary-container",
+    "on-tertiary-fixed",
+    "on-tertiary-fixed-variant",
+    "outline",
+    "outline-variant",
+    "primary",
+    "primary-container",
+    "primary-fixed",
+    "primary-fixed-dim",
+    "secondary",
+    "secondary-container",
+    "secondary-fixed",
+    "secondary-fixed-dim",
+    "surface",
+    "surface-bright",
+    "surface-container",
+    "surface-container-high",
+    "surface-container-highest",
+    "surface-container-low",
+    "surface-container-lowest",
+    "surface-dim",
+    "surface-tint",
+    "surface-variant",
+    "tertiary",
+    "tertiary-container",
+    "tertiary-fixed",
+    "tertiary-fixed-dim",
+  ],
+  "fontSize": {
+    "body-lg": [
+      "18px",
+      {
+        "lineHeight": "28px",
+      },
+    ],
+    "body-md": [
+      "16px",
+      {
+        "lineHeight": "24px",
+      },
+    ],
+    "display-lg": [
+      "80px",
+      {
+        "letterSpacing": "-0.04em",
+        "lineHeight": "92px",
+      },
+    ],
+    "display-md": [
+      "56px",
+      {
+        "letterSpacing": "-0.03em",
+        "lineHeight": "64px",
+      },
+    ],
+    "headline-lg": [
+      "40px",
+      {
+        "letterSpacing": "-0.02em",
+        "lineHeight": "48px",
+      },
+    ],
+    "headline-lg-mobile": [
+      "32px",
+      {
+        "letterSpacing": "-0.02em",
+        "lineHeight": "40px",
+      },
+    ],
+    "headline-md": [
+      "24px",
+      {
+        "letterSpacing": "-0.01em",
+        "lineHeight": "32px",
+      },
+    ],
+    "label-caps": [
+      "12px",
+      {
+        "letterSpacing": "0.15em",
+        "lineHeight": "16px",
+      },
+    ],
+    "label-sm": [
+      "13px",
+      {
+        "letterSpacing": "0.01em",
+        "lineHeight": "18px",
+      },
+    ],
+    "title-sm": [
+      "18px",
+      {
+        "lineHeight": "24px",
+      },
+    ],
+  },
+  "spacing": {
+    "base": "4px",
+    "gutter": "24px",
+    "lg": "64px",
+    "margin-desktop": "80px",
+    "margin-mobile": "20px",
+    "md": "32px",
+    "sm": "16px",
+    "touch-target-min": "44px",
+    "xl": "128px",
+    "xs": "8px",
+  },
+}
+`;

@@ -18,6 +18,7 @@ export function Input({
   onFocus,
   onBlur,
   secureTextEntry,
+  accessibilityLabel,
   ...props
 }: InputProps) {
   const [focused, setFocused] = useState(false);
@@ -38,6 +39,7 @@ export function Input({
         )}
       >
         <TextInput
+          accessibilityLabel={accessibilityLabel ?? label}
           secureTextEntry={isPassword && !revealed}
           onFocus={(event) => {
             setFocused(true);

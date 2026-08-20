@@ -10,19 +10,24 @@ export type ChipProps = Omit<PressableProps, 'children'> & {
 };
 
 /** Pill-shaped filter/selection chip. */
-export function Chip({ label, selected = false, className, ...props }: ChipProps) {
+export function Chip({ label, selected = false, className, disabled, ...props }: ChipProps) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityState={{ selected }}
+      accessibilityState={{ selected, disabled: Boolean(disabled) }}
+      disabled={disabled}
       className={cn(
-        'min-h-touch-target-min items-center justify-center rounded-full px-md',
-        selected ? 'bg-primary/10' : 'bg-surface-container',
+        'min-h-touch-target-min items-center justify-center rounded-full px-md active:opacity-70',
+        selected ? 'bg-primary' : 'bg-surface-container',
+        disabled && 'opacity-40',
         className,
       )}
       {...props}
     >
-      <Text variant="label-caps" className={selected ? 'text-primary' : 'text-on-surface-variant'}>
+      <Text
+        variant="label-caps"
+        className={selected ? 'text-on-primary' : 'text-on-surface-variant'}
+      >
         {label}
       </Text>
     </Pressable>

@@ -15,7 +15,10 @@ export function Fab({ icon, accessibilityLabel, className, ...props }: FabProps)
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      className={cn('h-14 w-14 items-center justify-center rounded-full bg-on-surface', className)}
+      className={cn(
+        'h-14 w-14 items-center justify-center rounded-full bg-on-surface active:opacity-70',
+        className,
+      )}
       {...props}
     >
       {icon}

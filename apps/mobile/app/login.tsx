@@ -51,7 +51,7 @@ export default function LoginScreen() {
       keyboardShouldPersistTaps="handled"
     >
       <View className="gap-lg p-lg">
-        <Text variant="display-lg" className="text-on-surface">
+        <Text variant="headline-lg" className="text-on-surface">
           Woven
         </Text>
         <Text variant="body-md" className="text-on-surface-variant">

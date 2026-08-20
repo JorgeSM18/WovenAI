@@ -21,17 +21,40 @@ export type CreateOutfitInput = {
 export type OutfitSummary = {
   id: string;
   name: string;
+  /** Up to 4 garment thumbnails (lowest z-index first) for a cover mosaic. */
+  previewUrls: string[];
 };
 
-/** Lists the user's outfits (most recent first). RLS scopes to the caller. */
+/** Lists the user's outfits (most recent first) with a few garment thumbnails
+ *  each for a cover mosaic. RLS scopes to the caller. */
 export async function listOutfits(client: WovenClient): Promise<OutfitSummary[]> {
   const { data, error } = await client
     .from('outfit')
-    .select('id, name')
+    .select('id, name, outfit_item(garment_id, z_index)')
     .order('created_at', { ascending: false })
     .limit(100);
   if (error) throw error;
-  return data.map((outfit) => ({ id: outfit.id, name: outfit.name ?? 'Untitled outfit' }));
+
+  const garmentIdsByOutfit = new Map<string, string[]>();
+  const allGarmentIds: string[] = [];
+  for (const outfit of data) {
+    const ids = [...outfit.outfit_item]
+      .sort((a, b) => a.z_index - b.z_index)
+      .slice(0, 4)
+      .map((item) => item.garment_id);
+    garmentIdsByOutfit.set(outfit.id, ids);
+    allGarmentIds.push(...ids);
+  }
+
+  const thumbnailByGarment = await signedThumbnailsByGarment(client, [...new Set(allGarmentIds)]);
+
+  return data.map((outfit) => ({
+    id: outfit.id,
+    name: outfit.name ?? 'Untitled outfit',
+    previewUrls: (garmentIdsByOutfit.get(outfit.id) ?? [])
+      .map((garmentId) => thumbnailByGarment.get(garmentId))
+      .filter((url): url is string => Boolean(url)),
+  }));
 }
 
 export type OutfitItemView = {

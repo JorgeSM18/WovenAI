@@ -50,7 +50,7 @@ export default function DeleteAccountScreen() {
               Escribe {CONFIRM_WORD} para confirmar
             </Text>
             <Input
-              label=""
+              accessibilityLabel={`Escribe ${CONFIRM_WORD} para confirmar`}
               placeholder={CONFIRM_WORD}
               value={confirm}
               onChangeText={setConfirm}

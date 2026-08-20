@@ -12,7 +12,12 @@ export type StatCardProps = {
 /** Small card showing a labelled metric (e.g. Total Items / 142). */
 export function StatCard({ label, value, className }: StatCardProps) {
   return (
-    <View className={cn('gap-xs rounded-lg bg-surface-container-lowest p-md', className)}>
+    <View
+      className={cn(
+        'gap-xs rounded-lg border border-outline-variant bg-surface-container-lowest p-md',
+        className,
+      )}
+    >
       <Text variant="label-caps" className="text-on-surface-variant">
         {label}
       </Text>

@@ -16,7 +16,7 @@ colors:
   outline: '#7e7570'
   outline-variant: '#d0c4be'
   surface-tint: '#625d5b'
-  primary: '#000000'
+  primary: '#1c1917'
   on-primary: '#ffffff'
   primary-container: '#1e1b19'
   on-primary-container: '#888380'
@@ -111,6 +111,11 @@ spacing:
   margin-desktop: 80px
   touch-target-min: 44px
 ---
+
+> **Nota de implementación.** La fuente de verdad de los tokens que se compilan es
+> `packages/config/tailwind-preset.cjs` (bloqueada por `tailwind-preset.test.ts`). Este
+> documento es el export de diseño de referencia; donde los valores difieran (p. ej. la
+> escala de espaciado o de display), **manda el preset**. `primary` es charcoal `#1c1917`.
 
 ## Brand & Style
 The design system is anchored in a "Premium Editorial" philosophy, positioning the interface as a quiet, sophisticated curator for lifestyle and apparel. The aesthetic prioritizes an "Invisible Interface" where the content—high-quality imagery of fabrics, textures, and locations—takes center stage, supported by a structural framework that feels like a high-end print magazine.

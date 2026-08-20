@@ -12,8 +12,9 @@ import {
 import { FlashList } from '@shopify/flash-list';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { useWindowDimensions, View } from 'react-native';
 
+import { ProfileHeaderButton } from '../../src/components/ProfileHeaderButton';
 import { useAuth } from '../../src/providers/AuthProvider';
 
 const VIEW_MODES = [
@@ -30,23 +31,23 @@ export default function InventoryScreen() {
   const [query, setQuery] = useState('');
   const [mode, setMode] = useState('editorial');
   const term = query.trim().toLowerCase();
-  const filtered = term ? items.filter((item) => item.name.toLowerCase().includes(term)) : items;
+  const filtered = term
+    ? items.filter(
+        (item) =>
+          item.name.toLowerCase().includes(term) ||
+          Boolean(item.categoryName?.toLowerCase().includes(term)),
+      )
+    : items;
 
   const isEmpty = items.length === 0 && !garments.isPending;
-  const columns = mode === 'compacto' ? 2 : 1;
+  const { width } = useWindowDimensions();
+  // Editorial keeps single big cards; compact adapts its column count to width
+  // so tablets don't stretch two cards across the screen.
+  const columns = mode === 'compacto' ? Math.max(2, Math.floor(width / 200)) : 1;
 
   return (
     <View className="flex-1 bg-background">
-      <AppHeader
-        trailing={
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Perfil"
-            onPress={() => router.push('/profile')}
-            className="h-9 w-9 rounded-full bg-surface-container"
-          />
-        }
-      />
+      <AppHeader trailing={<ProfileHeaderButton />} />
 
       <View className="gap-md px-md pt-md">
         <View className="gap-base">
@@ -78,7 +79,7 @@ export default function InventoryScreen() {
         </View>
       ) : (
         <FlashList
-          key={mode}
+          key={`${mode}-${columns}`}
           data={filtered}
           numColumns={columns}
           keyExtractor={(item) => item.id}
@@ -89,6 +90,7 @@ export default function InventoryScreen() {
             <View className="p-xs" style={{ flex: 1 / columns }}>
               <GarmentCard
                 name={item.name}
+                category={item.categoryName}
                 imageUri={item.thumbnailUrl}
                 isFavorite={item.isFavorite}
                 onPress={() => router.push(`/garment/${item.id}`)}

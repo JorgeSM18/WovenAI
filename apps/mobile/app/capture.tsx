@@ -223,7 +223,8 @@ export default function CaptureScreen() {
         </View>
         <View className="absolute inset-x-0 bottom-lg items-center">
           <Fab
-            icon={<View className="h-md w-md rounded-full bg-surface" />}
+            className="h-[72px] w-[72px] border-4 border-surface bg-transparent"
+            icon={<View className="h-14 w-14 rounded-full bg-surface" />}
             accessibilityLabel="Hacer foto"
             onPress={() => {
               void takePhoto();

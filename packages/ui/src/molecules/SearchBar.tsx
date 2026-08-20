@@ -12,7 +12,7 @@ export function SearchBar({ className, placeholder, ...props }: SearchBarProps) 
   return (
     <View
       className={cn(
-        'min-h-touch-target-min flex-row items-center gap-sm rounded-lg bg-surface-container-lowest px-md',
+        'min-h-touch-target-min flex-row items-center gap-sm rounded-lg border border-outline-variant bg-surface-container-lowest px-md',
         className,
       )}
     >

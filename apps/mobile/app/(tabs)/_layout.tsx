@@ -4,20 +4,18 @@ import { BottomNavBar, Icon, type BottomNavItem, type IconName } from '@woven/ui
 
 import { useAuth } from '../../src/providers/AuthProvider';
 
-const navIcon =
-  (inactive: IconName, active: IconName) =>
-  (isActive: boolean) => (
-    <Icon
-      name={isActive ? active : inactive}
-      size={26}
-      className={isActive ? 'text-primary' : 'text-on-surface-variant'}
-    />
-  );
+const navIcon = (inactive: IconName, active: IconName) => (isActive: boolean) => (
+  <Icon
+    name={isActive ? active : inactive}
+    size={26}
+    className={isActive ? 'text-primary' : 'text-on-surface-variant'}
+  />
+);
 
 const items: BottomNavItem[] = [
   { key: 'home', label: 'Inicio', icon: navIcon('home-variant-outline', 'home-variant') },
   { key: 'inventory', label: 'Armario', icon: navIcon('wardrobe-outline', 'wardrobe') },
-  { key: 'outfits', label: 'Looks', icon: navIcon('auto-fix', 'auto-fix') },
+  { key: 'outfits', label: 'Looks', icon: navIcon('star-four-points-outline', 'star-four-points') },
   { key: 'trips', label: 'Viajes', icon: navIcon('bag-suitcase-outline', 'bag-suitcase') },
   { key: 'profile', label: 'Perfil', icon: navIcon('account-outline', 'account') },
 ];

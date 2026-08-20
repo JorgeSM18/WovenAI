@@ -1,7 +1,15 @@
 import type { WardrobeItem } from '@woven/data';
 import { useGarments, useSaveOutfit } from '@woven/data';
 import { useStudioDraft } from '@woven/store';
-import { Button, FullScreenFlowTemplate, Icon, IconButton, type IconName, Text } from '@woven/ui';
+import {
+  Button,
+  FullScreenFlowTemplate,
+  Icon,
+  IconButton,
+  type IconName,
+  Input,
+  Text,
+} from '@woven/ui';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -40,6 +48,7 @@ export default function StudioScreen() {
   const canRedo = useStudioDraft((state) => state.future.length > 0);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [name, setName] = useState('');
   const selected = items.find((item) => item.garmentId === selectedId) ?? null;
 
   const add = (garment: WardrobeItem) =>
@@ -55,7 +64,7 @@ export default function StudioScreen() {
     if (items.length === 0) return;
     save.mutate(
       {
-        name: 'Look',
+        name: name.trim() || 'Look',
         items: items.map((item) => ({
           garmentId: item.garmentId,
           posX: item.posX,
@@ -69,6 +78,7 @@ export default function StudioScreen() {
         onSuccess: () => {
           reset();
           setSelectedId(null);
+          setName('');
           router.back();
         },
       },
@@ -162,6 +172,17 @@ export default function StudioScreen() {
               {iconBtn('delete-outline', 'Quitar', removeSelected)}
             </View>
           </ScrollView>
+        </View>
+      ) : null}
+
+      {items.length > 0 ? (
+        <View className="border-t border-outline-variant bg-surface px-md pt-sm">
+          <Input
+            label="Nombre del look"
+            placeholder="Mi look"
+            value={name}
+            onChangeText={setName}
+          />
         </View>
       ) : null}
 

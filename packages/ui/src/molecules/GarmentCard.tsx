@@ -7,6 +7,8 @@ import { cn } from '../utils/cn';
 
 export type GarmentCardProps = {
   name: string;
+  /** Optional category eyebrow shown above the name (editorial label). */
+  category?: string;
   /** Signed thumbnail URL; a placeholder shows while absent. */
   imageUri?: string | null;
   isFavorite?: boolean;
@@ -14,14 +16,21 @@ export type GarmentCardProps = {
   className?: string;
 };
 
-/** Wardrobe grid item: garment thumbnail with its name. */
-export function GarmentCard({ name, imageUri, isFavorite, onPress, className }: GarmentCardProps) {
+/** Wardrobe grid item: garment thumbnail with its name (and optional category). */
+export function GarmentCard({
+  name,
+  category,
+  imageUri,
+  isFavorite,
+  onPress,
+  className,
+}: GarmentCardProps) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={name}
+      accessibilityLabel={category ? `${name}, ${category}` : name}
       onPress={onPress}
-      className={cn('gap-xs', className)}
+      className={cn('gap-xs active:opacity-70', className)}
     >
       <View className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-surface-container">
         {imageUri ? (
@@ -38,9 +47,16 @@ export function GarmentCard({ name, imageUri, isFavorite, onPress, className }: 
           </View>
         ) : null}
       </View>
-      <Text variant="body-md" className="text-on-surface" numberOfLines={1}>
-        {name}
-      </Text>
+      <View className="gap-base">
+        {category ? (
+          <Text variant="label-caps" className="text-on-surface-variant" numberOfLines={1}>
+            {category}
+          </Text>
+        ) : null}
+        <Text variant="body-md" className="text-on-surface" numberOfLines={1}>
+          {name}
+        </Text>
+      </View>
     </Pressable>
   );
 }

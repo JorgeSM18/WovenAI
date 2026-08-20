@@ -32,8 +32,6 @@ export default function SettingsScreen() {
             <Text variant="label-caps" className="text-on-surface-variant">
               Apariencia
             </Text>
-            {/* Dark tokens aren't defined yet, so this persists the choice but is a
-              visual no-op for now. App-load application waits on the dark theme. */}
             <View className="flex-row gap-sm">
               {THEME_OPTIONS.map((option) => (
                 <Chip

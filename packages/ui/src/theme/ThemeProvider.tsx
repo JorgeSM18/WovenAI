@@ -27,8 +27,8 @@ export type ThemeProviderProps = {
  * the effective scheme from the OS appearance.
  *
  * Applying an explicit override to NativeWind (`colorScheme.set`) is done at
- * app integration (Metro context) — and is a no-op visually until the dark
- * **token values** are defined in the design system.
+ * app integration (Metro context); the light/dark token values live as CSS
+ * variables in apps/mobile/global.css and swap by the effective scheme.
  */
 export function ThemeProvider({
   children,
