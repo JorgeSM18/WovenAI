@@ -53,7 +53,14 @@ export {
   useTripDays,
   useAssignOutfitToDay,
 } from './trip/useTrips';
-export { useTripWeather, useClassifyGarment, useRemoveBackground } from './ai/useAi';
+export {
+  useTripWeather,
+  useClassifyGarment,
+  useRemoveBackground,
+  useEmbedGarment,
+  useSemanticSearch,
+} from './ai/useAi';
+export type { GarmentMatch } from '@woven/api';
 export { listCategories, listColors } from './reference/referenceRepository';
 export { useCategories, useColors } from './reference/useReference';
 export {

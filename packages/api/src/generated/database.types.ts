@@ -771,6 +771,13 @@ export type Database = {
         Returns: string
       }
       save_outfit: { Args: { items: Json; name: string }; Returns: string }
+      search_garments: {
+        Args: { match_count?: number; query_embedding: string }
+        Returns: {
+          id: string
+          similarity: number
+        }[]
+      }
       soft_delete_garment: { Args: { g: string }; Returns: undefined }
     }
     Enums: {
