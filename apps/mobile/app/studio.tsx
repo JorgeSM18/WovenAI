@@ -1,5 +1,5 @@
-import type { WardrobeItem } from '@woven/data';
-import { useGarments, useSaveOutfit } from '@woven/data';
+import type { OutfitRecommendation, WardrobeItem } from '@woven/data';
+import { useGarments, useRecommendOutfit, useSaveOutfit } from '@woven/data';
 import { useStudioDraft } from '@woven/store';
 import {
   Button,
@@ -12,7 +12,7 @@ import {
 } from '@woven/ui';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 
 import { DraggableItem } from '../src/features/studio/DraggableItem';
@@ -33,6 +33,7 @@ export default function StudioScreen() {
   const userId = session?.user.id ?? '';
   const garments = useGarments(userId);
   const save = useSaveOutfit(userId);
+  const recommend = useRecommendOutfit();
 
   const items = useStudioDraft((state) => state.items);
   const addItem = useStudioDraft((state) => state.addItem);
@@ -49,7 +50,23 @@ export default function StudioScreen() {
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [name, setName] = useState('');
+  const [recommendation, setRecommendation] = useState<OutfitRecommendation | null>(null);
   const selected = items.find((item) => item.garmentId === selectedId) ?? null;
+
+  // A score is only valid for its exact set of garments — clear it when the set changes.
+  const itemsKey = items
+    .map((item) => item.garmentId)
+    .sort()
+    .join(',');
+  useEffect(() => setRecommendation(null), [itemsKey]);
+
+  const analyze = () => {
+    if (items.length < 2) return;
+    recommend.mutate(
+      items.map((item) => item.garmentId),
+      { onSuccess: setRecommendation },
+    );
+  };
 
   const add = (garment: WardrobeItem) =>
     addItem({ garmentId: garment.id, thumbnailUrl: garment.thumbnailUrl });
@@ -172,6 +189,46 @@ export default function StudioScreen() {
               {iconBtn('delete-outline', 'Quitar', removeSelected)}
             </View>
           </ScrollView>
+        </View>
+      ) : null}
+
+      {items.length >= 2 ? (
+        <View className="gap-xs border-t border-outline-variant bg-surface px-md py-sm">
+          <View className="flex-row items-center justify-between gap-sm">
+            <Text variant="label-caps" className="text-on-surface-variant">
+              Coherencia del look
+            </Text>
+            {recommendation?.matchScore != null ? (
+              <Text variant="title-sm" className="text-on-surface">
+                Match {recommendation.matchScore}
+              </Text>
+            ) : (
+              <Button
+                label={recommend.isPending ? 'Analizando…' : 'Analizar con IA'}
+                variant="secondary"
+                disabled={recommend.isPending}
+                onPress={analyze}
+              />
+            )}
+          </View>
+          {recommendation?.matchScore != null ? (
+            <>
+              {recommendation.suggestions.map((tip, index) => (
+                <Text key={`s${index}`} variant="body-md" className="text-on-surface-variant">
+                  · {tip}
+                </Text>
+              ))}
+              {recommendation.conflicts.map((conflict, index) => (
+                <Text key={`c${index}`} variant="body-md" className="text-error">
+                  · {conflict}
+                </Text>
+              ))}
+            </>
+          ) : recommendation ? (
+            <Text variant="body-md" className="text-on-surface-variant">
+              La IA no está disponible ahora.
+            </Text>
+          ) : null}
         </View>
       ) : null}
 

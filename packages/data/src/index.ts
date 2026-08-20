@@ -59,8 +59,9 @@ export {
   useRemoveBackground,
   useEmbedGarment,
   useSemanticSearch,
+  useRecommendOutfit,
 } from './ai/useAi';
-export type { GarmentMatch } from '@woven/api';
+export type { GarmentMatch, OutfitRecommendation } from '@woven/api';
 export { listCategories, listColors } from './reference/referenceRepository';
 export { useCategories, useColors } from './reference/useReference';
 export {
