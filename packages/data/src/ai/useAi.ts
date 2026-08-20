@@ -1,4 +1,4 @@
-import { classifyGarment, getWeather } from '@woven/api';
+import { classifyGarment, embedGarment, getWeather, searchGarments } from '@woven/api';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { queryKeys } from '../queryKeys';
@@ -22,5 +22,21 @@ export function useClassifyGarment() {
   const client = useSupabaseClient();
   return useMutation({
     mutationFn: (imageAssetId: string) => classifyGarment(client, imageAssetId),
+  });
+}
+
+/** Generates and stores a garment's text embedding (Nomic via Edge). */
+export function useEmbedGarment() {
+  const client = useSupabaseClient();
+  return useMutation({
+    mutationFn: (garmentId: string) => embedGarment(client, garmentId),
+  });
+}
+
+/** Semantic wardrobe search (Nomic embeddings via Edge); returns ranked matches. */
+export function useSemanticSearch() {
+  const client = useSupabaseClient();
+  return useMutation({
+    mutationFn: (query: string) => searchGarments(client, query),
   });
 }

@@ -12,6 +12,7 @@ dist/
 build/
 coverage/
 storybook-static/
+doc/
 *.tsbuildinfo
 
 # Turborepo
@@ -23,7 +24,9 @@ storybook-static/
 *.orig.*
 web-build/
 
-# Native
+# Native (Expo prebuild / CNG output — regenerated locally, not committed)
+apps/mobile/android/
+apps/mobile/ios/
 *.jks
 *.p8
 *.p12
