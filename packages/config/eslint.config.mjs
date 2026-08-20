@@ -26,6 +26,7 @@ export default tseslint.config(
       '**/.turbo/**',
       '**/.expo/**',
       '**/generated/**',
+      '**/doc/**', // generated API-doc bundles (doc-*.js/css), not source
       'docs/**',
       'design/**',
       'assets/**',
