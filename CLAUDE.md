@@ -30,7 +30,8 @@ en dominio. **Validar toda entrada externa con Zod** en la frontera. Tipos de BD
 ## UI / Design System (Woven)
 - **PROHIBIDO** colores/tamaños/tipografías hardcodeados y crear visuales fuera de `packages/ui`.
 - Usar **tokens**: `bg-primary`, `text-on-surface`, `p-md`, `gap-sm`, `rounded-xl`, `text-headline-md`. Dark mode por tokens.
-- Tipografía única **Hanken Grotesk**; `primary #000000`; iconos Material Symbols válidos (`auto_fix_high`, no `auto_fix`).
+- Tipografía única **Hanken Grotesk**; `primary #1c1917` (charcoal); iconos Material Symbols válidos (`auto_fix_high`, no `auto_fix`).
+- **Fuente de verdad de tokens: `packages/config/tailwind-preset.cjs`** (registro + escala/tipografía) y **`apps/mobile/global.css`** (valores de color light/dark como CSS vars). Bloqueado por `tailwind-preset.test.ts`. Ante conflicto con `design/woven/DESIGN.md`, manda el preset.
 - Variantes por prop, no por copia. Reutilizar siempre el Design System.
 
 ## Accesibilidad (WCAG 2.2 AA, por componente)

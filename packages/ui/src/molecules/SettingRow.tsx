@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
 
+import { Icon } from '../atoms/Icon';
 import { Text } from '../atoms/Text';
 import { cn } from '../utils/cn';
 
@@ -32,9 +33,7 @@ export function SettingRow({ title, subtitle, leading, onPress, className }: Set
           </Text>
         ) : null}
       </View>
-      <Text variant="body-lg" className="text-on-surface-variant" accessibilityElementsHidden>
-        ›
-      </Text>
+      <Icon name="chevron-right" size={22} className="text-on-surface-variant" />
     </Pressable>
   );
 }

@@ -1,5 +1,14 @@
 import { useDeleteGarment, useGarment, useMarkGarmentWorn, useSetFavorite } from '@woven/data';
-import { Button, ColorSwatch, FullScreenFlowTemplate, IconButton, Skeleton, Text } from '@woven/ui';
+import {
+  Button,
+  ColorSwatch,
+  FlowHeader,
+  FullScreenFlowTemplate,
+  Icon,
+  IconButton,
+  Skeleton,
+  Text,
+} from '@woven/ui';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Alert, ScrollView, View } from 'react-native';
@@ -33,10 +42,10 @@ export default function GarmentDetailScreen() {
   const remove = useDeleteGarment(userId);
 
   const confirmDelete = () => {
-    Alert.alert('Delete garment', 'This garment will be removed from your wardrobe.', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert('Eliminar prenda', 'Esta prenda se quitará de tu armario.', [
+      { text: 'Cancelar', style: 'cancel' },
       {
-        text: 'Delete',
+        text: 'Eliminar',
         style: 'destructive',
         onPress: () => remove.mutate(garmentId, { onSuccess: () => router.back() }),
       },
@@ -46,31 +55,24 @@ export default function GarmentDetailScreen() {
   const isFavorite = garment.data?.isFavorite ?? false;
 
   const header = (
-    <View className="flex-row items-center gap-sm border-b border-outline-variant bg-surface px-md py-sm">
-      <IconButton
-        icon={
-          <Text variant="headline-md" className="text-on-surface">
-            ‹
-          </Text>
-        }
-        accessibilityLabel="Go back"
-        onPress={() => router.back()}
-      />
-      <Text variant="title-sm" className="flex-1 text-on-surface" numberOfLines={1}>
-        {garment.data?.name ?? 'Garment'}
-      </Text>
-      {garment.data ? (
-        <IconButton
-          icon={
-            <Text variant="headline-md" className={isFavorite ? 'text-primary' : 'text-on-surface'}>
-              {isFavorite ? '♥' : '♡'}
-            </Text>
-          }
-          accessibilityLabel={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-          onPress={() => setFavorite.mutate({ id: garmentId, isFavorite: !isFavorite })}
-        />
-      ) : null}
-    </View>
+    <FlowHeader
+      title={garment.data?.name ?? 'Prenda'}
+      onBack={() => router.back()}
+      trailing={
+        garment.data ? (
+          <IconButton
+            icon={
+              <Icon
+                name={isFavorite ? 'heart' : 'heart-outline'}
+                className={isFavorite ? 'text-primary' : 'text-on-surface'}
+              />
+            }
+            accessibilityLabel={isFavorite ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+            onPress={() => setFavorite.mutate({ id: garmentId, isFavorite: !isFavorite })}
+          />
+        ) : null
+      }
+    />
   );
 
   return (
@@ -81,7 +83,7 @@ export default function GarmentDetailScreen() {
             <Skeleton className="aspect-[3/4] w-full rounded-lg" />
           ) : garment.isError ? (
             <Text variant="body-md" className="text-error">
-              We couldn&apos;t load this garment.
+              No pudimos cargar esta prenda.
             </Text>
           ) : (
             <>
@@ -101,7 +103,7 @@ export default function GarmentDetailScreen() {
               </Text>
 
               <View className="gap-md">
-                <Attribute label="Category" value={garment.data.categoryName} />
+                <Attribute label="Categoría" value={garment.data.categoryName} />
                 <View className="flex-row items-center justify-between">
                   <Text variant="label-caps" className="text-on-surface-variant">
                     Color
@@ -117,19 +119,19 @@ export default function GarmentDetailScreen() {
                   </View>
                 </View>
                 {garment.data.season ? (
-                  <Attribute label="Season" value={capitalize(garment.data.season)} />
+                  <Attribute label="Temporada" value={capitalize(garment.data.season)} />
                 ) : null}
-                <Attribute label="Status" value={capitalize(garment.data.status)} />
+                <Attribute label="Estado" value={capitalize(garment.data.status)} />
               </View>
 
               <Button
-                label={markWorn.isPending ? 'Saving…' : 'Mark as worn today'}
+                label={markWorn.isPending ? 'Guardando…' : 'Marcar como usada hoy'}
                 disabled={markWorn.isPending}
                 onPress={() => markWorn.mutate(garmentId)}
               />
 
               <Button
-                label={remove.isPending ? 'Deleting…' : 'Delete garment'}
+                label={remove.isPending ? 'Eliminando…' : 'Eliminar prenda'}
                 variant="secondary"
                 disabled={remove.isPending}
                 onPress={confirmDelete}

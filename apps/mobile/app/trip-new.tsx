@@ -1,6 +1,6 @@
 import { validateTripDraft } from '@woven/core';
 import { useCreateTrip } from '@woven/data';
-import { Button, FullScreenFlowTemplate, IconButton, Input, Text } from '@woven/ui';
+import { Button, FlowHeader, FullScreenFlowTemplate, Input, Text } from '@woven/ui';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -26,12 +26,12 @@ function DateField({
       </Text>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`${label}: ${value || 'not set'}`}
+        accessibilityLabel={`${label}: ${value || 'sin definir'}`}
         onPress={onPress}
         className="min-h-touch-target-min justify-center border-b border-outline-variant py-xs"
       >
         <Text variant="body-lg" className={value ? 'text-on-surface' : 'text-outline'}>
-          {value || 'YYYY-MM-DD'}
+          {value || 'AAAA-MM-DD'}
         </Text>
       </Pressable>
     </View>
@@ -72,39 +72,24 @@ export default function NewTripScreen() {
     setError(null);
     create.mutate(draft, {
       onSuccess: () => router.back(),
-      onError: () => setError('Could not create the trip. Please try again.'),
+      onError: () => setError('No se pudo crear el viaje. Inténtalo de nuevo.'),
     });
   };
 
-  const header = (
-    <View className="flex-row items-center gap-sm border-b border-outline-variant bg-surface px-md py-sm">
-      <IconButton
-        icon={
-          <Text variant="headline-md" className="text-on-surface">
-            ‹
-          </Text>
-        }
-        accessibilityLabel="Go back"
-        onPress={() => router.back()}
-      />
-      <Text variant="title-sm" className="text-on-surface">
-        New trip
-      </Text>
-    </View>
-  );
-
   return (
-    <FullScreenFlowTemplate header={header}>
+    <FullScreenFlowTemplate
+      header={<FlowHeader title="Nuevo viaje" onBack={() => router.back()} />}
+    >
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="gap-lg p-md">
           <Input
-            label="Destination"
-            placeholder="e.g. Lisbon"
+            label="Destino"
+            placeholder="p. ej. Lisboa"
             value={destination}
             onChangeText={setDestination}
           />
-          <DateField label="Start date" value={startDate} onPress={() => setPicker('start')} />
-          <DateField label="End date" value={endDate} onPress={() => setPicker('end')} />
+          <DateField label="Fecha de inicio" value={startDate} onPress={() => setPicker('start')} />
+          <DateField label="Fecha de fin" value={endDate} onPress={() => setPicker('end')} />
 
           {picker ? (
             <DateTimePicker value={pickerValue} mode="date" onChange={onPickerChange} />
@@ -117,7 +102,7 @@ export default function NewTripScreen() {
           ) : null}
 
           <Button
-            label={create.isPending ? 'Creating…' : 'Create trip'}
+            label={create.isPending ? 'Creando…' : 'Crear viaje'}
             disabled={create.isPending}
             onPress={onCreate}
           />

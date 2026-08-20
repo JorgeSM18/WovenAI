@@ -30,11 +30,15 @@ export default function LoginScreen() {
         await authService.signIn(email.trim(), password);
       } else {
         const session = await authService.signUp(email.trim(), password);
-        if (!session) setMessage('Account created — check your email to confirm, then sign in.');
+        if (!session) {
+          setMessage('Cuenta creada — confirma tu correo y luego inicia sesión.');
+        }
       }
       // On success the auth listener flips isAuthenticated and this screen redirects.
     } catch {
-      setMessage(mode === 'signin' ? 'Wrong email or password.' : 'Could not create the account.');
+      setMessage(
+        mode === 'signin' ? 'Correo o contraseña incorrectos.' : 'No se pudo crear la cuenta.',
+      );
     } finally {
       setBusy(false);
     }
@@ -47,16 +51,16 @@ export default function LoginScreen() {
       keyboardShouldPersistTaps="handled"
     >
       <View className="gap-lg p-lg">
-        <Text variant="display-lg" className="text-on-surface">
+        <Text variant="headline-lg" className="text-on-surface">
           Woven
         </Text>
         <Text variant="body-md" className="text-on-surface-variant">
-          {mode === 'signin' ? 'Sign in to your wardrobe.' : 'Create your account.'}
+          {mode === 'signin' ? 'Accede a tu armario.' : 'Crea tu cuenta.'}
         </Text>
 
         <Input
-          label="Email"
-          placeholder="you@example.com"
+          label="Correo"
+          placeholder="tucorreo@ejemplo.com"
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
@@ -64,8 +68,8 @@ export default function LoginScreen() {
           autoComplete="email"
         />
         <Input
-          label="Password"
-          placeholder="••••••••"
+          label="Contraseña"
+          placeholder="Tu contraseña"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -79,14 +83,14 @@ export default function LoginScreen() {
         ) : null}
 
         <Button
-          label={busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Create account'}
+          label={busy ? 'Espera…' : mode === 'signin' ? 'Iniciar sesión' : 'Crear cuenta'}
           disabled={busy || email.trim().length === 0 || password.length === 0}
           onPress={() => {
             void submit();
           }}
         />
         <Button
-          label={mode === 'signin' ? 'Create an account instead' : 'I already have an account'}
+          label={mode === 'signin' ? 'Crear una cuenta' : 'Ya tengo una cuenta'}
           variant="secondary"
           disabled={busy}
           onPress={() => {

@@ -19,16 +19,18 @@ export async function signedThumbnailsByGarment(
 
   const { data: garments, error } = await client
     .from('garment')
-    .select('id, original_image_id')
+    .select('id, original_image_id, processed_image_id')
     .in('id', garmentIds);
   if (error) throw error;
 
   const imageIdByGarment = new Map<string, string>();
   const imageIds: string[] = [];
   for (const garment of garments) {
-    if (garment.original_image_id) {
-      imageIdByGarment.set(garment.id, garment.original_image_id);
-      imageIds.push(garment.original_image_id);
+    // Prefer the background-removed image when it exists; fall back to the original.
+    const imageId = garment.processed_image_id ?? garment.original_image_id;
+    if (imageId) {
+      imageIdByGarment.set(garment.id, imageId);
+      imageIds.push(imageId);
     }
   }
   if (imageIds.length === 0) return result;

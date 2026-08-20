@@ -6,7 +6,7 @@ export {
   rowToProfile,
   profileUpdateToRow,
 } from './profile/profileRepository';
-export { useProfile, useUpdateProfile } from './profile/useProfile';
+export { useProfile, useUpdateProfile, useAvatarUrl, useDeleteAccount } from './profile/useProfile';
 export {
   countGarments,
   createGarment,
@@ -17,6 +17,7 @@ export {
   deleteGarment,
   markGarmentWorn,
   setGarmentImage,
+  linkProcessedImage,
 } from './garment/garmentRepository';
 export type { CreateGarmentInput, WardrobeItem, GarmentDetail } from './garment/garmentRepository';
 export { useGarmentCount } from './garment/useGarmentCount';
@@ -52,7 +53,13 @@ export {
   useTripDays,
   useAssignOutfitToDay,
 } from './trip/useTrips';
-export { useTripWeather, useClassifyGarment, useEmbedGarment, useSemanticSearch } from './ai/useAi';
+export {
+  useTripWeather,
+  useClassifyGarment,
+  useRemoveBackground,
+  useEmbedGarment,
+  useSemanticSearch,
+} from './ai/useAi';
 export type { GarmentMatch } from '@woven/api';
 export { listCategories, listColors } from './reference/referenceRepository';
 export { useCategories, useColors } from './reference/useReference';

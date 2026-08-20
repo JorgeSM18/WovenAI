@@ -1,7 +1,13 @@
 import type { Season } from '@woven/core';
-import { useCategories, useClassifyGarment, useColors, useCreateGarment } from '@woven/data';
-import { useImportQueue, usePendingUploads } from '@woven/store';
-import { Button, Chip, FullScreenFlowTemplate, IconButton, Input, Text } from '@woven/ui';
+import {
+  useCategories,
+  useClassifyGarment,
+  useColors,
+  useCreateGarment,
+  useRemoveBackground,
+} from '@woven/data';
+import { useImportQueue, usePendingUploads, useProcessQueue } from '@woven/store';
+import { Button, Chip, FlowHeader, FullScreenFlowTemplate, Input, Text } from '@woven/ui';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
@@ -10,17 +16,19 @@ import { ScrollView, View } from 'react-native';
 import { useAuth } from '../src/providers/AuthProvider';
 
 const SEASONS: { value: Season; label: string }[] = [
-  { value: 'spring', label: 'Spring' },
-  { value: 'summer', label: 'Summer' },
-  { value: 'fall', label: 'Fall' },
-  { value: 'winter', label: 'Winter' },
+  { value: 'spring', label: 'Primavera' },
+  { value: 'summer', label: 'Verano' },
+  { value: 'fall', label: 'Otoño' },
+  { value: 'winter', label: 'Invierno' },
 ];
 
 /**
  * Review & create a garment (T-0406 manual / T-0407). Handles three sources:
  * a single online capture (params.imageId), an offline capture (params.offline —
  * the image upload is deferred and enqueued), and the import queue (T-0409 —
- * reviewed one item at a time). AI pre-fill is blocked by PD-05.
+ * reviewed one item at a time). "Sugerir con IA" removes the background first
+ * (self-hosted) and classifies the *processed* image, so the original photo of
+ * a person never reaches an external AI (ADR-016).
  */
 export default function GarmentReviewScreen() {
   const params = useLocalSearchParams<{
@@ -37,11 +45,13 @@ export default function GarmentReviewScreen() {
   const colors = useColors();
   const create = useCreateGarment(userId);
   const classify = useClassifyGarment();
+  const removeBg = useRemoveBackground();
 
   const importItem = useImportQueue((state) => state.items[0]);
   const importCount = useImportQueue((state) => state.items.length);
   const dequeueImport = useImportQueue((state) => state.dequeue);
   const enqueuePending = usePendingUploads((state) => state.enqueue);
+  const enqueueProcess = useProcessQueue((state) => state.enqueue);
 
   const imageId = importItem?.imageId ?? params.imageId ?? null;
   const previewUri = importItem?.uri ?? params.uri;
@@ -51,6 +61,7 @@ export default function GarmentReviewScreen() {
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [colorId, setColorId] = useState<string | null>(null);
   const [season, setSeason] = useState<Season | null>(null);
+  const [processedImageId, setProcessedImageId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const canSave = name.trim().length > 0 && categoryId !== null && colorId !== null;
@@ -60,13 +71,19 @@ export default function GarmentReviewScreen() {
     setCategoryId(null);
     setColorId(null);
     setSeason(null);
+    setProcessedImageId(null);
     setError(null);
   };
 
   const suggest = async () => {
     if (!imageId) return;
     try {
-      const result = await classify.mutateAsync(imageId);
+      // Privacy (ADR-016): remove the background first (self-hosted) and classify
+      // the processed image — the original never reaches the external AI. Reuse
+      // the processed image if a previous suggestion already produced one.
+      const processedId = processedImageId ?? (await removeBg.mutateAsync(imageId));
+      setProcessedImageId(processedId);
+      const result = await classify.mutateAsync(processedId);
       const category = categories.data?.find(
         (c) => c.name.toLowerCase() === result.categoryName?.toLowerCase(),
       );
@@ -97,7 +114,18 @@ export default function GarmentReviewScreen() {
         primaryColorId: colorId,
         season,
         originalImageId: imageId,
+        processedImageId,
       });
+
+      // Every garment ends up as a cutout: if it wasn't already processed via
+      // "Suggest with AI", queue its background removal (the drain handles it).
+      if (imageId && !processedImageId) {
+        enqueueProcess({
+          id: `${Date.now()}-${Math.random()}`,
+          garmentId: newGarmentId,
+          imageId,
+        });
+      }
 
       if (isOffline && params.uri) {
         enqueuePending({
@@ -120,25 +148,15 @@ export default function GarmentReviewScreen() {
       }
       router.replace('/home');
     } catch {
-      setError('Could not save the garment. Please try again.');
+      setError('No se pudo guardar la prenda. Inténtalo de nuevo.');
     }
   };
 
   const header = (
-    <View className="flex-row items-center gap-sm border-b border-outline-variant bg-surface px-md py-sm">
-      <IconButton
-        icon={
-          <Text variant="headline-md" className="text-on-surface">
-            ‹
-          </Text>
-        }
-        accessibilityLabel="Go back"
-        onPress={() => router.back()}
-      />
-      <Text variant="title-sm" className="text-on-surface">
-        {importCount > 1 ? `New garment (${importCount} left)` : 'New garment'}
-      </Text>
-    </View>
+    <FlowHeader
+      title={importCount > 1 ? `Nueva prenda (quedan ${importCount})` : 'Nueva prenda'}
+      onBack={() => router.back()}
+    />
   );
 
   return (
@@ -151,22 +169,22 @@ export default function GarmentReviewScreen() {
                 source={{ uri: previewUri }}
                 contentFit="cover"
                 className="h-full w-full"
-                accessibilityLabel="Garment photo"
+                accessibilityLabel="Foto de la prenda"
               />
             </View>
           ) : null}
 
           {isOffline ? (
             <Text variant="body-md" className="text-on-surface-variant">
-              You&apos;re offline — the photo will upload automatically once you reconnect.
+              Estás sin conexión — la foto se subirá automáticamente cuando vuelvas a conectarte.
             </Text>
           ) : null}
 
           {imageId ? (
             <Button
-              label={classify.isPending ? 'Suggesting…' : 'Suggest with AI'}
+              label={removeBg.isPending || classify.isPending ? 'Analizando…' : 'Sugerir con IA'}
               variant="secondary"
-              disabled={classify.isPending}
+              disabled={removeBg.isPending || classify.isPending}
               onPress={() => {
                 void suggest();
               }}
@@ -174,15 +192,15 @@ export default function GarmentReviewScreen() {
           ) : null}
 
           <Input
-            label="Name"
-            placeholder="e.g. Blue linen shirt"
+            label="Nombre"
+            placeholder="p. ej. Camisa de lino azul"
             value={name}
             onChangeText={setName}
           />
 
           <View className="gap-sm">
             <Text variant="label-caps" className="text-on-surface-variant">
-              Category
+              Categoría
             </Text>
             <View className="flex-row flex-wrap gap-sm">
               {categories.data?.map((category) => (
@@ -214,7 +232,7 @@ export default function GarmentReviewScreen() {
 
           <View className="gap-sm">
             <Text variant="label-caps" className="text-on-surface-variant">
-              Season (optional)
+              Temporada (opcional)
             </Text>
             <View className="flex-row flex-wrap gap-sm">
               {SEASONS.map((option) => (
@@ -235,7 +253,7 @@ export default function GarmentReviewScreen() {
           ) : null}
 
           <Button
-            label={create.isPending ? 'Saving…' : 'Save garment'}
+            label={create.isPending ? 'Guardando…' : 'Guardar prenda'}
             disabled={!canSave || create.isPending}
             onPress={() => {
               void save();

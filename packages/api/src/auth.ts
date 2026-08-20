@@ -30,6 +30,12 @@ export function createAuthService(client: WovenClient) {
       if (error) throw error;
     },
 
+    /** Updates the signed-in user's password. */
+    async updatePassword(newPassword: string): Promise<void> {
+      const { error } = await auth.updateUser({ password: newPassword });
+      if (error) throw error;
+    },
+
     /** Current persisted session, or null when signed out. */
     async getSession(): Promise<Session | null> {
       const { data, error } = await auth.getSession();

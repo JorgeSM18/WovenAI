@@ -159,6 +159,35 @@ Formato: **Problema · Opciones · Decisión · Justificación · Consecuencias.
 - **Justificación:** cubren KPIs del PRD; desacoplados por interfaz.
 - **Consecuencias:** un wrapper que mantener; libertad de cambiar proveedor.
 
+### ADR-016 — Proveedores IA/servicios para la beta + regla de privacidad de imágenes
+
+Concreta la implementación que ADR-007 dejó como *propuesta* (`PD-05`), tras las mismas
+interfaces (`WeatherService`/`BackgroundRemovalService`/`AiService` + embeddings), orquestadas
+en Edge Functions, **nunca en cliente**.
+
+- **Decisión (beta, ≈ €0):**
+  - **Clima → Open-Meteo** (keyless, CC BY 4.0). _Ya implementado_ (`get-weather` + tabla `weather_snapshot`, caché 3 h, degradación a caché).
+  - **Eliminación de fondo → rembg** (MIT, **self-hosted**). La Edge invoca un servicio propio: Deno **no** ejecuta el modelo Python. _Pendiente._
+  - **Clasificación de prenda → Gemini** (objetivo 2.5 Flash‑Lite; hoy `gemini-2.0-flash`), **sobre la imagen ya recortada**. _Implementado_ (`classify-garment`), requiere `GEMINI_KEY`.
+  - **Recomendación de outfit → Gemini 2.5 Flash**, con **metadatos/embeddings, nunca fotos**. _Pendiente._
+  - **Embeddings / búsqueda semántica → Nomic Embed Text/Vision v1.5** (Apache-2.0). _Pendiente._
+- **Regla de privacidad (firme):** la **imagen original que pueda contener a una persona nunca se
+  envía a un proveedor de IA externo**. Orden obligatorio: recorte self-hosted → PNG solo-prenda →
+  (opcional) clasificación externa. Las recomendaciones usan solo **metadatos/embeddings**, no fotos.
+  **No** usar el _free tier_ de Gemini para imágenes de personas (Google: el contenido del tier
+  gratuito puede usarse para mejorar sus productos y ser revisado por humanos); en lanzamiento
+  público, **billing activo / Vertex** (el tier de pago no entrena con el contenido). El matiz
+  EEE/Suiza/UK existe pero **la política no se apoya en él**.
+- **Consecuencias:**
+  - `classify-garment` debe consumir el `image_asset` **`processed`** (recortado), no el original →
+    habilitar clasificación sobre fotos reales **solo tras** aterrizar el _background removal_.
+  - `BackgroundRemovalService` con `RembgProvider` (beta) → futuro `BriaProvider`/otros tras la
+    misma interfaz. **No** usar pesos RMBG-2.0 en producción (licencia no comercial).
+  - Embeddings Nomic = **768 dims**; la columna `garment.embedding` es hoy `vector(1536)` → ajustar
+    con una migración **forward-only** nueva (nunca editar la vieja) + regenerar tipos.
+  - Coste IA ≈ €0 en beta sujeto a cuotas; el coste real de operación es **alojar rembg**.
+  - Refina ADR-007: proveedores intercambiables por ADR sin tocar la app.
+
 ---
 
 > **Cierre.** Con este TAD + el PRD, un ingeniero puede: montar el monorepo (`03`), crear el esquema y RLS (`07`), exponer datos (`08`), implementar el pipeline de imágenes e IA (`09`), gestionar estado/offline (`06`,`10`), y desplegar con CI/CD (`11`). Las decisiones abiertas son las `PD` del PRD y las marcadas aquí (ADR-011, mecanismo de cola, breakpoint tablet, SLOs/backups) — ninguna bloquea empezar el andamiaje del MVP.

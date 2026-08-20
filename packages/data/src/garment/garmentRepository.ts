@@ -20,6 +20,8 @@ export type WardrobeItem = {
   name: string;
   isFavorite: boolean;
   thumbnailUrl: string | null;
+  /** Resolved category name; populated where the view shows it (e.g. Home). */
+  categoryName?: string;
 };
 
 /** Lists the user's active garments with a signed thumbnail URL (private bucket).
@@ -27,21 +29,28 @@ export type WardrobeItem = {
 export async function listGarments(client: WovenClient): Promise<WardrobeItem[]> {
   const { data: garments, error } = await client
     .from('garment')
-    .select('id, name, is_favorite')
+    .select('id, name, is_favorite, category_id')
     .is('deleted_at', null)
     .order('created_at', { ascending: false })
     .limit(100); // ponytail: fixed cap; switch to keyset pagination when wardrobes grow
   if (error) throw error;
 
-  const thumbnails = await signedThumbnailsByGarment(
-    client,
-    garments.map((garment) => garment.id),
-  );
+  const categoryIds = [...new Set(garments.map((garment) => garment.category_id))];
+  const [thumbnails, categories] = await Promise.all([
+    signedThumbnailsByGarment(
+      client,
+      garments.map((garment) => garment.id),
+    ),
+    client.from('category').select('id, name').in('id', categoryIds),
+  ]);
+  const nameByCategory = new Map((categories.data ?? []).map((row) => [row.id, row.name]));
+
   return garments.map((garment) => ({
     id: garment.id,
     name: garment.name,
     isFavorite: garment.is_favorite,
     thumbnailUrl: thumbnails.get(garment.id) ?? null,
+    categoryName: nameByCategory.get(garment.category_id),
   }));
 }
 
@@ -75,6 +84,19 @@ export async function setGarmentImage(
   if (error) throw error;
 }
 
+/** Links a background-removed image to its garment (async processing, T-0902). */
+export async function linkProcessedImage(
+  client: WovenClient,
+  garmentId: string,
+  processedImageId: string,
+): Promise<void> {
+  const { error } = await client
+    .from('garment')
+    .update({ processed_image_id: processedImageId })
+    .eq('id', garmentId);
+  if (error) throw error;
+}
+
 /** Records that the garment was worn now (drives Forgotten Pieces). */
 export async function markGarmentWorn(client: WovenClient, id: string): Promise<void> {
   const { error } = await client
@@ -92,22 +114,29 @@ export async function listForgottenGarments(client: WovenClient): Promise<Wardro
   const cutoff = new Date(Date.now() - FORGOTTEN_DAYS * 24 * 60 * 60 * 1000).toISOString();
   const { data: garments, error } = await client
     .from('garment')
-    .select('id, name, is_favorite')
+    .select('id, name, is_favorite, category_id')
     .is('deleted_at', null)
     .or(`last_worn_at.is.null,last_worn_at.lt.${cutoff}`)
     .order('last_worn_at', { ascending: true, nullsFirst: true })
     .limit(12);
   if (error) throw error;
 
-  const thumbnails = await signedThumbnailsByGarment(
-    client,
-    garments.map((garment) => garment.id),
-  );
+  const categoryIds = [...new Set(garments.map((garment) => garment.category_id))];
+  const [thumbnails, categories] = await Promise.all([
+    signedThumbnailsByGarment(
+      client,
+      garments.map((garment) => garment.id),
+    ),
+    client.from('category').select('id, name').in('id', categoryIds),
+  ]);
+  const nameByCategory = new Map((categories.data ?? []).map((row) => [row.id, row.name]));
+
   return garments.map((garment) => ({
     id: garment.id,
     name: garment.name,
     isFavorite: garment.is_favorite,
     thumbnailUrl: thumbnails.get(garment.id) ?? null,
+    categoryName: nameByCategory.get(garment.category_id),
   }));
 }
 
@@ -163,6 +192,8 @@ export type CreateGarmentInput = {
   primaryColorId: string;
   season: Season | null;
   originalImageId: string | null;
+  /** Background-removed image, when the AI flow produced one. */
+  processedImageId?: string | null;
 };
 
 /** Creates a garment. Without AI processing it goes straight to `active`.
@@ -178,6 +209,7 @@ export async function createGarment(
     primary_color_id: input.primaryColorId,
     season: input.season,
     original_image_id: input.originalImageId,
+    processed_image_id: input.processedImageId ?? null,
     status: 'active',
   };
   const { data, error } = await client.from('garment').insert(row).select('id').single();

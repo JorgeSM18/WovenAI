@@ -1,6 +1,7 @@
 import { Pressable, View, type PressableProps } from 'react-native';
 
 import { cn } from '../utils/cn';
+import { Icon } from './Icon';
 import { Text } from './Text';
 
 export type SelectProps = Omit<PressableProps, 'children'> & {
@@ -34,9 +35,7 @@ export function Select({ value, label, placeholder, className, ...props }: Selec
         <Text variant="body-lg" className={value ? 'text-on-surface' : 'text-on-surface-variant'}>
           {value || placeholder}
         </Text>
-        <Text variant="body-lg" className="text-on-surface-variant">
-          ⌄
-        </Text>
+        <Icon name="chevron-down" size={20} className="text-on-surface-variant" />
       </Pressable>
     </View>
   );

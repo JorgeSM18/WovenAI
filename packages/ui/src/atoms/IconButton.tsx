@@ -24,7 +24,7 @@ export function IconButton({
       accessibilityState={{ disabled: Boolean(disabled) }}
       disabled={disabled}
       className={cn(
-        'h-touch-target-min w-touch-target-min items-center justify-center rounded-full',
+        'h-touch-target-min w-touch-target-min items-center justify-center rounded-full active:opacity-70',
         disabled && 'opacity-50',
         className,
       )}

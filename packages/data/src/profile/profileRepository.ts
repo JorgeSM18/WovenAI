@@ -1,8 +1,31 @@
 import type { Database, WovenClient } from '@woven/api';
 import type { Profile, ProfileUpdate } from '@woven/core';
 
+import { stripBucket } from '../garment/thumbnails';
+
 type ProfileRow = Database['public']['Tables']['profile']['Row'];
 type ProfileRowUpdate = Database['public']['Tables']['profile']['Update'];
+
+const AVATAR_BUCKET = 'images';
+const AVATAR_TTL = 60 * 60;
+
+/** Signed URL for a profile avatar image asset, or null if unavailable.
+ *  RLS scopes the asset read to the caller. */
+export async function signedAvatarUrl(
+  client: WovenClient,
+  avatarAssetId: string,
+): Promise<string | null> {
+  const { data: asset } = await client
+    .from('image_asset')
+    .select('storage_path')
+    .eq('id', avatarAssetId)
+    .single();
+  if (!asset) return null;
+  const { data: signed } = await client.storage
+    .from(AVATAR_BUCKET)
+    .createSignedUrl(stripBucket(asset.storage_path), AVATAR_TTL);
+  return signed?.signedUrl ?? null;
+}
 
 /** DB row (snake_case) -> domain model. */
 export function rowToProfile(row: ProfileRow): Profile {

@@ -1,84 +1,96 @@
 // Woven design tokens as a Tailwind v3 preset, shared by NativeWind (mobile)
-// and Tailwind (web). Source of truth: design/woven/DESIGN.md.
+// and Tailwind (web). Source of truth: Product Experience 2.0 design system
+// (design export: product_experience_2.0/DESIGN.md + DS board image).
 //
 // CommonJS on purpose: Tailwind/NativeWind configs consume presets via
 // require(), and this package is `type: module` (so a plain .js would be ESM).
 //
-// Only the light palette is encoded here. Dark-mode token values are not yet
-// defined in the design system; they are wired with the theme provider (T-0106).
+// Font weights are encoded as separate families (hk-*) because React Native /
+// Android selects fonts by exact family name, not numeric fontWeight. The Text
+// atom maps each type role to the correct weight family.
 
-/** Material-3 token roles with Woven values (design/woven/DESIGN.md). */
-const colors = {
-  surface: '#fdf8f7',
-  'surface-dim': '#ddd9d8',
-  'surface-bright': '#fdf8f7',
-  'surface-container-lowest': '#ffffff',
-  'surface-container-low': '#f7f3f1',
-  'surface-container': '#f1edec',
-  'surface-container-high': '#ece7e6',
-  'surface-container-highest': '#e6e1e0',
-  'on-surface': '#1c1b1b',
-  'on-surface-variant': '#4d4540',
-  'inverse-surface': '#313030',
-  'inverse-on-surface': '#f4f0ef',
-  outline: '#7e7570',
-  'outline-variant': '#d0c4be',
-  'surface-tint': '#625d5b',
-  primary: '#000000',
-  'on-primary': '#ffffff',
-  'primary-container': '#1e1b19',
-  'on-primary-container': '#888380',
-  'inverse-primary': '#ccc5c2',
-  secondary: '#5e5e5c',
-  'on-secondary': '#ffffff',
-  'secondary-container': '#e1dfdc',
-  'on-secondary-container': '#636361',
-  tertiary: '#000000',
-  'on-tertiary': '#ffffff',
-  'tertiary-container': '#1f1b17',
-  'on-tertiary-container': '#8a827d',
-  error: '#ba1a1a',
-  'on-error': '#ffffff',
-  'error-container': '#ffdad6',
-  'on-error-container': '#93000a',
-  'primary-fixed': '#e9e1dd',
-  'primary-fixed-dim': '#ccc5c2',
-  'on-primary-fixed': '#1e1b19',
-  'on-primary-fixed-variant': '#4a4643',
-  'secondary-fixed': '#e4e2df',
-  'secondary-fixed-dim': '#c8c6c4',
-  'on-secondary-fixed': '#1b1c1a',
-  'on-secondary-fixed-variant': '#474745',
-  'tertiary-fixed': '#eae1da',
-  'tertiary-fixed-dim': '#cec5bf',
-  'on-tertiary-fixed': '#1f1b17',
-  'on-tertiary-fixed-variant': '#4b4641',
-  background: '#fdf8f7',
-  'on-background': '#1c1b1b',
-  'surface-variant': '#e6e1e0',
-};
+// Material-3 token roles. Values resolve to CSS variables (R G B triplets)
+// declared per-theme in apps/mobile/global.css, so light/dark swaps happen at
+// the token level. `<alpha-value>` keeps opacity utilities (e.g. bg-primary/10)
+// working. Charcoal primary #1C1917, muted sage tertiary #848D78 (DS board).
+const token = (name) => `rgb(var(--color-${name}) / <alpha-value>)`;
+
+const COLOR_TOKENS = [
+  'surface',
+  'surface-dim',
+  'surface-bright',
+  'surface-container-lowest',
+  'surface-container-low',
+  'surface-container',
+  'surface-container-high',
+  'surface-container-highest',
+  'on-surface',
+  'on-surface-variant',
+  'inverse-surface',
+  'inverse-on-surface',
+  'outline',
+  'outline-variant',
+  'surface-tint',
+  'primary',
+  'on-primary',
+  'primary-container',
+  'on-primary-container',
+  'inverse-primary',
+  'secondary',
+  'on-secondary',
+  'secondary-container',
+  'on-secondary-container',
+  'tertiary',
+  'on-tertiary',
+  'tertiary-container',
+  'on-tertiary-container',
+  'error',
+  'on-error',
+  'error-container',
+  'on-error-container',
+  'primary-fixed',
+  'primary-fixed-dim',
+  'on-primary-fixed',
+  'on-primary-fixed-variant',
+  'secondary-fixed',
+  'secondary-fixed-dim',
+  'on-secondary-fixed',
+  'on-secondary-fixed-variant',
+  'tertiary-fixed',
+  'tertiary-fixed-dim',
+  'on-tertiary-fixed',
+  'on-tertiary-fixed-variant',
+  'background',
+  'on-background',
+  'surface-variant',
+];
+
+const colors = Object.fromEntries(COLOR_TOKENS.map((name) => [name, token(name)]));
 
 module.exports = {
   theme: {
     extend: {
       colors,
       fontFamily: {
-        sans: ['Hanken Grotesk', 'sans-serif'],
+        // `sans` (regular) is the default applied by the Text atom and inputs.
+        sans: ['HankenGrotesk_400Regular', 'sans-serif'],
+        'hk-light': ['HankenGrotesk_300Light', 'sans-serif'],
+        'hk-medium': ['HankenGrotesk_500Medium', 'sans-serif'],
+        'hk-semibold': ['HankenGrotesk_600SemiBold', 'sans-serif'],
+        'hk-bold': ['HankenGrotesk_700Bold', 'sans-serif'],
       },
+      // Weight lives in the family (hk-*), not here — see Text atom mapping.
       fontSize: {
-        'display-lg': ['48px', { lineHeight: '56px', letterSpacing: '-0.02em', fontWeight: '600' }],
-        'display-lg-mobile': [
-          '32px',
-          { lineHeight: '40px', letterSpacing: '-0.01em', fontWeight: '600' },
-        ],
-        'headline-md': [
-          '24px',
-          { lineHeight: '32px', letterSpacing: '-0.01em', fontWeight: '500' },
-        ],
-        'title-sm': ['18px', { lineHeight: '24px', fontWeight: '600' }],
-        'body-lg': ['16px', { lineHeight: '24px', fontWeight: '400' }],
-        'body-md': ['14px', { lineHeight: '20px', fontWeight: '400' }],
-        'label-caps': ['12px', { lineHeight: '16px', letterSpacing: '0.05em', fontWeight: '600' }],
+        'display-lg': ['80px', { lineHeight: '92px', letterSpacing: '-0.04em' }],
+        'display-md': ['56px', { lineHeight: '64px', letterSpacing: '-0.03em' }],
+        'headline-lg': ['40px', { lineHeight: '48px', letterSpacing: '-0.02em' }],
+        'headline-lg-mobile': ['32px', { lineHeight: '40px', letterSpacing: '-0.02em' }],
+        'headline-md': ['24px', { lineHeight: '32px', letterSpacing: '-0.01em' }],
+        'title-sm': ['18px', { lineHeight: '24px' }],
+        'body-lg': ['18px', { lineHeight: '28px' }],
+        'body-md': ['16px', { lineHeight: '24px' }],
+        'label-caps': ['12px', { lineHeight: '16px', letterSpacing: '0.15em' }],
+        'label-sm': ['13px', { lineHeight: '18px', letterSpacing: '0.01em' }],
       },
       borderRadius: {
         sm: '0.125rem',
@@ -92,10 +104,10 @@ module.exports = {
         base: '4px',
         xs: '8px',
         sm: '16px',
-        md: '24px',
-        lg: '40px',
-        xl: '64px',
-        gutter: '16px',
+        md: '32px',
+        lg: '64px',
+        xl: '128px',
+        gutter: '24px',
         'margin-mobile': '20px',
         'margin-desktop': '80px',
         'touch-target-min': '44px',

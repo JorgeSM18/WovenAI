@@ -1,11 +1,26 @@
 import { useGarments } from '@woven/data';
-import { EmptyStateTemplate, Fab, GarmentCard, SearchBar, Text } from '@woven/ui';
+import {
+  AppHeader,
+  EmptyStateTemplate,
+  Fab,
+  GarmentCard,
+  Icon,
+  SearchBar,
+  Text,
+  ViewModeToggle,
+} from '@woven/ui';
 import { FlashList } from '@shopify/flash-list';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { View } from 'react-native';
+import { useWindowDimensions, View } from 'react-native';
 
+import { ProfileHeaderButton } from '../../src/components/ProfileHeaderButton';
 import { useAuth } from '../../src/providers/AuthProvider';
+
+const VIEW_MODES = [
+  { value: 'editorial', label: 'Editorial' },
+  { value: 'compacto', label: 'Compacto' },
+];
 
 export default function InventoryScreen() {
   const { session } = useAuth();
@@ -14,44 +29,68 @@ export default function InventoryScreen() {
   const items = garments.data ?? [];
 
   const [query, setQuery] = useState('');
+  const [mode, setMode] = useState('editorial');
   const term = query.trim().toLowerCase();
-  const filtered = term ? items.filter((item) => item.name.toLowerCase().includes(term)) : items;
+  const filtered = term
+    ? items.filter(
+        (item) =>
+          item.name.toLowerCase().includes(term) ||
+          Boolean(item.categoryName?.toLowerCase().includes(term)),
+      )
+    : items;
 
   const isEmpty = items.length === 0 && !garments.isPending;
+  const { width } = useWindowDimensions();
+  // Editorial keeps single big cards; compact adapts its column count to width
+  // so tablets don't stretch two cards across the screen.
+  const columns = mode === 'compacto' ? Math.max(2, Math.floor(width / 200)) : 1;
 
   return (
     <View className="flex-1 bg-background">
+      <AppHeader trailing={<ProfileHeaderButton />} />
+
       <View className="gap-md px-md pt-md">
-        <Text variant="display-lg" className="text-on-surface">
-          Wardrobe
-        </Text>
+        <View className="gap-base">
+          <Text variant="headline-lg-mobile" className="text-on-surface">
+            Tu inventario
+          </Text>
+          <Text variant="body-md" className="text-on-surface-variant">
+            {items.length} {items.length === 1 ? 'prenda' : 'prendas'} en tu armario
+          </Text>
+        </View>
         {!isEmpty ? (
-          <SearchBar placeholder="Search garments" value={query} onChangeText={setQuery} />
+          <>
+            <SearchBar placeholder="Busca en tu armario…" value={query} onChangeText={setQuery} />
+            <ViewModeToggle options={VIEW_MODES} value={mode} onChange={setMode} />
+          </>
         ) : null}
       </View>
 
       {isEmpty ? (
         <EmptyStateTemplate
-          title="Your wardrobe is empty"
-          description="Tap the + button to add your first garment."
+          title="Tu armario está vacío"
+          description="Pulsa el botón + para añadir tu primera prenda."
         />
       ) : filtered.length === 0 ? (
         <View className="p-md">
           <Text variant="body-md" className="text-on-surface-variant">
-            No garments match “{query.trim()}”.
+            Ninguna prenda coincide con «{query.trim()}».
           </Text>
         </View>
       ) : (
         <FlashList
+          key={`${mode}-${columns}`}
           data={filtered}
-          numColumns={2}
+          numColumns={columns}
           keyExtractor={(item) => item.id}
+          contentContainerStyle={{ padding: 8 }}
           refreshing={garments.isRefetching}
           onRefresh={() => void garments.refetch()}
           renderItem={({ item }) => (
-            <View className="p-xs">
+            <View className="p-xs" style={{ flex: 1 / columns }}>
               <GarmentCard
                 name={item.name}
+                category={item.categoryName}
                 imageUri={item.thumbnailUrl}
                 isFavorite={item.isFavorite}
                 onPress={() => router.push(`/garment/${item.id}`)}
@@ -63,12 +102,8 @@ export default function InventoryScreen() {
 
       <View className="absolute bottom-lg right-md">
         <Fab
-          icon={
-            <Text variant="headline-md" className="text-background">
-              +
-            </Text>
-          }
-          accessibilityLabel="Add garment"
+          icon={<Icon name="plus" size={24} className="text-on-primary" />}
+          accessibilityLabel="Añadir prenda"
           onPress={() => router.push('/capture')}
         />
       </View>
