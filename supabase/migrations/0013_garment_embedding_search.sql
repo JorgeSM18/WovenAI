@@ -14,11 +14,14 @@ create index garment_embedding_hnsw on garment
 
 -- Búsqueda semántica sobre las prendas del propio usuario (la RLS aplica por
 -- invoker). Devuelve id + similitud (1 - distancia coseno), más similar primero.
+-- search_path incluye el schema de pgvector (public/extensions) para resolver el
+-- operador `<=>`; con '' quedaría fuera y la creación de la función falla.
 create function search_garments(query_embedding vector(768), match_count int default 20)
   returns table (id uuid, similarity real)
   language sql
+  stable
   security invoker
-  set search_path = ''
+  set search_path = public, extensions
 as $$
   select g.id, (1 - (g.embedding <=> query_embedding))::real as similarity
   from public.garment g
