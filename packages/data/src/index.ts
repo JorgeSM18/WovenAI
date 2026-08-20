@@ -17,6 +17,7 @@ export {
   deleteGarment,
   markGarmentWorn,
   setGarmentImage,
+  linkProcessedImage,
 } from './garment/garmentRepository';
 export type { CreateGarmentInput, WardrobeItem, GarmentDetail } from './garment/garmentRepository';
 export { useGarmentCount } from './garment/useGarmentCount';

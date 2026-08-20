@@ -1,6 +1,6 @@
 import NetInfo from '@react-native-community/netinfo';
 import { setGarmentImage, uploadImage, useSupabaseClient } from '@woven/data';
-import { usePendingUploads } from '@woven/store';
+import { usePendingUploads, useProcessQueue } from '@woven/store';
 import { useEffect, useRef } from 'react';
 
 import { useAuth } from './AuthProvider';
@@ -33,6 +33,12 @@ export function UploadQueueDrain() {
               height: item.height,
             });
             await setGarmentImage(client, item.garmentId, uploaded.id);
+            // Now that the original exists, queue its background removal.
+            useProcessQueue.getState().enqueue({
+              id: `${Date.now()}-${Math.random()}`,
+              garmentId: item.garmentId,
+              imageId: uploaded.id,
+            });
             usePendingUploads.getState().remove(item.id);
           } catch {
             break; // still offline / failed — retry on the next reconnect

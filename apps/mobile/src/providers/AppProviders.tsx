@@ -8,6 +8,7 @@ import { supabase } from '../auth/client';
 import { AuthProvider, useAuth } from './AuthProvider';
 import { ErrorBoundary } from './ErrorBoundary';
 import { createQueryClient } from './queryClient';
+import { BackgroundRemovalDrain } from './BackgroundRemovalDrain';
 import { TelemetryProvider } from './TelemetryProvider';
 import { UploadQueueDrain } from './UploadQueueDrain';
 
@@ -44,6 +45,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
         <SupabaseProvider client={supabase}>
           <AuthProvider>
             <UploadQueueDrain />
+            <BackgroundRemovalDrain />
             <ThemeProvider>
               <ThemeSync />
               <ThemeFromProfile />

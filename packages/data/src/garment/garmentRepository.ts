@@ -84,6 +84,19 @@ export async function setGarmentImage(
   if (error) throw error;
 }
 
+/** Links a background-removed image to its garment (async processing, T-0902). */
+export async function linkProcessedImage(
+  client: WovenClient,
+  garmentId: string,
+  processedImageId: string,
+): Promise<void> {
+  const { error } = await client
+    .from('garment')
+    .update({ processed_image_id: processedImageId })
+    .eq('id', garmentId);
+  if (error) throw error;
+}
+
 /** Records that the garment was worn now (drives Forgotten Pieces). */
 export async function markGarmentWorn(client: WovenClient, id: string): Promise<void> {
   const { error } = await client

@@ -6,7 +6,7 @@ import {
   useCreateGarment,
   useRemoveBackground,
 } from '@woven/data';
-import { useImportQueue, usePendingUploads } from '@woven/store';
+import { useImportQueue, usePendingUploads, useProcessQueue } from '@woven/store';
 import { Button, Chip, FlowHeader, FullScreenFlowTemplate, Input, Text } from '@woven/ui';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -51,6 +51,7 @@ export default function GarmentReviewScreen() {
   const importCount = useImportQueue((state) => state.items.length);
   const dequeueImport = useImportQueue((state) => state.dequeue);
   const enqueuePending = usePendingUploads((state) => state.enqueue);
+  const enqueueProcess = useProcessQueue((state) => state.enqueue);
 
   const imageId = importItem?.imageId ?? params.imageId ?? null;
   const previewUri = importItem?.uri ?? params.uri;
@@ -115,6 +116,16 @@ export default function GarmentReviewScreen() {
         originalImageId: imageId,
         processedImageId,
       });
+
+      // Every garment ends up as a cutout: if it wasn't already processed via
+      // "Suggest with AI", queue its background removal (the drain handles it).
+      if (imageId && !processedImageId) {
+        enqueueProcess({
+          id: `${Date.now()}-${Math.random()}`,
+          garmentId: newGarmentId,
+          imageId,
+        });
+      }
 
       if (isOffline && params.uri) {
         enqueuePending({
