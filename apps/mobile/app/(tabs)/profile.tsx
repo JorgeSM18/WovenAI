@@ -24,6 +24,7 @@ import { Pressable, View } from 'react-native';
 
 import { authService } from '../../src/auth/client';
 import { processForUpload } from '../../src/features/capture/processImage';
+import { readImageBytes } from '../../src/features/capture/readImageBytes';
 import { useAuth } from '../../src/providers/AuthProvider';
 
 export default function ProfileScreen() {
@@ -64,9 +65,10 @@ export default function ProfileScreen() {
         width: asset.width,
         height: asset.height,
       });
+      const bytes = await readImageBytes(processed.uri);
       const uploaded = await upload.mutateAsync({
         userId,
-        uri: processed.uri,
+        bytes,
         type: 'avatar',
         mime: processed.mime,
         width: processed.width,

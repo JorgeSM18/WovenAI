@@ -4,7 +4,8 @@ import { createImageAsset } from './imageAssetRepository';
 
 export type UploadImageInput = {
   userId: string;
-  uri: string;
+  /** Raw image bytes (read platform-side; keeps this layer Expo-free). */
+  bytes: ArrayBuffer;
   type: SignUploadInput['type'];
   mime: SignUploadInput['mime'];
   width: number;
@@ -21,17 +22,16 @@ const EXT_MAP: Record<string, string> = {
 };
 
 /**
- * Uploads a local image and records it: sign a URL (Edge) → push the binary to
- * Storage → insert the image_asset row. If the Edge Function is unavailable,
- * falls back to direct authenticated upload (governed by images_insert_own RLS).
+ * Uploads image bytes and records them: sign a URL (Edge) → push to Storage →
+ * insert the image_asset row. If the Edge Function is unavailable, falls back to
+ * a direct authenticated upload (governed by the images insert RLS policy).
  * Returns the new asset id + storage path.
  */
 export async function uploadImage(
   client: WovenClient,
   input: UploadImageInput,
 ): Promise<UploadedImage> {
-  const binary = await fetch(input.uri).then((response) => response.arrayBuffer());
-
+  const { bytes } = input;
   let bucket = BUCKET;
   let path = `${input.userId}/${input.type}/${crypto.randomUUID()}.${EXT_MAP[input.mime] ?? 'jpg'}`;
 
@@ -39,16 +39,15 @@ export async function uploadImage(
     const signed = await signUpload(client, { type: input.type, mime: input.mime });
     bucket = signed.bucket;
     path = signed.path;
-    const { error: signedError } = await client.storage
+    const { error } = await client.storage
       .from(bucket)
-      .uploadToSignedUrl(path, signed.token, binary, { contentType: input.mime });
-    if (signedError) throw signedError;
+      .uploadToSignedUrl(path, signed.token, bytes, { contentType: input.mime });
+    if (error) throw error;
   } catch {
-    // Fallback: direct authenticated upload to user's storage folder
-    const { error: directError } = await client.storage
+    const { error } = await client.storage
       .from(bucket)
-      .upload(path, binary, { contentType: input.mime, upsert: true });
-    if (directError) throw directError;
+      .upload(path, bytes, { contentType: input.mime, upsert: true });
+    if (error) throw error;
   }
 
   const storagePath = `${bucket}/${path}`;
@@ -59,7 +58,7 @@ export async function uploadImage(
     width: input.width,
     height: input.height,
     mime: input.mime,
-    bytes: binary.byteLength,
+    bytes: bytes.byteLength,
   });
 
   return { id, storagePath };
