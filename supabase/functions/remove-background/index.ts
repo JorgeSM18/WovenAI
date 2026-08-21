@@ -41,11 +41,12 @@ Deno.serve(async (req) => {
   if (!url || !anonKey || !serviceKey) return json({ error: 'server_misconfigured' }, 500);
   if (!rembgUrl) return json({ error: 'rembg_not_configured' }, 500);
 
+  const token = authHeader.replace(/^Bearer\s+/i, '');
   // Identify the caller from their JWT.
   const userClient = createClient(url, anonKey, {
     global: { headers: { Authorization: authHeader } },
   });
-  const { data: userData, error: userError } = await userClient.auth.getUser();
+  const { data: userData, error: userError } = await userClient.auth.getUser(token);
   if (userError || !userData.user) return json({ error: 'unauthorized' }, 401);
   const userId = userData.user.id;
 

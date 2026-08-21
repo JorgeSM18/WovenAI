@@ -22,7 +22,7 @@ export default function SettingsScreen() {
   const userId = session?.user.id ?? '';
   const profile = useProfile(userId);
   const update = useUpdateProfile(userId);
-  const { setMode } = useTheme();
+  const { mode, setMode } = useTheme();
 
   return (
     <FullScreenFlowTemplate header={<FlowHeader title="Ajustes" onBack={() => router.back()} />}>
@@ -37,7 +37,8 @@ export default function SettingsScreen() {
                 <Chip
                   key={option.value}
                   label={option.label}
-                  selected={profile.data?.theme === option.value}
+                  className="flex-1"
+                  selected={(profile.data?.theme ?? mode) === option.value}
                   onPress={() => {
                     setMode(option.value);
                     update.mutate({ theme: option.value });
@@ -56,6 +57,7 @@ export default function SettingsScreen() {
                 <Chip
                   key={option.value}
                   label={option.label}
+                  className="flex-1"
                   selected={profile.data?.units === option.value}
                   onPress={() => update.mutate({ units: option.value })}
                 />

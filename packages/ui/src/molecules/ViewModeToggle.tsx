@@ -31,7 +31,7 @@ export function ViewModeToggle({ options, value, onChange, className }: ViewMode
             accessibilityState={{ selected: active }}
             onPress={() => onChange(option.value)}
             className={cn(
-              'min-h-touch-target-min items-center justify-center rounded-md px-md',
+              'min-h-touch-target-min flex-1 items-center justify-center rounded-md px-md',
               active && 'bg-surface-container-lowest',
             )}
           >

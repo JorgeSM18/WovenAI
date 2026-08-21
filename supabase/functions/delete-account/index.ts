@@ -45,11 +45,12 @@ Deno.serve(async (req) => {
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
   if (!url || !anonKey || !serviceKey) return json({ error: 'server_misconfigured' }, 500);
 
+  const token = authHeader.replace(/^Bearer\s+/i, '');
   // Identify the caller from their JWT — a user can only delete their own account.
   const userClient = createClient(url, anonKey, {
     global: { headers: { Authorization: authHeader } },
   });
-  const { data: userData, error: userError } = await userClient.auth.getUser();
+  const { data: userData, error: userError } = await userClient.auth.getUser(token);
   if (userError || !userData.user) return json({ error: 'unauthorized' }, 401);
   const userId = userData.user.id;
 

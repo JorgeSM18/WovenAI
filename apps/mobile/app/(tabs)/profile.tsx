@@ -19,7 +19,7 @@ import {
 } from '@woven/ui';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { authService } from '../../src/auth/client';
@@ -44,31 +44,38 @@ export default function ProfileScreen() {
     }
   }, [profile.isSuccess, profile.data, update]);
 
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+
   const pickAvatar = async () => {
     if (!userId) return;
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-    if (result.canceled) return;
-    const asset = result.assets[0];
-    if (!asset) return;
-    const processed = await processForUpload({
-      uri: asset.uri,
-      width: asset.width,
-      height: asset.height,
-    });
-    const uploaded = await upload.mutateAsync({
-      userId,
-      uri: processed.uri,
-      type: 'avatar',
-      mime: processed.mime,
-      width: processed.width,
-      height: processed.height,
-    });
-    update.mutate({ avatarAssetId: uploaded.id });
+    setAvatarError(null);
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
+      if (result.canceled) return;
+      const asset = result.assets[0];
+      if (!asset) return;
+      const processed = await processForUpload({
+        uri: asset.uri,
+        width: asset.width,
+        height: asset.height,
+      });
+      const uploaded = await upload.mutateAsync({
+        userId,
+        uri: processed.uri,
+        type: 'avatar',
+        mime: processed.mime,
+        width: processed.width,
+        height: processed.height,
+      });
+      update.mutate({ avatarAssetId: uploaded.id });
+    } catch {
+      setAvatarError('No se pudo actualizar el avatar.');
+    }
   };
 
   const uploading = upload.isPending;
@@ -93,6 +100,11 @@ export default function ProfileScreen() {
             <Icon name="account" size={44} className="text-outline" />
           )}
         </Pressable>
+        {avatarError ? (
+          <Text variant="body-md" className="text-error">
+            {avatarError}
+          </Text>
+        ) : null}
 
         {profile.isPending ? (
           <View className="items-center gap-xs">

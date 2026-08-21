@@ -2,43 +2,57 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { SupabaseProvider, useProfile } from '@woven/data';
 import { ThemeProvider, useTheme } from '@woven/ui';
 import { colorScheme } from 'nativewind';
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 
 import { supabase } from '../auth/client';
 import { AuthProvider, useAuth } from './AuthProvider';
+import { BackgroundRemovalDrain } from './BackgroundRemovalDrain';
 import { ErrorBoundary } from './ErrorBoundary';
 import { createQueryClient } from './queryClient';
-import { BackgroundRemovalDrain } from './BackgroundRemovalDrain';
+import { setStoredTheme, type StoredThemeMode } from './themeStorage';
 import { TelemetryProvider } from './TelemetryProvider';
 import { UploadQueueDrain } from './UploadQueueDrain';
 
 const queryClient = createQueryClient();
 
-/** Applies the chosen theme mode to NativeWind (safe to import here, Metro). */
+/** Applies the chosen theme to NativeWind and persists it for the next launch. */
 function ThemeSync() {
   const { mode } = useTheme();
   useEffect(() => {
     colorScheme.set(mode);
+    void setStoredTheme(mode);
   }, [mode]);
   return null;
 }
 
-/** Applies the user's persisted theme on cold start: once the profile loads,
- *  its stored preference drives the theme mode (which ThemeSync then applies).
- *  Settings still writes both, so this is a no-op after the user changes it. */
+/** Applies the user's remote profile theme once after it loads (e.g. first login
+ *  on a new device), without bouncing later local changes. */
 function ThemeFromProfile() {
   const { session } = useAuth();
   const profile = useProfile(session?.user.id ?? '');
-  const { mode, setMode } = useTheme();
+  const { setMode } = useTheme();
   const persisted = profile.data?.theme;
+  const syncedRef = useRef(false);
+
   useEffect(() => {
-    if (persisted && persisted !== mode) setMode(persisted);
-  }, [persisted, mode, setMode]);
+    if (persisted && !syncedRef.current) {
+      syncedRef.current = true;
+      setMode(persisted);
+    }
+  }, [persisted, setMode]);
+
   return null;
 }
 
-/** Root provider stack: ErrorBoundary → Query → Supabase → Auth → Theme → Telemetry. */
-export function AppProviders({ children }: { children: ReactNode }) {
+/** Root provider stack: ErrorBoundary → Query → Supabase → Auth → Theme → Telemetry.
+ *  `initialTheme` is resolved in the root layout before the first paint. */
+export function AppProviders({
+  children,
+  initialTheme,
+}: {
+  children: ReactNode;
+  initialTheme: StoredThemeMode;
+}) {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
@@ -46,7 +60,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
           <AuthProvider>
             <UploadQueueDrain />
             <BackgroundRemovalDrain />
-            <ThemeProvider>
+            <ThemeProvider initialMode={initialTheme}>
               <ThemeSync />
               <ThemeFromProfile />
               <TelemetryProvider>{children}</TelemetryProvider>
