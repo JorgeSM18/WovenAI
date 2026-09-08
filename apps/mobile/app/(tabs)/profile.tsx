@@ -51,10 +51,11 @@ export default function ProfileScreen() {
     if (!userId) return;
     setAvatarError(null);
     try {
+      // No forced crop: let the user keep the whole image (Avatar shows it with
+      // `contain`, so nothing gets cut by the circle).
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
-        allowsEditing: true,
-        aspect: [1, 1],
+        allowsEditing: false,
         quality: 1,
       });
       if (result.canceled) return;

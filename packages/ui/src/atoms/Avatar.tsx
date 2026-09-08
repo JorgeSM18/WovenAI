@@ -8,13 +8,22 @@ export type AvatarProps = Omit<ImageProps, 'source'> & {
   className?: string;
 };
 
-/** Circular user/profile image. Size is overridable via `className`. */
-export function Avatar({ uri, accessibilityLabel, className, ...props }: AvatarProps) {
+/** Circular user/profile image. Size is overridable via `className`.
+ *  Defaults to `contain` so the whole picture shows without being cropped by the
+ *  circle (override with `resizeMode` if a filled look is wanted). */
+export function Avatar({
+  uri,
+  accessibilityLabel,
+  className,
+  resizeMode = 'contain',
+  ...props
+}: AvatarProps) {
   return (
     <Image
       accessible
       accessibilityLabel={accessibilityLabel}
       source={{ uri }}
+      resizeMode={resizeMode}
       className={cn('h-lg w-lg rounded-full bg-surface-container', className)}
       {...props}
     />
