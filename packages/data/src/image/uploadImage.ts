@@ -21,6 +21,15 @@ const EXT_MAP: Record<string, string> = {
   'image/png': 'png',
 };
 
+// React Native/Hermes has no global `crypto`, so we can't use crypto.randomUUID
+// here. A Math.random v4-format id is enough for a per-user storage key.
+function randomId(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
+    const rand = (Math.random() * 16) | 0;
+    return (char === 'x' ? rand : (rand & 0x3) | 0x8).toString(16);
+  });
+}
+
 /**
  * Uploads image bytes and records them: sign a URL (Edge) → push to Storage →
  * insert the image_asset row. If the Edge Function is unavailable, falls back to
@@ -33,7 +42,7 @@ export async function uploadImage(
 ): Promise<UploadedImage> {
   const { bytes } = input;
   let bucket = BUCKET;
-  let path = `${input.userId}/${input.type}/${crypto.randomUUID()}.${EXT_MAP[input.mime] ?? 'jpg'}`;
+  let path = `${input.userId}/${input.type}/${randomId()}.${EXT_MAP[input.mime] ?? 'jpg'}`;
 
   try {
     const signed = await signUpload(client, { type: input.type, mime: input.mime });
