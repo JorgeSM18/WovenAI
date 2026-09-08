@@ -121,8 +121,11 @@ export default function CaptureScreen() {
           },
         });
       }
-    } catch {
-      setError('No se pudo subir la foto. Inténtalo de nuevo.');
+    } catch (err) {
+      console.error('[capture] usePhoto failed', err);
+      setError(
+        `No se pudo subir la foto: ${err instanceof Error ? err.message : 'error desconocido'}`,
+      );
     } finally {
       setIsSaving(false);
     }
@@ -159,8 +162,9 @@ export default function CaptureScreen() {
       }
       useImportQueue.getState().enqueue(items);
       router.replace('/garment-review');
-    } catch {
-      setError('No se pudo importar. Inténtalo de nuevo.');
+    } catch (err) {
+      console.error('[capture] importFromGallery failed', err);
+      setError(`No se pudo importar: ${err instanceof Error ? err.message : 'error desconocido'}`);
     } finally {
       setIsSaving(false);
     }

@@ -75,8 +75,11 @@ export default function ProfileScreen() {
         height: processed.height,
       });
       update.mutate({ avatarAssetId: uploaded.id });
-    } catch {
-      setAvatarError('No se pudo actualizar el avatar.');
+    } catch (err) {
+      console.error('[profile] avatar update failed', err);
+      setAvatarError(
+        `No se pudo actualizar el avatar: ${err instanceof Error ? err.message : 'error desconocido'}`,
+      );
     }
   };
 

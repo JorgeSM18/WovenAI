@@ -5,7 +5,6 @@ import type { WovenClient } from '@woven/api';
 import { uploadImage, type UploadImageInput } from './uploadImage';
 
 vi.mock('@woven/api', () => ({ signUpload: vi.fn() }));
-// eslint-disable-next-line import/first
 import { signUpload } from '@woven/api';
 
 const signUploadMock = vi.mocked(signUpload);
