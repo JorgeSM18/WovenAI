@@ -79,9 +79,15 @@ export default function CaptureScreen() {
   const takePhoto = async () => {
     if (!cameraRef.current || isCapturing) return;
     setIsCapturing(true);
+    setError(null);
     try {
       const result = await cameraRef.current.takePictureAsync();
       if (result) setPhoto({ uri: result.uri, width: result.width, height: result.height });
+    } catch (err) {
+      console.error('[capture] takePhoto failed', err);
+      setError(
+        `No se pudo hacer la foto: ${err instanceof Error ? err.message : 'error desconocido'}`,
+      );
     } finally {
       setIsCapturing(false);
     }
