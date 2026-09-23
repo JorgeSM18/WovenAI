@@ -5,7 +5,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { z } from 'npm:zod@3';
 
-const MODEL = 'gemini-2.0-flash';
+const MODEL = 'gemini-3.8-flash';
 const PROMPT_VERSION = 'recommend-v1';
 const PROMPT =
   'You are a fashion stylist. Given these garments a user is combining into one ' +

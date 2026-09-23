@@ -168,7 +168,7 @@ en Edge Functions, **nunca en cliente**.
 - **Decisión (beta, ≈ €0):**
   - **Clima → Open-Meteo** (keyless, CC BY 4.0). _Ya implementado_ (`get-weather` + tabla `weather_snapshot`, caché 3 h, degradación a caché).
   - **Eliminación de fondo → rembg** (MIT, **self-hosted**). La Edge invoca un servicio propio: Deno **no** ejecuta el modelo Python. _Pendiente._
-  - **Clasificación de prenda → Gemini** (objetivo 2.5 Flash‑Lite; hoy `gemini-2.0-flash`), **sobre la imagen ya recortada**. _Implementado_ (`classify-garment`), requiere `GEMINI_KEY`.
+  - **Clasificación de prenda → Gemini** (objetivo 2.5 Flash‑Lite; hoy `gemini-3.8-flash`; 2.0 se apagó el 2026-06-01), **sobre la imagen ya recortada**. _Implementado_ (`classify-garment`), requiere `GEMINI_KEY`.
   - **Recomendación de outfit → Gemini 2.5 Flash**, con **metadatos/embeddings, nunca fotos**. _Pendiente._
   - **Embeddings / búsqueda semántica → Nomic Embed Text/Vision v1.5** (Apache-2.0). _Pendiente._
 - **Regla de privacidad (firme):** la **imagen original que pueda contener a una persona nunca se

@@ -63,6 +63,7 @@ export default function GarmentReviewScreen() {
   const [season, setSeason] = useState<Season | null>(null);
   const [processedImageId, setProcessedImageId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [suggestError, setSuggestError] = useState<string | null>(null);
 
   const canSave = name.trim().length > 0 && categoryId !== null && colorId !== null;
 
@@ -73,10 +74,12 @@ export default function GarmentReviewScreen() {
     setSeason(null);
     setProcessedImageId(null);
     setError(null);
+    setSuggestError(null);
   };
 
   const suggest = async () => {
     if (!imageId) return;
+    setSuggestError(null);
     try {
       // Privacy (ADR-016): remove the background first (self-hosted) and classify
       // the processed image — the original never reaches the external AI. Reuse
@@ -84,6 +87,10 @@ export default function GarmentReviewScreen() {
       const processedId = processedImageId ?? (await removeBg.mutateAsync(imageId));
       setProcessedImageId(processedId);
       const result = await classify.mutateAsync(processedId);
+      if (!result.categoryName && !result.colorName) {
+        setSuggestError('La IA no reconoció la prenda. Rellena los campos a mano.');
+        return;
+      }
       const category = categories.data?.find(
         (c) => c.name.toLowerCase() === result.categoryName?.toLowerCase(),
       );
@@ -98,8 +105,10 @@ export default function GarmentReviewScreen() {
         const suggested = [result.colorName, result.categoryName].filter(Boolean).join(' ').trim();
         if (suggested) setName(suggested);
       }
-    } catch {
-      // AI unavailable — the manual form still works.
+    } catch (err) {
+      // AI unavailable — the manual form still works, but tell the user.
+      console.error('[garment-review] suggest failed', err);
+      setSuggestError('No se pudo analizar la foto ahora. Rellena los campos a mano.');
     }
   };
 
@@ -168,7 +177,8 @@ export default function GarmentReviewScreen() {
               <Image
                 source={{ uri: previewUri }}
                 contentFit="cover"
-                className="h-full w-full"
+                // expo-image isn't NativeWind-interop'd: className is ignored (0×0 image).
+                style={{ width: '100%', height: '100%' }}
                 accessibilityLabel="Foto de la prenda"
               />
             </View>
@@ -189,6 +199,12 @@ export default function GarmentReviewScreen() {
                 void suggest();
               }}
             />
+          ) : null}
+
+          {suggestError ? (
+            <Text variant="body-md" className="text-error" accessibilityLiveRegion="polite">
+              {suggestError}
+            </Text>
           ) : null}
 
           <Input
