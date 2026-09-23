@@ -19,6 +19,9 @@ export function BackgroundRemovalDrain() {
   const { session } = useAuth();
   const userId = session?.user.id ?? '';
   const draining = useRef(false);
+  // Re-run the drain when something is enqueued, not only on reconnect/mount —
+  // otherwise garments saved while online never get their cutout this session.
+  const queued = useProcessQueue((state) => state.items.length);
 
   useEffect(() => {
     const drain = async () => {
@@ -27,7 +30,9 @@ export function BackgroundRemovalDrain() {
       draining.current = true;
       let processedAny = false;
       try {
-        for (const item of useProcessQueue.getState().items) {
+        // Read the live head each turn so items enqueued mid-drain are processed too.
+        let item;
+        while ((item = useProcessQueue.getState().items[0])) {
           try {
             const processedId = await removeBackground(client, item.imageId);
             await linkProcessedImage(client, item.garmentId, processedId);
@@ -49,7 +54,7 @@ export function BackgroundRemovalDrain() {
     });
     void drain();
     return () => unsubscribe();
-  }, [client, userId, queryClient]);
+  }, [client, userId, queryClient, queued]);
 
   return null;
 }

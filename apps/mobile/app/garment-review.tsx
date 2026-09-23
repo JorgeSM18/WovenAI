@@ -13,14 +13,8 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 
+import { SEASONS } from '../src/features/garment/labels';
 import { useAuth } from '../src/providers/AuthProvider';
-
-const SEASONS: { value: Season; label: string }[] = [
-  { value: 'spring', label: 'Primavera' },
-  { value: 'summer', label: 'Verano' },
-  { value: 'fall', label: 'Otoño' },
-  { value: 'winter', label: 'Invierno' },
-];
 
 /**
  * Review & create a garment (T-0406 manual / T-0407). Handles three sources:

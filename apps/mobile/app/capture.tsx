@@ -99,6 +99,9 @@ export default function CaptureScreen() {
     setError(null);
     try {
       const processed = await processForUpload(photo);
+      // A leftover import queue (review abandoned midway) would take precedence
+      // over this photo in garment-review.
+      useImportQueue.getState().clear();
       const net = await NetInfo.fetch();
       if (net.isConnected) {
         const bytes = await readImageBytes(processed.uri);
@@ -166,6 +169,7 @@ export default function CaptureScreen() {
         });
         items.push({ imageId: uploaded.id, uri: processed.uri });
       }
+      useImportQueue.getState().clear(); // drop items from an abandoned review
       useImportQueue.getState().enqueue(items);
       router.replace('/garment-review');
     } catch (err) {

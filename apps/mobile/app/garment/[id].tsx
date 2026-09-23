@@ -13,9 +13,8 @@ import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Alert, ScrollView, View } from 'react-native';
 
+import { seasonLabel, STATUS_LABELS } from '../../src/features/garment/labels';
 import { useAuth } from '../../src/providers/AuthProvider';
-
-const capitalize = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
 
 function Attribute({ label, value }: { label: string; value: string }) {
   return (
@@ -119,9 +118,9 @@ export default function GarmentDetailScreen() {
                   </View>
                 </View>
                 {garment.data.season ? (
-                  <Attribute label="Temporada" value={capitalize(garment.data.season)} />
+                  <Attribute label="Temporada" value={seasonLabel(garment.data.season)} />
                 ) : null}
-                <Attribute label="Estado" value={capitalize(garment.data.status)} />
+                <Attribute label="Estado" value={STATUS_LABELS[garment.data.status]} />
               </View>
 
               <Button
