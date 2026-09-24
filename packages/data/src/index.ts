@@ -6,7 +6,7 @@ export {
   rowToProfile,
   profileUpdateToRow,
 } from './profile/profileRepository';
-export { useProfile, useUpdateProfile, useAvatarUrl, useDeleteAccount } from './profile/useProfile';
+export { useProfile, useUpdateProfile, useImageUrl, useDeleteAccount } from './profile/useProfile';
 export {
   countGarments,
   createGarment,

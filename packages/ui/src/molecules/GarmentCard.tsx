@@ -32,11 +32,11 @@ export function GarmentCard({
       onPress={onPress}
       className={cn('gap-xs active:opacity-70', className)}
     >
-      <View className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-surface-container">
+      <View className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-garment-backdrop">
         {imageUri ? (
           <Image
             source={{ uri: imageUri }}
-            contentFit="cover"
+            contentFit="contain"
             cachePolicy="memory-disk"
             style={{ width: '100%', height: '100%' }}
           />

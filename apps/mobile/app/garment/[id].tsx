@@ -91,11 +91,11 @@ export default function GarmentDetailScreen() {
             </Text>
           ) : (
             <>
-              <View className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-surface-container">
+              <View className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-garment-backdrop">
                 {garment.data.imageUrl ? (
                   <Image
                     source={{ uri: garment.data.imageUrl }}
-                    contentFit="cover"
+                    contentFit="contain"
                     cachePolicy="memory-disk"
                     style={{ width: '100%', height: '100%' }}
                   />

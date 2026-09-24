@@ -24,13 +24,15 @@ export function ColorSwatch({
       accessibilityLabel={accessibilityLabel}
       accessibilityState={{ selected }}
       className={cn(
-        'h-touch-target-min w-touch-target-min items-center justify-center rounded-full',
+        'h-touch-target-min w-touch-target-min items-center justify-center rounded-full border-2',
+        selected ? 'border-primary' : 'border-transparent',
         className,
       )}
       {...props}
     >
+      {/* Hairline outline keeps light swatches (white, beige) visible on light surfaces. */}
       <View
-        className={cn('h-lg w-lg rounded-full', selected && 'border-2 border-primary')}
+        className="h-lg w-lg rounded-full border border-outline-variant"
         style={{ backgroundColor: color }}
       />
     </Pressable>

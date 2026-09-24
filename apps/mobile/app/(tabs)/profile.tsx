@@ -1,6 +1,6 @@
 import { generateUsername } from '@woven/core';
 import {
-  useAvatarUrl,
+  useImageUrl,
   useGarmentCount,
   useProfile,
   useUpdateProfile,
@@ -34,7 +34,7 @@ export default function ProfileScreen() {
   const garmentCount = useGarmentCount(userId);
   const update = useUpdateProfile(userId);
   const upload = useUploadImage();
-  const avatar = useAvatarUrl(profile.data?.avatarAssetId ?? null);
+  const avatar = useImageUrl(profile.data?.avatarAssetId ?? null);
 
   // Give new accounts a random, changeable username when none is set yet (once).
   const seededUsername = useRef(false);

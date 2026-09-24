@@ -4,17 +4,37 @@ import {
   useClassifyGarment,
   useColors,
   useCreateGarment,
+  useImageUrl,
   useRemoveBackground,
 } from '@woven/data';
 import { useImportQueue, usePendingUploads, useProcessQueue } from '@woven/store';
-import { Button, Chip, FlowHeader, FullScreenFlowTemplate, Input, Text } from '@woven/ui';
+import {
+  Button,
+  Chip,
+  ColorSwatch,
+  FlowHeader,
+  FullScreenFlowTemplate,
+  Input,
+  Text,
+} from '@woven/ui';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 
 import { categoryLabel, colorLabel, SEASONS } from '../src/features/garment/labels';
 import { useAuth } from '../src/providers/AuthProvider';
+
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <View className="gap-sm">
+      <Text variant="label-caps" className="text-on-surface-variant">
+        {title}
+      </Text>
+      {children}
+    </View>
+  );
+}
 
 /**
  * Review & create a garment (T-0406 manual / T-0407). Handles three sources:
@@ -58,6 +78,9 @@ export default function GarmentReviewScreen() {
   const [processedImageId, setProcessedImageId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [suggestError, setSuggestError] = useState<string | null>(null);
+
+  const cutoutUrl = useImageUrl(processedImageId);
+  const selectedColor = colors.data?.find((color) => color.id === colorId);
 
   const canSave = name.trim().length > 0 && categoryId !== null && colorId !== null;
 
@@ -108,7 +131,12 @@ export default function GarmentReviewScreen() {
     } catch (err) {
       // AI unavailable — the manual form still works, but tell the user.
       console.error('[garment-review] suggest failed', err);
-      setSuggestError('No se pudo analizar la foto ahora. Rellena los campos a mano.');
+      const bgFailed = err instanceof Error && err.message.startsWith('remove-background');
+      setSuggestError(
+        bgFailed
+          ? 'No se pudo quitar el fondo de la foto ahora. Rellena los campos a mano.'
+          : 'No se pudo analizar la foto ahora. Rellena los campos a mano.',
+      );
     }
   };
 
@@ -173,10 +201,11 @@ export default function GarmentReviewScreen() {
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="gap-lg p-md">
           {previewUri ? (
-            <View className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-surface-container">
+            <View className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-garment-backdrop">
               <Image
-                source={{ uri: previewUri }}
-                contentFit="cover"
+                // Once the background is removed, show the cutout on the plain backdrop.
+                source={{ uri: cutoutUrl.data ?? previewUri }}
+                contentFit="contain"
                 // expo-image isn't NativeWind-interop'd: className is ignored (0×0 image).
                 style={{ width: '100%', height: '100%' }}
                 accessibilityLabel="Foto de la prenda"
@@ -214,11 +243,12 @@ export default function GarmentReviewScreen() {
             onChangeText={setName}
           />
 
-          <View className="gap-sm">
-            <Text variant="label-caps" className="text-on-surface-variant">
-              Categoría
-            </Text>
-            <View className="flex-row flex-wrap gap-sm">
+          <Section title="Categoría">
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerClassName="gap-sm"
+            >
               {categories.data?.map((category) => (
                 <Chip
                   key={category.id}
@@ -227,40 +257,36 @@ export default function GarmentReviewScreen() {
                   onPress={() => setCategoryId(category.id)}
                 />
               ))}
-            </View>
-          </View>
+            </ScrollView>
+          </Section>
 
-          <View className="gap-sm">
-            <Text variant="label-caps" className="text-on-surface-variant">
-              Color
-            </Text>
-            <View className="flex-row flex-wrap gap-sm">
+          <Section title={selectedColor ? `Color · ${colorLabel(selectedColor.name)}` : 'Color'}>
+            <View className="flex-row flex-wrap">
               {colors.data?.map((color) => (
-                <Chip
+                <ColorSwatch
                   key={color.id}
-                  label={colorLabel(color.name)}
+                  color={color.hex}
+                  accessibilityLabel={colorLabel(color.name)}
                   selected={colorId === color.id}
                   onPress={() => setColorId(color.id)}
                 />
               ))}
             </View>
-          </View>
+          </Section>
 
-          <View className="gap-sm">
-            <Text variant="label-caps" className="text-on-surface-variant">
-              Temporada (opcional)
-            </Text>
-            <View className="flex-row flex-wrap gap-sm">
+          <Section title="Temporada (opcional)">
+            <View className="flex-row gap-xs">
               {SEASONS.map((option) => (
                 <Chip
                   key={option.value}
                   label={option.label}
+                  className="flex-1 px-xs"
                   selected={season === option.value}
                   onPress={() => setSeason(season === option.value ? null : option.value)}
                 />
               ))}
             </View>
-          </View>
+          </Section>
 
           {error ? (
             <Text variant="body-md" className="text-error">

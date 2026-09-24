@@ -1,6 +1,9 @@
 import { z } from 'zod';
 
 import type { WovenClient } from '../client';
+import { edgeError } from './edgeError';
+
+const FN = 'classify-garment';
 
 export const classificationSchema = z.object({
   categoryName: z.string().nullable(),
@@ -19,9 +22,9 @@ export async function classifyGarment(
   client: WovenClient,
   imageAssetId: string,
 ): Promise<ClassificationResult> {
-  const { data, error } = await client.functions.invoke('classify-garment', {
+  const { data, error } = await client.functions.invoke(FN, {
     body: { image_asset_id: imageAssetId },
   });
-  if (error) throw error;
+  if (error) throw await edgeError(FN, error);
   return classificationSchema.parse(data);
 }

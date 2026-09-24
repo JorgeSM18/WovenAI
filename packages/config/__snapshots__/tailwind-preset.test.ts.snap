@@ -6,6 +6,7 @@ exports[`Woven design tokens (source of truth) > snapshots the full token regist
     "background",
     "error",
     "error-container",
+    "garment-backdrop",
     "inverse-on-surface",
     "inverse-primary",
     "inverse-surface",

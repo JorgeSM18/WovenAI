@@ -84,9 +84,13 @@ Deno.serve(async (req) => {
       new Blob([await original.arrayBuffer()], { type: asset.mime ?? undefined }),
     );
     const res = await fetch(rembgUrl, { method: 'POST', body: form });
-    if (!res.ok) return json({ error: 'rembg_failed' }, 502);
+    if (!res.ok) {
+      console.error('remove-background rembg', res.status, await res.text());
+      return json({ error: 'rembg_failed' }, 502);
+    }
     png = new Uint8Array(await res.arrayBuffer());
-  } catch {
+  } catch (err) {
+    console.error('remove-background unreachable', err);
     return json({ error: 'rembg_unreachable' }, 502);
   }
 
