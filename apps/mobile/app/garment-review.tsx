@@ -8,7 +8,14 @@ import {
   useRemoveBackground,
 } from '@woven/data';
 import { useImportQueue, usePendingUploads, useProcessQueue } from '@woven/store';
-import { Button, Chip, FlowHeader, FullScreenFlowTemplate, Input, Text } from '@woven/ui';
+import {
+  Button,
+  CollectionChipRow,
+  FlowHeader,
+  FullScreenFlowTemplate,
+  Input,
+  Text,
+} from '@woven/ui';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { type ReactNode, useState } from 'react';
@@ -235,60 +242,42 @@ export default function GarmentReviewScreen() {
           />
 
           <Section title="Categoría">
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerClassName="gap-sm"
-            >
-              {categories.data?.map((category) => (
-                <Chip
-                  key={category.id}
-                  label={categoryLabel(category.name)}
-                  selected={categoryId === category.id}
-                  onPress={() => setCategoryId(category.id)}
-                />
-              ))}
-            </ScrollView>
+            <CollectionChipRow
+              items={(categories.data ?? []).map((category) => ({
+                value: category.id,
+                label: categoryLabel(category.name),
+              }))}
+              selected={categoryId}
+              onSelect={setCategoryId}
+            />
           </Section>
 
           <Section title="Color">
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerClassName="gap-sm"
-            >
-              {colors.data?.map((color) => (
-                <Chip
-                  key={color.id}
-                  label={colorLabel(color.name)}
-                  leading={
-                    <View
-                      className="h-sm w-sm rounded-full border border-outline-variant"
-                      style={{ backgroundColor: color.hex }}
-                    />
-                  }
-                  selected={colorId === color.id}
-                  onPress={() => setColorId(color.id)}
-                />
-              ))}
-            </ScrollView>
+            <CollectionChipRow
+              items={(colors.data ?? []).map((color) => ({
+                value: color.id,
+                label: colorLabel(color.name),
+                leading: (
+                  <View
+                    className="h-sm w-sm rounded-full border border-outline-variant"
+                    style={{ backgroundColor: color.hex }}
+                  />
+                ),
+              }))}
+              selected={colorId}
+              onSelect={setColorId}
+            />
           </Section>
 
           <Section title="Temporada (opcional)">
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerClassName="gap-sm"
-            >
-              {SEASONS.map((option) => (
-                <Chip
-                  key={option.value}
-                  label={option.label}
-                  selected={season === option.value}
-                  onPress={() => setSeason(season === option.value ? null : option.value)}
-                />
-              ))}
-            </ScrollView>
+            <CollectionChipRow
+              items={SEASONS}
+              selected={season}
+              onSelect={(value) => {
+                const picked = SEASONS.find((option) => option.value === value)?.value ?? null;
+                setSeason(season === picked ? null : picked);
+              }}
+            />
           </Section>
 
           {error ? (

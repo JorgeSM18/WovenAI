@@ -23,7 +23,11 @@ export {
   type ViewModeToggleProps,
   type ViewModeOption,
 } from './molecules/ViewModeToggle';
-export { CollectionChipRow, type CollectionChipRowProps } from './molecules/CollectionChipRow';
+export {
+  CollectionChipRow,
+  type ChipRowItem,
+  type CollectionChipRowProps,
+} from './molecules/CollectionChipRow';
 export { StatCard, type StatCardProps } from './molecules/StatCard';
 export { GarmentCard, type GarmentCardProps } from './molecules/GarmentCard';
 export { WeatherPill, type WeatherPillProps } from './molecules/WeatherPill';
