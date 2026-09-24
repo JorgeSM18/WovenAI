@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { RefreshControl, ScrollView, View } from 'react-native';
 
 import { ProfileHeaderButton } from '../../src/components/ProfileHeaderButton';
+import { categoryLabel } from '../../src/features/garment/labels';
 import { useAuth } from '../../src/providers/AuthProvider';
 
 function greeting(hour: number): string {
@@ -75,7 +76,7 @@ export default function HomeScreen() {
                     <View key={garment.id} style={{ width: 140 }}>
                       <GarmentCard
                         name={garment.name}
-                        category={garment.categoryName}
+                        category={garment.categoryName && categoryLabel(garment.categoryName)}
                         imageUri={garment.thumbnailUrl}
                         isFavorite={garment.isFavorite}
                         onPress={() => router.push(`/garment/${garment.id}`)}

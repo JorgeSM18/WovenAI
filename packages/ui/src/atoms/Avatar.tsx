@@ -1,4 +1,4 @@
-import { Image, type ImageProps } from 'react-native';
+import { Image, type ImageProps, View } from 'react-native';
 
 import { cn } from '../utils/cn';
 
@@ -8,9 +8,12 @@ export type AvatarProps = Omit<ImageProps, 'source'> & {
   className?: string;
 };
 
+// Side of the square inscribed in a circle (1/√2): an image this size, centred
+// and `contain`ed, always fits entirely inside the circle — nothing is clipped.
+const INSCRIBED = '71%';
+
 /** Circular user/profile image. Size is overridable via `className`.
- *  Defaults to `contain` so the whole picture shows without being cropped by the
- *  circle (override with `resizeMode` if a filled look is wanted). */
+ *  The picture is fitted inside the circle (not filling or cropped by it). */
 export function Avatar({
   uri,
   accessibilityLabel,
@@ -19,13 +22,20 @@ export function Avatar({
   ...props
 }: AvatarProps) {
   return (
-    <Image
-      accessible
-      accessibilityLabel={accessibilityLabel}
-      source={{ uri }}
-      resizeMode={resizeMode}
-      className={cn('h-lg w-lg rounded-full bg-surface-container', className)}
-      {...props}
-    />
+    <View
+      className={cn(
+        'h-lg w-lg items-center justify-center overflow-hidden rounded-full bg-surface-container',
+        className,
+      )}
+    >
+      <Image
+        accessible
+        accessibilityLabel={accessibilityLabel}
+        source={{ uri }}
+        resizeMode={resizeMode}
+        style={{ width: INSCRIBED, height: INSCRIBED }}
+        {...props}
+      />
+    </View>
   );
 }

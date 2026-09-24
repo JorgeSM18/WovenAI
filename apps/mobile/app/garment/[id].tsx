@@ -13,7 +13,12 @@ import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Alert, ScrollView, View } from 'react-native';
 
-import { seasonLabel, STATUS_LABELS } from '../../src/features/garment/labels';
+import {
+  categoryLabel,
+  colorLabel,
+  seasonLabel,
+  STATUS_LABELS,
+} from '../../src/features/garment/labels';
 import { useAuth } from '../../src/providers/AuthProvider';
 
 function Attribute({ label, value }: { label: string; value: string }) {
@@ -102,18 +107,18 @@ export default function GarmentDetailScreen() {
               </Text>
 
               <View className="gap-md">
-                <Attribute label="Categoría" value={garment.data.categoryName} />
+                <Attribute label="Categoría" value={categoryLabel(garment.data.categoryName)} />
                 <View className="flex-row items-center justify-between">
                   <Text variant="label-caps" className="text-on-surface-variant">
                     Color
                   </Text>
                   <View className="flex-row items-center gap-sm">
                     <Text variant="body-lg" className="text-on-surface">
-                      {garment.data.colorName}
+                      {colorLabel(garment.data.colorName)}
                     </Text>
                     <ColorSwatch
                       color={garment.data.colorHex}
-                      accessibilityLabel={garment.data.colorName}
+                      accessibilityLabel={colorLabel(garment.data.colorName)}
                     />
                   </View>
                 </View>

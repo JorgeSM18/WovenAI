@@ -13,7 +13,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 
-import { SEASONS } from '../src/features/garment/labels';
+import { categoryLabel, colorLabel, SEASONS } from '../src/features/garment/labels';
 import { useAuth } from '../src/providers/AuthProvider';
 
 /**
@@ -96,7 +96,13 @@ export default function GarmentReviewScreen() {
       const seasonMatch = SEASONS.find((s) => s.value === result.season);
       if (seasonMatch) setSeason(seasonMatch.value);
       if (name.trim().length === 0) {
-        const suggested = [result.colorName, result.categoryName].filter(Boolean).join(' ').trim();
+        // Spanish order: category then color (e.g. "Calzado negro").
+        const suggested = [
+          category && categoryLabel(category.name),
+          color && colorLabel(color.name).toLowerCase(),
+        ]
+          .filter(Boolean)
+          .join(' ');
         if (suggested) setName(suggested);
       }
     } catch (err) {
@@ -216,7 +222,7 @@ export default function GarmentReviewScreen() {
               {categories.data?.map((category) => (
                 <Chip
                   key={category.id}
-                  label={category.name}
+                  label={categoryLabel(category.name)}
                   selected={categoryId === category.id}
                   onPress={() => setCategoryId(category.id)}
                 />
@@ -232,7 +238,7 @@ export default function GarmentReviewScreen() {
               {colors.data?.map((color) => (
                 <Chip
                   key={color.id}
-                  label={color.name}
+                  label={colorLabel(color.name)}
                   selected={colorId === color.id}
                   onPress={() => setColorId(color.id)}
                 />
