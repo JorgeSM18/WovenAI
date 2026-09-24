@@ -32,7 +32,7 @@ export function ColorSwatch({
     >
       {/* Hairline outline keeps light swatches (white, beige) visible on light surfaces. */}
       <View
-        className="h-lg w-lg rounded-full border border-outline-variant"
+        className="h-md w-md rounded-full border border-outline-variant"
         style={{ backgroundColor: color }}
       />
     </Pressable>

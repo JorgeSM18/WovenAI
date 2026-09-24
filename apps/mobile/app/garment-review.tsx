@@ -8,15 +8,7 @@ import {
   useRemoveBackground,
 } from '@woven/data';
 import { useImportQueue, usePendingUploads, useProcessQueue } from '@woven/store';
-import {
-  Button,
-  Chip,
-  ColorSwatch,
-  FlowHeader,
-  FullScreenFlowTemplate,
-  Input,
-  Text,
-} from '@woven/ui';
+import { Button, Chip, FlowHeader, FullScreenFlowTemplate, Input, Text } from '@woven/ui';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { type ReactNode, useState } from 'react';
@@ -80,7 +72,6 @@ export default function GarmentReviewScreen() {
   const [suggestError, setSuggestError] = useState<string | null>(null);
 
   const cutoutUrl = useImageUrl(processedImageId);
-  const selectedColor = colors.data?.find((color) => color.id === colorId);
 
   const canSave = name.trim().length > 0 && categoryId !== null && colorId !== null;
 
@@ -260,32 +251,44 @@ export default function GarmentReviewScreen() {
             </ScrollView>
           </Section>
 
-          <Section title={selectedColor ? `Color · ${colorLabel(selectedColor.name)}` : 'Color'}>
-            <View className="flex-row flex-wrap">
+          <Section title="Color">
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerClassName="gap-sm"
+            >
               {colors.data?.map((color) => (
-                <ColorSwatch
+                <Chip
                   key={color.id}
-                  color={color.hex}
-                  accessibilityLabel={colorLabel(color.name)}
+                  label={colorLabel(color.name)}
+                  leading={
+                    <View
+                      className="h-sm w-sm rounded-full border border-outline-variant"
+                      style={{ backgroundColor: color.hex }}
+                    />
+                  }
                   selected={colorId === color.id}
                   onPress={() => setColorId(color.id)}
                 />
               ))}
-            </View>
+            </ScrollView>
           </Section>
 
           <Section title="Temporada (opcional)">
-            <View className="flex-row gap-xs">
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerClassName="gap-sm"
+            >
               {SEASONS.map((option) => (
                 <Chip
                   key={option.value}
                   label={option.label}
-                  className="flex-1 px-xs"
                   selected={season === option.value}
                   onPress={() => setSeason(season === option.value ? null : option.value)}
                 />
               ))}
-            </View>
+            </ScrollView>
           </Section>
 
           {error ? (
