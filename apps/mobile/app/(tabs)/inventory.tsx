@@ -15,6 +15,7 @@ import { useState } from 'react';
 import { useWindowDimensions, View } from 'react-native';
 
 import { ProfileHeaderButton } from '../../src/components/ProfileHeaderButton';
+import { categoryLabel } from '../../src/features/garment/labels';
 import { useAuth } from '../../src/providers/AuthProvider';
 
 const VIEW_MODES = [
@@ -35,7 +36,9 @@ export default function InventoryScreen() {
     ? items.filter(
         (item) =>
           item.name.toLowerCase().includes(term) ||
-          Boolean(item.categoryName?.toLowerCase().includes(term)),
+          Boolean(
+            item.categoryName && categoryLabel(item.categoryName).toLowerCase().includes(term),
+          ),
       )
     : items;
 
@@ -90,7 +93,7 @@ export default function InventoryScreen() {
             <View className="p-xs" style={{ flex: 1 / columns }}>
               <GarmentCard
                 name={item.name}
-                category={item.categoryName}
+                category={item.categoryName && categoryLabel(item.categoryName)}
                 imageUri={item.thumbnailUrl}
                 isFavorite={item.isFavorite}
                 onPress={() => router.push(`/garment/${item.id}`)}

@@ -4,23 +4,36 @@ import {
   useClassifyGarment,
   useColors,
   useCreateGarment,
+  useImageUrl,
   useRemoveBackground,
 } from '@woven/data';
 import { useImportQueue, usePendingUploads, useProcessQueue } from '@woven/store';
-import { Button, Chip, FlowHeader, FullScreenFlowTemplate, Input, Text } from '@woven/ui';
+import {
+  Button,
+  CollectionChipRow,
+  FlowHeader,
+  FullScreenFlowTemplate,
+  Input,
+  Text,
+} from '@woven/ui';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 
+import { categoryLabel, colorLabel, SEASONS } from '../src/features/garment/labels';
 import { useAuth } from '../src/providers/AuthProvider';
 
-const SEASONS: { value: Season; label: string }[] = [
-  { value: 'spring', label: 'Primavera' },
-  { value: 'summer', label: 'Verano' },
-  { value: 'fall', label: 'Otoño' },
-  { value: 'winter', label: 'Invierno' },
-];
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <View className="gap-sm">
+      <Text variant="label-caps" className="text-on-surface-variant">
+        {title}
+      </Text>
+      {children}
+    </View>
+  );
+}
 
 /**
  * Review & create a garment (T-0406 manual / T-0407). Handles three sources:
@@ -63,6 +76,9 @@ export default function GarmentReviewScreen() {
   const [season, setSeason] = useState<Season | null>(null);
   const [processedImageId, setProcessedImageId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [suggestError, setSuggestError] = useState<string | null>(null);
+
+  const cutoutUrl = useImageUrl(processedImageId);
 
   const canSave = name.trim().length > 0 && categoryId !== null && colorId !== null;
 
@@ -73,10 +89,12 @@ export default function GarmentReviewScreen() {
     setSeason(null);
     setProcessedImageId(null);
     setError(null);
+    setSuggestError(null);
   };
 
   const suggest = async () => {
     if (!imageId) return;
+    setSuggestError(null);
     try {
       // Privacy (ADR-016): remove the background first (self-hosted) and classify
       // the processed image — the original never reaches the external AI. Reuse
@@ -84,6 +102,10 @@ export default function GarmentReviewScreen() {
       const processedId = processedImageId ?? (await removeBg.mutateAsync(imageId));
       setProcessedImageId(processedId);
       const result = await classify.mutateAsync(processedId);
+      if (!result.categoryName && !result.colorName) {
+        setSuggestError('La IA no reconoció la prenda. Rellena los campos a mano.');
+        return;
+      }
       const category = categories.data?.find(
         (c) => c.name.toLowerCase() === result.categoryName?.toLowerCase(),
       );
@@ -95,11 +117,24 @@ export default function GarmentReviewScreen() {
       const seasonMatch = SEASONS.find((s) => s.value === result.season);
       if (seasonMatch) setSeason(seasonMatch.value);
       if (name.trim().length === 0) {
-        const suggested = [result.colorName, result.categoryName].filter(Boolean).join(' ').trim();
+        // Spanish order: category then color (e.g. "Calzado negro").
+        const suggested = [
+          category && categoryLabel(category.name),
+          color && colorLabel(color.name).toLowerCase(),
+        ]
+          .filter(Boolean)
+          .join(' ');
         if (suggested) setName(suggested);
       }
-    } catch {
-      // AI unavailable — the manual form still works.
+    } catch (err) {
+      // AI unavailable — the manual form still works, but tell the user.
+      console.error('[garment-review] suggest failed', err);
+      const bgFailed = err instanceof Error && err.message.startsWith('remove-background');
+      setSuggestError(
+        bgFailed
+          ? 'No se pudo quitar el fondo de la foto ahora. Rellena los campos a mano.'
+          : 'No se pudo analizar la foto ahora. Rellena los campos a mano.',
+      );
     }
   };
 
@@ -164,11 +199,13 @@ export default function GarmentReviewScreen() {
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="gap-lg p-md">
           {previewUri ? (
-            <View className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-surface-container">
+            <View className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-garment-backdrop">
               <Image
-                source={{ uri: previewUri }}
-                contentFit="cover"
-                className="h-full w-full"
+                // Once the background is removed, show the cutout on the plain backdrop.
+                source={{ uri: cutoutUrl.data ?? previewUri }}
+                contentFit="contain"
+                // expo-image isn't NativeWind-interop'd: className is ignored (0×0 image).
+                style={{ width: '100%', height: '100%' }}
                 accessibilityLabel="Foto de la prenda"
               />
             </View>
@@ -191,6 +228,12 @@ export default function GarmentReviewScreen() {
             />
           ) : null}
 
+          {suggestError ? (
+            <Text variant="body-md" className="text-error" accessibilityLiveRegion="polite">
+              {suggestError}
+            </Text>
+          ) : null}
+
           <Input
             label="Nombre"
             placeholder="p. ej. Camisa de lino azul"
@@ -198,53 +241,44 @@ export default function GarmentReviewScreen() {
             onChangeText={setName}
           />
 
-          <View className="gap-sm">
-            <Text variant="label-caps" className="text-on-surface-variant">
-              Categoría
-            </Text>
-            <View className="flex-row flex-wrap gap-sm">
-              {categories.data?.map((category) => (
-                <Chip
-                  key={category.id}
-                  label={category.name}
-                  selected={categoryId === category.id}
-                  onPress={() => setCategoryId(category.id)}
-                />
-              ))}
-            </View>
-          </View>
+          <Section title="Categoría">
+            <CollectionChipRow
+              items={(categories.data ?? []).map((category) => ({
+                value: category.id,
+                label: categoryLabel(category.name),
+              }))}
+              selected={categoryId}
+              onSelect={setCategoryId}
+            />
+          </Section>
 
-          <View className="gap-sm">
-            <Text variant="label-caps" className="text-on-surface-variant">
-              Color
-            </Text>
-            <View className="flex-row flex-wrap gap-sm">
-              {colors.data?.map((color) => (
-                <Chip
-                  key={color.id}
-                  label={color.name}
-                  selected={colorId === color.id}
-                  onPress={() => setColorId(color.id)}
-                />
-              ))}
-            </View>
-          </View>
+          <Section title="Color">
+            <CollectionChipRow
+              items={(colors.data ?? []).map((color) => ({
+                value: color.id,
+                label: colorLabel(color.name),
+                leading: (
+                  <View
+                    className="h-sm w-sm rounded-full border border-outline-variant"
+                    style={{ backgroundColor: color.hex }}
+                  />
+                ),
+              }))}
+              selected={colorId}
+              onSelect={setColorId}
+            />
+          </Section>
 
-          <View className="gap-sm">
-            <Text variant="label-caps" className="text-on-surface-variant">
-              Temporada (opcional)
-            </Text>
-            <View className="flex-row flex-wrap gap-sm">
-              {SEASONS.map((option) => (
-                <Chip
-                  key={option.value}
-                  label={option.label}
-                  selected={season === option.value}
-                  onPress={() => setSeason(season === option.value ? null : option.value)}
-                />
-              ))}
-            </View>
-          </View>
+          <Section title="Temporada (opcional)">
+            <CollectionChipRow
+              items={SEASONS}
+              selected={season}
+              onSelect={(value) => {
+                const picked = SEASONS.find((option) => option.value === value)?.value ?? null;
+                setSeason(season === picked ? null : picked);
+              }}
+            />
+          </Section>
 
           {error ? (
             <Text variant="body-md" className="text-error">

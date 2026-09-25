@@ -7,7 +7,7 @@ import { z } from 'npm:zod@3';
 import { encodeBase64 } from 'jsr:@std/encoding@1/base64';
 
 const BUCKET = 'images';
-const MODEL = 'gemini-2.0-flash';
+const MODEL = 'gemini-3.8-flash';
 const PROMPT_VERSION = 'classify-v1';
 const PROMPT =
   'You are a fashion cataloguer. Look at this single garment photo and return JSON with: ' +
@@ -87,10 +87,11 @@ Deno.serve(async (req) => {
     const base64 = encodeBase64(await blob.arrayBuffer());
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${geminiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        // Key in a header, not the URL, so it never lands in request logs.
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': geminiKey },
         body: JSON.stringify({
           contents: [
             {
@@ -104,7 +105,10 @@ Deno.serve(async (req) => {
         }),
       },
     );
-    if (!response.ok) return json(EMPTY, 200);
+    if (!response.ok) {
+      console.error('classify-garment gemini', response.status, await response.text());
+      return json(EMPTY, 200);
+    }
     const payload = await response.json();
 
     // Cost instrumentation (§ AI): token usage per call.

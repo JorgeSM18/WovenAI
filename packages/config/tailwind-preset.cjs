@@ -63,6 +63,9 @@ const COLOR_TOKENS = [
   'background',
   'on-background',
   'surface-variant',
+  // Plain neutral backdrop for garment cutouts: mid-tone so both white and black
+  // garments stay visible, in light and dark mode.
+  'garment-backdrop',
 ];
 
 const colors = Object.fromEntries(COLOR_TOKENS.map((name) => [name, token(name)]));

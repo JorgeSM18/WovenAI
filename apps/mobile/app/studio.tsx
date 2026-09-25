@@ -256,11 +256,11 @@ export default function StudioScreen() {
                 onPress={() => add(garment)}
                 style={{ width: 72 }}
               >
-                <View className="aspect-[3/4] overflow-hidden rounded-lg bg-surface-container">
+                <View className="aspect-[3/4] overflow-hidden rounded-lg bg-garment-backdrop">
                   {garment.thumbnailUrl ? (
                     <Image
                       source={{ uri: garment.thumbnailUrl }}
-                      contentFit="cover"
+                      contentFit="contain"
                       cachePolicy="memory-disk"
                       style={{ width: '100%', height: '100%' }}
                     />

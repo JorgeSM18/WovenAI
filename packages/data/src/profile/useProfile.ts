@@ -23,13 +23,14 @@ export function useDeleteAccount() {
   return useMutation({ mutationFn: () => deleteAccount(client) });
 }
 
-/** Resolves a signed URL for the profile avatar. Disabled until an asset id exists. */
-export function useAvatarUrl(avatarAssetId: string | null) {
+/** Signed URL for any of the caller's image assets (avatar, garment cutout…).
+ *  Disabled until an asset id exists. */
+export function useImageUrl(assetId: string | null) {
   const client = useSupabaseClient();
   return useQuery({
-    queryKey: queryKeys.avatarUrl(avatarAssetId ?? ''),
-    queryFn: () => (avatarAssetId ? signedAvatarUrl(client, avatarAssetId) : null),
-    enabled: Boolean(avatarAssetId),
+    queryKey: queryKeys.avatarUrl(assetId ?? ''),
+    queryFn: () => (assetId ? signedAvatarUrl(client, assetId) : null),
+    enabled: Boolean(assetId),
     staleTime: 50 * 60 * 1000,
   });
 }

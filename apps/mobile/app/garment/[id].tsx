@@ -13,9 +13,13 @@ import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Alert, ScrollView, View } from 'react-native';
 
+import {
+  categoryLabel,
+  colorLabel,
+  seasonLabel,
+  STATUS_LABELS,
+} from '../../src/features/garment/labels';
 import { useAuth } from '../../src/providers/AuthProvider';
-
-const capitalize = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
 
 function Attribute({ label, value }: { label: string; value: string }) {
   return (
@@ -87,11 +91,11 @@ export default function GarmentDetailScreen() {
             </Text>
           ) : (
             <>
-              <View className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-surface-container">
+              <View className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-garment-backdrop">
                 {garment.data.imageUrl ? (
                   <Image
                     source={{ uri: garment.data.imageUrl }}
-                    contentFit="cover"
+                    contentFit="contain"
                     cachePolicy="memory-disk"
                     style={{ width: '100%', height: '100%' }}
                   />
@@ -103,25 +107,25 @@ export default function GarmentDetailScreen() {
               </Text>
 
               <View className="gap-md">
-                <Attribute label="Categoría" value={garment.data.categoryName} />
+                <Attribute label="Categoría" value={categoryLabel(garment.data.categoryName)} />
                 <View className="flex-row items-center justify-between">
                   <Text variant="label-caps" className="text-on-surface-variant">
                     Color
                   </Text>
                   <View className="flex-row items-center gap-sm">
                     <Text variant="body-lg" className="text-on-surface">
-                      {garment.data.colorName}
+                      {colorLabel(garment.data.colorName)}
                     </Text>
                     <ColorSwatch
                       color={garment.data.colorHex}
-                      accessibilityLabel={garment.data.colorName}
+                      accessibilityLabel={colorLabel(garment.data.colorName)}
                     />
                   </View>
                 </View>
                 {garment.data.season ? (
-                  <Attribute label="Temporada" value={capitalize(garment.data.season)} />
+                  <Attribute label="Temporada" value={seasonLabel(garment.data.season)} />
                 ) : null}
-                <Attribute label="Estado" value={capitalize(garment.data.status)} />
+                <Attribute label="Estado" value={STATUS_LABELS[garment.data.status]} />
               </View>
 
               <Button

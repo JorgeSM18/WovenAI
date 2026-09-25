@@ -1,4 +1,4 @@
-import { useAvatarUrl, useProfile } from '@woven/data';
+import { useImageUrl, useProfile } from '@woven/data';
 import { Avatar, Icon } from '@woven/ui';
 import { router } from 'expo-router';
 import { Pressable } from 'react-native';
@@ -14,7 +14,7 @@ export function ProfileHeaderButton() {
   const { session } = useAuth();
   const userId = session?.user.id ?? '';
   const profile = useProfile(userId);
-  const avatar = useAvatarUrl(profile.data?.avatarAssetId ?? null);
+  const avatar = useImageUrl(profile.data?.avatarAssetId ?? null);
 
   return (
     <Pressable

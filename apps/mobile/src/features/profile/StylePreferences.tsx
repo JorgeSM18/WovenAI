@@ -20,7 +20,7 @@ export function StylePreferences({ userId }: { userId: string }) {
   return (
     <View className="gap-sm">
       <Text variant="title-sm" className="text-on-surface">
-        Style Preferences
+        Preferencias de estilo
       </Text>
 
       {prefs.data && prefs.data.length > 0 ? (
@@ -29,7 +29,7 @@ export function StylePreferences({ userId }: { userId: string }) {
             <Chip
               key={pref.id}
               label={`${pref.tag}  ✕`}
-              accessibilityLabel={`Remove ${pref.tag}`}
+              accessibilityLabel={`Quitar ${pref.tag}`}
               onPress={() => remove.mutate(pref.id)}
             />
           ))}
@@ -40,15 +40,15 @@ export function StylePreferences({ userId }: { userId: string }) {
         </Text>
       ) : (
         <Text variant="body-md" className="text-on-surface-variant">
-          No styles yet. Add one below.
+          Aún no tienes estilos. Añade uno abajo.
         </Text>
       )}
 
       <View className="flex-row items-end gap-sm">
         <View className="flex-1">
           <Input
-            label="Add a style"
-            placeholder="e.g. minimalist"
+            label="Añadir un estilo"
+            placeholder="p. ej. minimalista"
             value={tag}
             onChangeText={setTag}
             onSubmitEditing={submit}
@@ -56,7 +56,7 @@ export function StylePreferences({ userId }: { userId: string }) {
             autoCapitalize="none"
           />
         </View>
-        <Button label="Add" onPress={submit} disabled={tag.trim().length === 0} />
+        <Button label="Añadir" onPress={submit} disabled={tag.trim().length === 0} />
       </View>
     </View>
   );

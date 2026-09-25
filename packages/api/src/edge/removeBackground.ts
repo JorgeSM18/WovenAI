@@ -1,6 +1,9 @@
 import { z } from 'zod';
 
 import type { WovenClient } from '../client';
+import { edgeError } from './edgeError';
+
+const FN = 'remove-background';
 
 const removeBackgroundResultSchema = z.object({ processed_image_id: z.string().uuid() });
 
@@ -8,9 +11,9 @@ const removeBackgroundResultSchema = z.object({ processed_image_id: z.string().u
  *  (self-hosted rembg) and returns the new `processed` image_asset id. The
  *  original photo only reaches your own service, never an external AI (ADR-016). */
 export async function removeBackground(client: WovenClient, imageAssetId: string): Promise<string> {
-  const { data, error } = await client.functions.invoke('remove-background', {
+  const { data, error } = await client.functions.invoke(FN, {
     body: { image_asset_id: imageAssetId },
   });
-  if (error) throw error;
+  if (error) throw await edgeError(FN, error);
   return removeBackgroundResultSchema.parse(data).processed_image_id;
 }

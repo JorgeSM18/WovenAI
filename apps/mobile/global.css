@@ -56,6 +56,7 @@
     --color-background: 251 249 246;
     --color-on-background: 27 28 26;
     --color-surface-variant: 228 226 223;
+    --color-garment-backdrop: 204 201 196;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -95,6 +96,7 @@
       --color-background: 26 24 22;
       --color-on-background: 236 228 221;
       --color-surface-variant: 53 49 44;
+      --color-garment-backdrop: 150 146 141;
     }
   }
 }

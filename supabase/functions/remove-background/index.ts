@@ -41,11 +41,12 @@ Deno.serve(async (req) => {
   if (!url || !anonKey || !serviceKey) return json({ error: 'server_misconfigured' }, 500);
   if (!rembgUrl) return json({ error: 'rembg_not_configured' }, 500);
 
+  const token = authHeader.replace(/^Bearer\s+/i, '');
   // Identify the caller from their JWT.
   const userClient = createClient(url, anonKey, {
     global: { headers: { Authorization: authHeader } },
   });
-  const { data: userData, error: userError } = await userClient.auth.getUser();
+  const { data: userData, error: userError } = await userClient.auth.getUser(token);
   if (userError || !userData.user) return json({ error: 'unauthorized' }, 401);
   const userId = userData.user.id;
 
@@ -64,12 +65,18 @@ Deno.serve(async (req) => {
     .single();
   if (assetError || !asset) return json({ error: 'image_not_found' }, 404);
 
+  // RLS only proves the *row* is the caller's; storage_path is client-written.
+  // Before reading with service_role, prove the file lives in the caller's
+  // folder — otherwise a crafted row could exfiltrate another user's image.
+  const key = stripBucket(asset.storage_path);
+  if (!asset.storage_path.startsWith(`${BUCKET}/`) || !key.startsWith(`${userId}/`)) {
+    return json({ error: 'image_not_found' }, 404);
+  }
+
   const admin = createClient(url, serviceKey);
 
-  // Download the original bytes (service_role; path already proven to be the caller's).
-  const { data: original, error: downloadError } = await admin.storage
-    .from(BUCKET)
-    .download(stripBucket(asset.storage_path));
+  // Download the original bytes (service_role; path proven to be in the caller's folder).
+  const { data: original, error: downloadError } = await admin.storage.from(BUCKET).download(key);
   if (downloadError || !original) return json({ error: 'download_failed' }, 502);
 
   // Send to the self-hosted rembg service (stock `rembg s` exposes /api/remove
@@ -83,9 +90,13 @@ Deno.serve(async (req) => {
       new Blob([await original.arrayBuffer()], { type: asset.mime ?? undefined }),
     );
     const res = await fetch(rembgUrl, { method: 'POST', body: form });
-    if (!res.ok) return json({ error: 'rembg_failed' }, 502);
+    if (!res.ok) {
+      console.error('remove-background rembg', res.status, await res.text());
+      return json({ error: 'rembg_failed' }, 502);
+    }
     png = new Uint8Array(await res.arrayBuffer());
-  } catch {
+  } catch (err) {
+    console.error('remove-background unreachable', err);
     return json({ error: 'rembg_unreachable' }, 502);
   }
 

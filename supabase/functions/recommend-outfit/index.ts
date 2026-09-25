@@ -5,7 +5,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { z } from 'npm:zod@3';
 
-const MODEL = 'gemini-2.0-flash';
+const MODEL = 'gemini-3.8-flash';
 const PROMPT_VERSION = 'recommend-v1';
 const PROMPT =
   'You are a fashion stylist. Given these garments a user is combining into one ' +
@@ -94,10 +94,11 @@ Deno.serve(async (req) => {
       .join('\n');
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${geminiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        // Key in a header, not the URL, so it never lands in request logs.
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': geminiKey },
         body: JSON.stringify({
           contents: [{ parts: [{ text: `${PROMPT}\n\nGarments:\n${list}` }] }],
           generationConfig: { responseMimeType: 'application/json' },

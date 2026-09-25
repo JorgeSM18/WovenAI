@@ -14,9 +14,10 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { useRef, useState } from 'react';
-import { Image, Linking, View } from 'react-native';
+import { ActivityIndicator, Image, Linking, View } from 'react-native';
 
 import { processForUpload } from '../src/features/capture/processImage';
+import { readImageBytes } from '../src/features/capture/readImageBytes';
 import { useAuth } from '../src/providers/AuthProvider';
 
 type CapturedPhoto = { uri: string; width: number; height: number };
@@ -78,9 +79,15 @@ export default function CaptureScreen() {
   const takePhoto = async () => {
     if (!cameraRef.current || isCapturing) return;
     setIsCapturing(true);
+    setError(null);
     try {
       const result = await cameraRef.current.takePictureAsync();
       if (result) setPhoto({ uri: result.uri, width: result.width, height: result.height });
+    } catch (err) {
+      console.error('[capture] takePhoto failed', err);
+      setError(
+        `No se pudo hacer la foto: ${err instanceof Error ? err.message : 'error desconocido'}`,
+      );
     } finally {
       setIsCapturing(false);
     }
@@ -92,11 +99,15 @@ export default function CaptureScreen() {
     setError(null);
     try {
       const processed = await processForUpload(photo);
+      // A leftover import queue (review abandoned midway) would take precedence
+      // over this photo in garment-review.
+      useImportQueue.getState().clear();
       const net = await NetInfo.fetch();
       if (net.isConnected) {
+        const bytes = await readImageBytes(processed.uri);
         const uploaded = await upload.mutateAsync({
           userId,
-          uri: processed.uri,
+          bytes,
           type: 'original',
           mime: processed.mime,
           width: processed.width,
@@ -119,8 +130,11 @@ export default function CaptureScreen() {
           },
         });
       }
-    } catch {
-      setError('No se pudo subir la foto. Inténtalo de nuevo.');
+    } catch (err) {
+      console.error('[capture] usePhoto failed', err);
+      setError(
+        `No se pudo subir la foto: ${err instanceof Error ? err.message : 'error desconocido'}`,
+      );
     } finally {
       setIsSaving(false);
     }
@@ -144,9 +158,10 @@ export default function CaptureScreen() {
           width: asset.width,
           height: asset.height,
         });
+        const bytes = await readImageBytes(processed.uri);
         const uploaded = await upload.mutateAsync({
           userId,
-          uri: processed.uri,
+          bytes,
           type: 'original',
           mime: processed.mime,
           width: processed.width,
@@ -154,10 +169,12 @@ export default function CaptureScreen() {
         });
         items.push({ imageId: uploaded.id, uri: processed.uri });
       }
+      useImportQueue.getState().clear(); // drop items from an abandoned review
       useImportQueue.getState().enqueue(items);
       router.replace('/garment-review');
-    } catch {
-      setError('No se pudo importar. Inténtalo de nuevo.');
+    } catch (err) {
+      console.error('[capture] importFromGallery failed', err);
+      setError(`No se pudo importar: ${err instanceof Error ? err.message : 'error desconocido'}`);
     } finally {
       setIsSaving(false);
     }
@@ -206,20 +223,29 @@ export default function CaptureScreen() {
     <FullScreenFlowTemplate>
       <View className="flex-1 bg-background">
         <CameraView ref={cameraRef} facing="back" style={{ flex: 1 }} />
-        <View className="absolute inset-x-0 top-0 flex-row items-center justify-between p-md">
-          <IconButton
-            icon={<Icon name="close" />}
-            accessibilityLabel="Cerrar cámara"
-            onPress={() => router.back()}
-          />
-          <Button
-            label="Importar"
-            variant="secondary"
-            disabled={isSaving}
-            onPress={() => {
-              void importFromGallery();
-            }}
-          />
+        <View className="absolute inset-x-0 top-0 gap-sm p-md">
+          <View className="flex-row items-center justify-between">
+            <IconButton
+              icon={<Icon name="close" />}
+              accessibilityLabel="Cerrar cámara"
+              onPress={() => router.back()}
+            />
+            <Button
+              label="Importar"
+              variant="secondary"
+              disabled={isSaving}
+              onPress={() => {
+                void importFromGallery();
+              }}
+            />
+          </View>
+          {error ? (
+            <View className="self-center rounded-lg bg-error px-md py-sm">
+              <Text variant="body-md" className="text-on-error">
+                {error}
+              </Text>
+            </View>
+          ) : null}
         </View>
         <View className="absolute inset-x-0 bottom-lg items-center">
           <Fab
@@ -231,6 +257,14 @@ export default function CaptureScreen() {
             }}
           />
         </View>
+        {isSaving ? (
+          <View
+            className="absolute inset-0 items-center justify-center"
+            style={{ backgroundColor: 'rgba(0,0,0,0.55)' }}
+          >
+            <ActivityIndicator size="large" color="#ffffff" />
+          </View>
+        ) : null}
       </View>
     </FullScreenFlowTemplate>
   );

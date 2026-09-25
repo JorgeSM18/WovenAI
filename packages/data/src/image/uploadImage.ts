@@ -4,7 +4,8 @@ import { createImageAsset } from './imageAssetRepository';
 
 export type UploadImageInput = {
   userId: string;
-  uri: string;
+  /** Raw image bytes (read platform-side; keeps this layer Expo-free). */
+  bytes: ArrayBuffer;
   type: SignUploadInput['type'];
   mime: SignUploadInput['mime'];
   width: number;
@@ -13,21 +14,50 @@ export type UploadImageInput = {
 
 export type UploadedImage = { id: string; storagePath: string };
 
+const BUCKET = 'images';
+const EXT_MAP: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/webp': 'webp',
+  'image/png': 'png',
+};
+
+// React Native/Hermes has no global `crypto`, so we can't use crypto.randomUUID
+// here. A Math.random v4-format id is enough for a per-user storage key.
+function randomId(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
+    const rand = (Math.random() * 16) | 0;
+    return (char === 'x' ? rand : (rand & 0x3) | 0x8).toString(16);
+  });
+}
+
 /**
- * Uploads a local image and records it: sign a URL (Edge) → push the binary to
- * Storage → insert the image_asset row. Returns the new asset id + storage path.
+ * Uploads image bytes and records them: sign a URL (Edge) → push to Storage →
+ * insert the image_asset row. If the Edge Function is unavailable, falls back to
+ * a direct authenticated upload (governed by the images insert RLS policy).
+ * Returns the new asset id + storage path.
  */
 export async function uploadImage(
   client: WovenClient,
   input: UploadImageInput,
 ): Promise<UploadedImage> {
-  const { bucket, path, token } = await signUpload(client, { type: input.type, mime: input.mime });
+  const { bytes } = input;
+  let bucket = BUCKET;
+  let path = `${input.userId}/${input.type}/${randomId()}.${EXT_MAP[input.mime] ?? 'jpg'}`;
 
-  const binary = await fetch(input.uri).then((response) => response.arrayBuffer());
-  const { error } = await client.storage
-    .from(bucket)
-    .uploadToSignedUrl(path, token, binary, { contentType: input.mime });
-  if (error) throw error;
+  try {
+    const signed = await signUpload(client, { type: input.type, mime: input.mime });
+    bucket = signed.bucket;
+    path = signed.path;
+    const { error } = await client.storage
+      .from(bucket)
+      .uploadToSignedUrl(path, signed.token, bytes, { contentType: input.mime });
+    if (error) throw error;
+  } catch {
+    const { error } = await client.storage
+      .from(bucket)
+      .upload(path, bytes, { contentType: input.mime, upsert: true });
+    if (error) throw error;
+  }
 
   const storagePath = `${bucket}/${path}`;
   const id = await createImageAsset(client, {
@@ -37,7 +67,7 @@ export async function uploadImage(
     width: input.width,
     height: input.height,
     mime: input.mime,
-    bytes: binary.byteLength,
+    bytes: bytes.byteLength,
   });
 
   return { id, storagePath };

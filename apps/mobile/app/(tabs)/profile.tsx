@@ -1,6 +1,6 @@
 import { generateUsername } from '@woven/core';
 import {
-  useAvatarUrl,
+  useImageUrl,
   useGarmentCount,
   useProfile,
   useUpdateProfile,
@@ -19,11 +19,12 @@ import {
 } from '@woven/ui';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { authService } from '../../src/auth/client';
 import { processForUpload } from '../../src/features/capture/processImage';
+import { readImageBytes } from '../../src/features/capture/readImageBytes';
 import { useAuth } from '../../src/providers/AuthProvider';
 
 export default function ProfileScreen() {
@@ -33,7 +34,7 @@ export default function ProfileScreen() {
   const garmentCount = useGarmentCount(userId);
   const update = useUpdateProfile(userId);
   const upload = useUploadImage();
-  const avatar = useAvatarUrl(profile.data?.avatarAssetId ?? null);
+  const avatar = useImageUrl(profile.data?.avatarAssetId ?? null);
 
   // Give new accounts a random, changeable username when none is set yet (once).
   const seededUsername = useRef(false);
@@ -44,31 +45,43 @@ export default function ProfileScreen() {
     }
   }, [profile.isSuccess, profile.data, update]);
 
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+
   const pickAvatar = async () => {
     if (!userId) return;
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-    if (result.canceled) return;
-    const asset = result.assets[0];
-    if (!asset) return;
-    const processed = await processForUpload({
-      uri: asset.uri,
-      width: asset.width,
-      height: asset.height,
-    });
-    const uploaded = await upload.mutateAsync({
-      userId,
-      uri: processed.uri,
-      type: 'avatar',
-      mime: processed.mime,
-      width: processed.width,
-      height: processed.height,
-    });
-    update.mutate({ avatarAssetId: uploaded.id });
+    setAvatarError(null);
+    try {
+      // No forced crop: let the user keep the whole image (Avatar shows it with
+      // `contain`, so nothing gets cut by the circle).
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: false,
+        quality: 1,
+      });
+      if (result.canceled) return;
+      const asset = result.assets[0];
+      if (!asset) return;
+      const processed = await processForUpload({
+        uri: asset.uri,
+        width: asset.width,
+        height: asset.height,
+      });
+      const bytes = await readImageBytes(processed.uri);
+      const uploaded = await upload.mutateAsync({
+        userId,
+        bytes,
+        type: 'avatar',
+        mime: processed.mime,
+        width: processed.width,
+        height: processed.height,
+      });
+      update.mutate({ avatarAssetId: uploaded.id });
+    } catch (err) {
+      console.error('[profile] avatar update failed', err);
+      setAvatarError(
+        `No se pudo actualizar el avatar: ${err instanceof Error ? err.message : 'error desconocido'}`,
+      );
+    }
   };
 
   const uploading = upload.isPending;
@@ -93,6 +106,11 @@ export default function ProfileScreen() {
             <Icon name="account" size={44} className="text-outline" />
           )}
         </Pressable>
+        {avatarError ? (
+          <Text variant="body-md" className="text-error">
+            {avatarError}
+          </Text>
+        ) : null}
 
         {profile.isPending ? (
           <View className="items-center gap-xs">

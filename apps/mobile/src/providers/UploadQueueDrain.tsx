@@ -3,6 +3,7 @@ import { setGarmentImage, uploadImage, useSupabaseClient } from '@woven/data';
 import { usePendingUploads, useProcessQueue } from '@woven/store';
 import { useEffect, useRef } from 'react';
 
+import { readImageBytes } from '../features/capture/readImageBytes';
 import { useAuth } from './AuthProvider';
 
 /**
@@ -24,9 +25,10 @@ export function UploadQueueDrain() {
       try {
         for (const item of usePendingUploads.getState().items) {
           try {
+            const bytes = await readImageBytes(item.uri);
             const uploaded = await uploadImage(client, {
               userId,
-              uri: item.uri,
+              bytes,
               type: item.type,
               mime: item.mime,
               width: item.width,

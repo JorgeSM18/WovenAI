@@ -71,6 +71,7 @@ export function useDeleteGarment(userId: string) {
       queryClient.removeQueries({ queryKey: queryKeys.garment(id) });
       void queryClient.invalidateQueries({ queryKey: queryKeys.garments(userId) });
       void queryClient.invalidateQueries({ queryKey: queryKeys.garmentCount(userId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.forgottenGarments(userId) });
     },
   });
 }
