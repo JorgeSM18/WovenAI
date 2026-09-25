@@ -65,12 +65,18 @@ Deno.serve(async (req) => {
     .single();
   if (assetError || !asset) return json({ error: 'image_not_found' }, 404);
 
+  // RLS only proves the *row* is the caller's; storage_path is client-written.
+  // Before reading with service_role, prove the file lives in the caller's
+  // folder — otherwise a crafted row could exfiltrate another user's image.
+  const key = stripBucket(asset.storage_path);
+  if (!asset.storage_path.startsWith(`${BUCKET}/`) || !key.startsWith(`${userId}/`)) {
+    return json({ error: 'image_not_found' }, 404);
+  }
+
   const admin = createClient(url, serviceKey);
 
-  // Download the original bytes (service_role; path already proven to be the caller's).
-  const { data: original, error: downloadError } = await admin.storage
-    .from(BUCKET)
-    .download(stripBucket(asset.storage_path));
+  // Download the original bytes (service_role; path proven to be in the caller's folder).
+  const { data: original, error: downloadError } = await admin.storage.from(BUCKET).download(key);
   if (downloadError || !original) return json({ error: 'download_failed' }, 502);
 
   // Send to the self-hosted rembg service (stock `rembg s` exposes /api/remove
